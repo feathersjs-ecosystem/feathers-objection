@@ -1,6 +1,6 @@
 # feathers-objection
 
-[![Build Status](https://travis-ci.org/mcchrish/feathers-objection.png?branch=master)](https://travis-ci.org/mcchrish/feathers-objection)
+[![Build Status](https://travis-ci.org/mcchrish/feathers-objection.svg?branch=master)](https://travis-ci.org/mcchrish/feathers-objection) [![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/) [![npm](https://img.shields.io/npm/v/feathers-objection.svg?maxAge=2592000)](https://www.npmjs.com/package/feathers-objection)
 
 > An [Objection.js](http://vincit.github.io/objection.js) service adapter for [FeathersJS](http://feathersjs.com)
 
