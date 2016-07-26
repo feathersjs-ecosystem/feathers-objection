@@ -1,0 +1,89 @@
+{
+  "name": "feathers-objection",
+  "description": "A service plugin for ObjectionJS an ORM based on KnexJS",
+  "version": "1.0.0",
+  "homepage": "https://github.com/mcchrish/feathers-objection",
+  "keywords": [
+    "feathers",
+    "feathers-plugin",
+    "knex",
+    "objection",
+    "orm"
+  ],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/mcchrish/feathers-objection/blob/master/LICENSE"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mcchrish/feathers-objection.git"
+  },
+  "author": {
+    "name": "Michael Chris Lopez",
+    "email": "mcchrish@gmail.com"
+  },
+  "contributors": [],
+  "bugs": {
+    "url": "https://github.com/mcchrish/feathers-objection/issues"
+  },
+  "engines": {
+    "node": ">= 0.12.0"
+  },
+  "main": "lib/",
+  "scripts": {
+    "prepublish": "npm run compile",
+    "publish": "git push origin && git push origin --tags",
+    "release:patch": "npm version patch && npm publish",
+    "release:minor": "npm version minor && npm publish",
+    "release:major": "npm version major && npm publish",
+    "compile": "rm -rf lib/ && babel -d lib/ src/",
+    "watch": "babel --watch -d lib/ src/",
+    "lint": "standard src/**/*.js test/**/*.js --config",
+    "mocha": "mocha test/ --compilers js:babel-core/register --timeout 5000",
+    "test": "npm run compile && npm run lint && npm run mocha",
+    "example": "babel-node example/app"
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "feathers-errors": "^2.0.1",
+    "feathers-query-filters": "^2.0.0",
+    "is-plain-object": "^2.0.1",
+    "uberproto": "^1.2.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.11.4",
+    "babel-core": "^6.11.4",
+    "babel-eslint": "^6.1.2",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-transform-class-properties": "^6.11.5",
+    "babel-plugin-transform-object-assign": "^6.8.0",
+    "babel-preset-es2015": "^6.9.0",
+    "body-parser": "^1.15.2",
+    "chai": "^3.5.0",
+    "feathers": "^2.0.1",
+    "feathers-rest": "^1.4.3",
+    "feathers-service-tests": "^0.6.2",
+    "knex": "^0.11.9",
+    "mocha": "^2.5.3",
+    "objection": "^0.5.5",
+    "sqlite3": "^3.1.4",
+    "standard": "^8.0.0-beta.3"
+  },
+  "babel": {
+    "plugins": [
+      "transform-object-assign",
+      "transform-class-properties",
+      "add-module-exports"
+    ],
+    "presets": [
+      "es2015"
+    ]
+  },
+  "standard": {
+    "parser": "babel-eslint"
+  }
+}

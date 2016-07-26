@@ -1,0 +1,8 @@
+.babelrc
+.editorconfig
+.jshintrc
+.travis.yml
+.idea/
+src/
+test/
+!lib/
