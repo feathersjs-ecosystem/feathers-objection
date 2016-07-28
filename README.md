@@ -69,6 +69,15 @@ app.use('/todos', service({
 })
 ```
 
+Use eager queries as follows:
+```js
+app.service('/todos').find({
+  query: {
+    $eager: 'subtask'
+  }
+})
+```
+
 See [this
 article](https://www.vincit.fi/blog/nested-eager-loading-and-inserts-with-objection-js/)
 for more information.
