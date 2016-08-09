@@ -41,6 +41,8 @@ class Service {
     this.paginate = options.paginate || {}
     this.Model = options.model
     this.allowedEager = options.allowedEager || ''
+    this.namedEagerFilters = options.namedEagerFilters
+    this.eagerFilters = options.eagerFilters
   }
 
   extend (obj) {
@@ -98,7 +100,7 @@ class Service {
       $eager = params.query.$eager
       delete params.query.$eager
     }
-    q.eager($eager)
+    q.eager($eager, this.namedEagerFilters)
 
     let { filters, query } = getFilter(params.query || {})
 
@@ -108,7 +110,19 @@ class Service {
       q = this.Model.query()
         .allowEager(this.allowedEager)
         .select(...fields)
-        .eager($eager)
+        .eager($eager, this.namedEagerFilters)
+    }
+
+    // apply eager filters if specified
+    if (this.eagerFilters) {
+      const eagerFilters = this.eagerFilters
+      if (Array.isArray(eagerFilters)) {
+        for (var eagerFilter of eagerFilters) {
+          q.filterEager(eagerFilter.expression, eagerFilter.filter)
+        }
+      } else {
+        q.filterEager(eagerFilters.expression, eagerFilters.filter)
+      }
     }
 
     // build up the knex query out of the query params

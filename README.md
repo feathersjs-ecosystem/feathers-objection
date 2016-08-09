@@ -60,20 +60,28 @@ app.use('/todos', service({
 
 Eager queries is one way of solving the SQL database relational model in
 Feathers services, instead of relying with hooks.
-When defining a service, you must also define the allowed eager queries:
 
-```js
-app.use('/todos', service({
-  model: Todo,
-  allowedEager: 'subtasks'
-})
-```
+#### Options
+
+Note that all this eager related options are optional.
+
+* **`allowedEager`** - relation expression to limit the allowed eager queries in
+  the service. See [`allowEager`](http://vincit.github.io/objection.js/#alloweager) documentation.
+* **`eagerFilters`** - option to impose compulsory eager filter. It takes an
+  object or array of objects with the following properties:
+  `expression` - the relation expression that the filter will be applied.
+  `filter` - the filter function.
+  It uses [`filterEager`](http://vincit.github.io/objection.js/#filtereager) internally.
+* **`namedEagerFilters`** - object containing named eager filter functions.
+  Filter is opt-in via `$eager` parameter. See
+  [`eager`](http://vincit.github.io/objection.js/#eager) documentation.
 
 Use eager queries as follows:
 ```js
+// Get all todos and their unfinished tasks
 app.service('/todos').find({
   query: {
-    $eager: 'subtask'
+    $eager: 'subtask(unDone)'
   }
 })
 ```

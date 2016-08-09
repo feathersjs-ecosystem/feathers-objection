@@ -29,7 +29,20 @@ const app = feathers()
   .use('/companies', service({
     model: Company,
     id: 'id',
-    allowedEager: 'ceos'
+    allowedEager: 'ceos',
+    namedEagerFilters: {
+      notSnoop (builder) {
+        return builder.whereNot('name', 'Snoop')
+      }
+    },
+    eagerFilters: [
+      {
+        expression: 'ceos',
+        filter: function youngCEOs (builder) {
+          return builder.where('age', '<', '25')
+        }
+      }
+    ]
   }))
 
 let _ids = {}
@@ -46,7 +59,7 @@ function clean (done) {
       table.boolean('created')
     })
   }).then(() => {
-    db.schema.dropTableIfExists('companies').then(() => {
+    return db.schema.dropTableIfExists('companies').then(() => {
       db.schema.createTable('companies', table => {
         table.increments('id')
         table.string('name')
@@ -87,6 +100,24 @@ describe('Feathers Objection Service', () => {
         expect(people.paginate).to.deep.equal({})
       })
     })
+
+    describe('when missing allowedEager', () => {
+      it('sets the default to be empty string', () => {
+        expect(people.allowedEager).to.equal('')
+      })
+    })
+
+    describe('when missing namedEagerFilters', () => {
+      it('sets the default to be undefined', () => {
+        expect(people.namedEagerFilters).to.equal(undefined)
+      })
+    })
+
+    describe('when missing eagerFilters', () => {
+      it('sets the default to be undefined', () => {
+        expect(people.eagerFilters).to.equal(undefined)
+      })
+    })
   })
 
   describe('Common functionality', () => {
@@ -109,6 +140,13 @@ describe('Feathers Objection Service', () => {
 
     base(people, _ids, errors)
   })
+
+  describe('Able to get service model', () => {
+    it('gets the service model', () => {
+      expect(people.model).to.equal(People)
+    })
+  })
+
   describe('Eager queries', () => {
     beforeEach(done => {
       people.create({
@@ -132,6 +170,15 @@ describe('Feathers Objection Service', () => {
           done()
         })
     })
+
+    it('allows eager queries with named filters', done => {
+      companies.find({ query: { $eager: 'ceos(notSnoop)' } })
+        .then(data => {
+          expect(data[0].ceos).to.be.null
+          done()
+        })
+    })
+
     it('disallow eager queries', done => {
       companies.find({ query: { $eager: 'employees' } })
         .then(data => {
