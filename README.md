@@ -69,8 +69,8 @@ Note that all this eager related options are optional.
   the service. See [`allowEager`](http://vincit.github.io/objection.js/#alloweager) documentation.
 * **`eagerFilters`** - option to impose compulsory eager filter. It takes an
   object or array of objects with the following properties:
-  `expression` - the relation expression that the filter will be applied.
-  `filter` - the filter function.
+  * `expression` - the relation expression that the filter will be applied.
+  * `filter` - the filter function.
   It uses [`filterEager`](http://vincit.github.io/objection.js/#filtereager) internally.
 * **`namedEagerFilters`** - object containing named eager filter functions.
   Filter is opt-in via `$eager` parameter. See
