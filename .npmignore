@@ -1,8 +1,10 @@
 .babelrc
 .editorconfig
-.jshintrc
 .travis.yml
 .idea/
 src/
 test/
 !lib/
+
+db.sqlite
+example/
