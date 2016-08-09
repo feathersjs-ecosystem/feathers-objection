@@ -76,6 +76,29 @@ Note that all this eager related options are optional.
   Filter is opt-in via `$eager` parameter. See
   [`eager`](http://vincit.github.io/objection.js/#eager) documentation.
 
+Example:
+
+```js
+app.use('/todos', service({
+  model: Todo,
+  allowedEager: 'subtask',
+  namedEagerFilters: {
+    unDone: function (builder) {
+      builder.where('done', false)
+    }
+  },
+  eagerFilters: [
+    {
+      expression: 'subtask',
+      filter: function (builder) {
+        builder.where('archived', true)
+      }
+    }
+  ]
+})
+
+```
+
 Use eager queries as follows:
 ```js
 // Get all todos and their unfinished tasks
