@@ -103,7 +103,7 @@ describe('Feathers Objection Service', () => {
 
     describe('when missing allowedEager', () => {
       it('sets the default to be empty string', () => {
-        expect(people.allowedEager).to.equal('')
+        expect(people.allowedEager).to.equal('[]')
       })
     })
 
@@ -163,24 +163,22 @@ describe('Feathers Objection Service', () => {
       }, done)
     })
 
-    it('allows eager queries', done => {
-      companies.find({ query: { $eager: 'ceos' } })
+    it('allows eager queries', () => {
+      return companies.find({ query: { $eager: 'ceos' } })
         .then(data => {
           expect(data[0].ceos).to.be.ok
-          done()
         })
     })
 
-    it('allows eager queries with named filters', done => {
-      companies.find({ query: { $eager: 'ceos(notSnoop)' } })
+    it('allows eager queries with named filters', () => {
+      return companies.find({ query: { $eager: 'ceos(notSnoop)' } })
         .then(data => {
           expect(data[0].ceos).to.be.null
-          done()
         })
     })
 
-    it('disallow eager queries', done => {
-      companies.find({ query: { $eager: 'employees' } })
+    it('disallow eager queries', () => {
+      return companies.find({ query: { $eager: 'employees' } })
         .then(data => {
           throw new Error('Should not reach here')
         })
@@ -189,7 +187,6 @@ describe('Feathers Objection Service', () => {
           expect(JSON.parse(error.message)).to.deep.equal({
             eager: 'eager expression not allowed'
           })
-          done()
         })
     })
   })

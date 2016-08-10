@@ -40,7 +40,7 @@ class Service {
     this.id = options.id || 'id'
     this.paginate = options.paginate || {}
     this.Model = options.model
-    this.allowedEager = options.allowedEager || ''
+    this.allowedEager = options.allowedEager || '[]'
     this.namedEagerFilters = options.namedEagerFilters
     this.eagerFilters = options.eagerFilters
   }

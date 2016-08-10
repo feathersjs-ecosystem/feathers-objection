@@ -72,7 +72,7 @@ Feathers services, instead of relying with hooks.
 Note that all this eager related options are optional.
 
 * **`allowedEager`** - relation expression to limit the allowed eager queries in
-  the service. See [`allowEager`](http://vincit.github.io/objection.js/#alloweager) documentation.
+  the service. Defaults to `'[]'`, meaning no eager queries allowed. See [`allowEager`](http://vincit.github.io/objection.js/#alloweager) documentation.
 * **`eagerFilters`** - option to impose compulsory eager filter. It takes an
   object or array of objects with the following properties:
   * `expression` - the relation expression that the filter will be applied.
