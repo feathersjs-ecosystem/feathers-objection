@@ -56,6 +56,12 @@ app.use('/todos', service({
 })
 ```
 
+In this adapter, the model can be retrieved from the service. Allowing to have finer control with objection models.
+```js
+const Todo = app.service.('/todos').model
+transaction.start(Todo.knex())
+````
+
 ### Eager Queries
 
 Eager queries is one way of solving the SQL database relational model in
