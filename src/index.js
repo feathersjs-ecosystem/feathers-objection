@@ -39,6 +39,7 @@ class Service {
     this.options = options || {}
     this.id = options.id || 'id'
     this.paginate = options.paginate || {}
+    this.events = options.events || []
     this.Model = options.model
     this.allowedEager = options.allowedEager || '[]'
     this.namedEagerFilters = options.namedEagerFilters
@@ -75,12 +76,15 @@ class Service {
       const method = METHODS[key]
       const operator = OPERATORS[key] || '='
 
-      // TODO (EK): Handle $or queries with nested specials.
-      // Right now they won't work and we'd need to start diving
-      // into nested where conditions.
       if (method) {
         if (key === '$or') {
-          return value.forEach(condition => query[method].call(query, condition)) // eslint-disable-line no-useless-call
+          const self = this
+
+          return value.forEach(condition => {
+            query[method](function () {
+              self.objectify(this, condition)
+            })
+          })
         }
 
         return query[method].call(query, column, value) // eslint-disable-line no-useless-call
@@ -102,7 +106,7 @@ class Service {
     }
     q.eager($eager, this.namedEagerFilters)
 
-    let { filters, query } = getFilter(params.query || {})
+    const { filters, query } = getFilter(params.query || {})
 
     // $select uses a specific find syntax, so it has to come first.
     if (filters.$select) {
@@ -269,21 +273,31 @@ class Service {
    * @param data
    * @param params
    */
-  patch (id, data, params) {
-    params.query = params.query || {}
-    data = Object.assign({}, data)
+  patch (id, raw, params) {
+    const query = Object.assign({}, params.query)
+    const data = Object.assign({}, raw)
+    const patchQuery = {}
 
     if (id !== null) {
-      params.query[this.id] = id
+      query[this.id] = id
     }
 
-    let query = this.Model.query()
-    this.objectify(query, params.query)
+    // Account for potentially modified data
+    Object.keys(query).forEach(key => {
+      if (query[key] !== undefined && data[key] !== undefined && typeof data[key] !== 'object') {
+        patchQuery[key] = data[key]
+      } else {
+        patchQuery[key] = query[key]
+      }
+    })
+
+    let q = this.Model.query()
+    this.objectify(q, query)
 
     delete data[this.id]
 
-    return query.patch(data).then(() => {
-      return this._find(params).then(page => {
+    return q.patch(data).then(() => {
+      return this._find({ query: patchQuery }).then(page => {
         const items = page.data
 
         if (id !== null) {

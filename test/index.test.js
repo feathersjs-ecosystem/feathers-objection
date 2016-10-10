@@ -3,11 +3,12 @@ import { expect } from 'chai'
 import assert from 'assert'
 import feathers from 'feathers'
 import knex from 'knex'
-import { base, orm, example } from 'feathers-service-tests'
+import { base, example } from 'feathers-service-tests'
 import { errors } from 'feathers-errors'
 import service from '../src'
 import server from '../example/app'
 import People from './people'
+import PeopleCustomid from './people-customid'
 import Company from './company'
 import { Model } from 'objection'
 
@@ -24,11 +25,18 @@ Model.knex(db)
 const app = feathers()
   .use('/people', service({
     model: People,
-    id: 'id'
+    id: 'id',
+    events: ['testing']
+  }))
+  .use('/people-customid', service({
+    model: PeopleCustomid,
+    id: 'customid',
+    events: [ 'testing' ]
   }))
   .use('/companies', service({
     model: Company,
     id: 'id',
+    events: ['testing'],
     allowedEager: 'ceos',
     namedEagerFilters: {
       notSnoop (builder) {
@@ -45,7 +53,6 @@ const app = feathers()
     ]
   }))
 
-let _ids = {}
 let people = app.service('people')
 let companies = app.service('companies')
 
@@ -57,6 +64,16 @@ function clean (done) {
       table.integer('age')
       table.integer('time')
       table.boolean('created')
+    })
+  }).then(() => {
+    return db.schema.dropTableIfExists('people-customid').then(() => {
+      return db.schema.createTable('people-customid', table => {
+        table.increments('customid')
+        table.string('name')
+        table.integer('age')
+        table.integer('time')
+        table.boolean('created')
+      })
     })
   }).then(() => {
     return db.schema.dropTableIfExists('companies').then(() => {
@@ -121,24 +138,12 @@ describe('Feathers Objection Service', () => {
   })
 
   describe('Common functionality', () => {
-    beforeEach(done => {
-      people.create({
-        name: 'Doug',
-        age: 32
-      }).then(data => {
-        _ids.Doug = data.id
-        done()
-      }, done)
-    })
+    it('is CommonJS compatible', () =>
+        assert.equal(typeof require('../lib'), 'function')
+    )
 
-    afterEach(done => people.remove(_ids.Doug, {})
-      .then(() => done(), () => done()))
-
-    it('is CommonJS compatible', () => {
-      assert.equal(typeof require('../lib'), 'function')
-    })
-
-    base(people, _ids, errors)
+    base(app, errors, 'people')
+    base(app, errors, 'people-customid', 'customid')
   })
 
   describe('Able to get service model', () => {
@@ -190,10 +195,6 @@ describe('Feathers Objection Service', () => {
         })
     })
   })
-})
-
-describe.skip('Objection service ORM errors', () => {
-  orm(people, _ids, errors)
 })
 
 describe('Objection service example test', () => {
