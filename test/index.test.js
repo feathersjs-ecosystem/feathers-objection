@@ -195,6 +195,22 @@ describe('Feathers Objection Service', () => {
         })
     })
   })
+
+  describe('$like method', () => {
+    beforeEach(done => {
+      people.create({
+        name: 'Charlie Brown',
+        age: 10
+      }, done)
+    })
+
+    it('$like in query', () => {
+      return people.find({ query: { name: { $like: '%lie%' } } })
+        .then(data => {
+          expect(data[0].name).to.be.equal('Charlie Brown')
+        })
+    })
+  })
 })
 
 describe('Objection service example test', () => {
