@@ -66,10 +66,10 @@
     "chai": "^3.5.0",
     "feathers": "^2.0.1",
     "feathers-rest": "^1.4.3",
-    "feathers-service-tests": "^0.8.1",
-    "knex": "0.12.1",
+    "feathers-service-tests": "^0.9.1",
+    "knex": "^0.12.6",
     "mocha": "^3.1.1",
-    "objection": "^0.6.0",
+    "objection": "^0.6.2",
     "sqlite3": "^3.1.6",
     "standard": "^8.3.0"
   },

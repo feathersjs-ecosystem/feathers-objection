@@ -146,12 +146,6 @@ describe('Feathers Objection Service', () => {
     base(app, errors, 'people-customid', 'customid')
   })
 
-  describe('Able to get service model', () => {
-    it('gets the service model', () => {
-      expect(people.model).to.equal(People)
-    })
-  })
-
   describe('Eager queries', () => {
     beforeEach(done => {
       people.create({

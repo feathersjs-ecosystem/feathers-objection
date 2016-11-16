@@ -52,14 +52,6 @@ class Service {
   }
 
   /**
-   * get this service's model
-   * @return {object} the service's model
-   */
-  get model () {
-    return this.Model
-  }
-
-  /**
    * Maps a feathers query to the objection/knex schema builder functions.
    * @param query - a query object. i.e. { type: 'fish', age: { $lte: 5 }
    * @param params
@@ -96,7 +88,7 @@ class Service {
   }
 
   _find (params, count, getFilter = filter) {
-    let q = this.Model.query()
+    let q = this.Model.query().skipUndefined()
       .allowEager(this.allowedEager)
 
     // $eager for objection eager queries
@@ -104,17 +96,16 @@ class Service {
     if (params.query && params.query.$eager) {
       $eager = params.query.$eager
       delete params.query.$eager
+      q.eager($eager, this.namedEagerFilters)
     }
-    q.eager($eager, this.namedEagerFilters)
 
     const { filters, query } = getFilter(params.query || {})
 
     // $select uses a specific find syntax, so it has to come first.
     if (filters.$select) {
-      let fields = filters.$select
-      q = this.Model.query()
+      q = this.Model.query().skipUndefined()
         .allowEager(this.allowedEager)
-        .select(...fields)
+        .select(...filters.$select.concat(this.id))
         .eager($eager, this.namedEagerFilters)
     }
 
@@ -151,7 +142,7 @@ class Service {
       q.offset(filters.$skip)
     }
 
-    const executeQuery = total => {
+    let executeQuery = total => {
       return q.then(data => {
         return {
           total,
@@ -162,8 +153,19 @@ class Service {
       })
     }
 
+    if (filters.$limit === 0) {
+      executeQuery = total => {
+        return Promise.resolve({
+          total,
+          limit: filters.$limit,
+          skip: filters.$skip || 0,
+          data: []
+        })
+      }
+    }
+
     if (count) {
-      let countQuery = this.Model.query().count(`${this.id} as total`)
+      let countQuery = this.Model.query().skipUndefined().count(`${this.id} as total`)
 
       this.objectify(countQuery, query)
 
@@ -191,10 +193,10 @@ class Service {
   }
 
   _get (id, params) {
-    params.query = params.query || {}
-    params.query[this.id] = id
+    const query = Object.assign({}, params.query)
+    query[this.id] = id
 
-    return this._find(params)
+    return this._find(Object.assign({}, params, { query }))
     .then(page => {
       if (page.data.length !== 1) {
         throw new errors.NotFound(`No record found for id '${id}'`)
@@ -214,9 +216,10 @@ class Service {
   }
 
   _create (data, params) {
-    return this.Model.query().insertAndFetch(data)
-      // .then(rows => this._get(rows[0], params))
-      .catch(errorHandler)
+    return this.Model.query().insert(data, this.id).then(row => {
+      const id = typeof data[this.id] !== 'undefined' ? data[this.id] : row[this.id]
+      return this._get(id, params)
+    }).catch(errorHandler)
   }
 
   /**
@@ -275,45 +278,53 @@ class Service {
    * @param params
    */
   patch (id, raw, params) {
-    const query = Object.assign({}, params.query)
+    const query = filter(params.query || {}).query
     const data = Object.assign({}, raw)
-    const patchQuery = {}
+
+    const mapIds = page => page.data.map(current => current[this.id])
+
+    // By default we will just query for the one id. For multi patch
+    // we create a list of the ids of all items that will be changed
+    // to re-query them after the update
+    const ids = id === null ? this._find(params)
+      .then(mapIds) : Promise.resolve([ id ])
 
     if (id !== null) {
       query[this.id] = id
     }
 
-    // Account for potentially modified data
-    Object.keys(query).forEach(key => {
-      if (query[key] !== undefined && data[key] !== undefined && typeof data[key] !== 'object') {
-        patchQuery[key] = data[key]
-      } else {
-        patchQuery[key] = query[key]
-      }
-    })
-
     let q = this.Model.query()
+
     this.objectify(q, query)
 
     delete data[this.id]
 
-    return q.patch(data).then(() => {
-      return this._find({ query: patchQuery }).then(page => {
-        const items = page.data
-
-        if (id !== null) {
-          if (items.length === 1) {
-            return items[0]
-          } else {
-            throw new errors.NotFound(`No record found for id '${id}'`)
-          }
+    return ids.then(idList => {
+      // Create a new query that re-queries all ids that
+      // were originally changed
+      const findParams = Object.assign({}, params, {
+        query: {
+          [this.id]: { $in: idList },
+          $select: params.query && params.query.$select
         }
-
-        return items
       })
-    }).catch(error => {
-      errorHandler(error)
-    })
+
+      return q.patch(data).then(() => {
+        return this._find(findParams).then(page => {
+          const items = page.data
+
+          if (id !== null) {
+            if (items.length === 1) {
+              return items[0]
+            } else {
+              throw new errors.NotFound(`No record found for id '${id}'`)
+            }
+          }
+
+          return items
+        })
+      })
+    }).catch(errorHandler)
   }
 
   /**
