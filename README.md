@@ -1,6 +1,9 @@
 # feathers-objection
 
-[![Build Status](https://travis-ci.org/mcchrish/feathers-objection.svg?branch=master)](https://travis-ci.org/mcchrish/feathers-objection) [![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/) [![npm](https://img.shields.io/npm/v/feathers-objection.svg?maxAge=2592000)](https://www.npmjs.com/package/feathers-objection)
+[![Build Status](https://travis-ci.org/mcchrish/feathers-objection.svg?branch=master)](https://travis-ci.org/mcchrish/feathers-objection)
+[![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
+[![Dependency Status](https://img.shields.io/david/mcchrish/feathers-objection.svg)](https://david-dm.org/mcchrish/feathers-objection)
+[![npm](https://img.shields.io/npm/v/feathers-objection.svg?maxAge=2592000)](https://www.npmjs.com/package/feathers-objection)
 
 > An [Objection.js](http://vincit.github.io/objection.js) service adapter for [FeathersJS](http://feathersjs.com)
 
@@ -193,14 +196,6 @@ console.log('Feathers Todo Objection service running on 127.0.0.1:3030')
 ```
 
 You can run this example by using `node server` and going to [localhost:3030/todos](http://localhost:3030/todos). You should see an empty array. That's because you don't have any Todos yet but you now have full CRUD for your new todos service!
-
-## Todo
-- [x] Eager Queries
-- [ ] Use `updateAndFetch`
-- [ ] Use `patchAndFetch`
-- [ ] Support `insertWithRelated`
-- [ ] Use `deleteById`
-
 
 ## Credits
 
