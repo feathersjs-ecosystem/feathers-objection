@@ -8,3 +8,4 @@ test/
 
 db.sqlite
 example/
+yarn.lock
