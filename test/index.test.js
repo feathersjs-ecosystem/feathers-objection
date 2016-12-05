@@ -182,8 +182,8 @@ describe('Feathers Objection Service', () => {
           throw new Error('Should not reach here')
         })
         .catch(error => {
-          expect(error.statusCode).to.equal(400)
-          expect(JSON.parse(error.message)).to.deep.equal({
+          expect(error.code).to.equal(400)
+          expect(error.data).to.deep.equal({
             eager: 'eager expression not allowed'
           })
         })

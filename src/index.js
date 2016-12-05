@@ -87,19 +87,18 @@ class Service {
     })
   }
 
-  _find (params, count, getFilter = filter) {
+  createQuery (paramsQuery = {}) {
+    const { filters, query } = filter(paramsQuery)
     let q = this.Model.query().skipUndefined()
       .allowEager(this.allowedEager)
 
     // $eager for objection eager queries
     let $eager
-    if (params.query && params.query.$eager) {
-      $eager = params.query.$eager
-      delete params.query.$eager
+    if (query && query.$eager) {
+      $eager = query.$eager
+      delete query.$eager
       q.eager($eager, this.namedEagerFilters)
     }
-
-    const { filters, query } = getFilter(params.query || {})
 
     // $select uses a specific find syntax, so it has to come first.
     if (filters.$select) {
@@ -126,12 +125,17 @@ class Service {
 
     if (filters.$sort) {
       Object.keys(filters.$sort).forEach(key => {
-        // Note that even though column names are mapped when fetching
-        // / storing data, one still has to use correct db column names when
-        // writing queries
-        q.orderBy(key, parseInt(filters.$sort[key], 10) === 1 ? 'asc' : 'desc')
+        q = q.orderBy(key, filters.$sort[key] === 1 ? 'asc' : 'desc')
       })
     }
+
+    return q
+  }
+
+  _find (params, count, getFilter = filter) {
+    const { filters, query } = getFilter(params.query || {})
+    const q = params.objection || this.createQuery(params.query)
+
     // Handle $limit
     if (filters.$limit) {
       q.limit(filters.$limit)
@@ -172,7 +176,7 @@ class Service {
       return countQuery.then(count => count[0].total).then(executeQuery)
     }
 
-    return executeQuery()
+    return executeQuery().catch(errorHandler)
   }
 
   /**
