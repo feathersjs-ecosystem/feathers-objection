@@ -173,7 +173,7 @@ class Service {
 
       this.objectify(countQuery, query)
 
-      return countQuery.then(count => count[0].total).then(executeQuery)
+      return countQuery.then(count => parseInt(count[0].total, 10)).then(executeQuery)
     }
 
     return executeQuery().catch(errorHandler)
