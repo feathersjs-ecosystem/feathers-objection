@@ -33,3 +33,6 @@ data.db
 
 # Tern
 .tern-port
+
+# Yarn
+yarn.lock
