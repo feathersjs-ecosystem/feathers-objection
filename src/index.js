@@ -116,11 +116,7 @@ class Service {
       q = this.Model.query()
         .skipUndefined()
         .allowEager(this.allowedEager)
-        .select(
-          ...filters.$select.concat(
-            filters.$select.includes(this.id) ? [] : this.id
-          )
-        )
+        .select(...filters.$select.concat(this.id))
       if ($eager) {
         q.eager($eager, this.namedEagerFilters)
       } else if ($joinEager) {
