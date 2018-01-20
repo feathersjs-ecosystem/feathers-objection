@@ -58,7 +58,7 @@ class Service {
    * @param parentKey
    */
   objectify (query, params, parentKey) {
-    Object.keys(params || {}).forEach((key) => {
+    Object.keys(params || {}).forEach(key => {
       const value = params[key]
 
       if (isPlainObject(value)) {
@@ -89,23 +89,43 @@ class Service {
 
   createQuery (paramsQuery = {}) {
     const { filters, query } = filter(paramsQuery)
-    let q = this.Model.query().skipUndefined()
+    let q = this.Model.query()
+      .skipUndefined()
       .allowEager(this.allowedEager)
 
     // $eager for objection eager queries
     let $eager
+    let $joinEager
+
     if (query && query.$eager) {
       $eager = query.$eager
       delete query.$eager
       q.eager($eager, this.namedEagerFilters)
     }
 
+    if (query && query.$joinEager) {
+      $joinEager = query.$joinEager
+      delete query.$joinEager
+      q
+        .eagerAlgorithm(this.Model.JoinEagerAlgorithm)
+        .eager($joinEager, this.namedEagerFilters)
+    }
+
     // $select uses a specific find syntax, so it has to come first.
     if (filters.$select) {
-      q = this.Model.query().skipUndefined()
+      q = this.Model.query()
+        .skipUndefined()
         .allowEager(this.allowedEager)
         .select(...filters.$select.concat(this.id))
-        .eager($eager, this.namedEagerFilters)
+      if ($eager) {
+        q.eager($eager, this.namedEagerFilters)
+      } else if ($joinEager) {
+        q
+          .eagerAlgorithm(this.Model.JoinEagerAlgorithm)
+          .eager($joinEager, this.namedEagerFilters)
+      }
+
+      // .joinEager($joinEager, this.namedEagerFilters)
     }
 
     // apply eager filters if specified
@@ -169,11 +189,15 @@ class Service {
     }
 
     if (count) {
-      let countQuery = this.Model.query().skipUndefined().count(`${this.id} as total`)
+      let countQuery = this.Model.query()
+        .skipUndefined()
+        .count(`${this.id} as total`)
 
       this.objectify(countQuery, query)
 
-      return countQuery.then(count => parseInt(count[0].total, 10)).then(executeQuery)
+      return countQuery
+        .then(count => parseInt(count[0].total, 10))
+        .then(executeQuery)
     }
 
     return executeQuery().catch(errorHandler)
@@ -184,9 +208,12 @@ class Service {
    * @param params
    */
   find (params) {
-    const paginate = (params && typeof params.paginate !== 'undefined') ? params.paginate : this.paginate
-    const result = this._find(params, !!paginate.default,
-      query => filter(query, paginate)
+    const paginate =
+      params && typeof params.paginate !== 'undefined'
+        ? params.paginate
+        : this.paginate
+    const result = this._find(params, !!paginate.default, query =>
+      filter(query, paginate)
     )
 
     if (!paginate.default) {
@@ -201,13 +228,14 @@ class Service {
     query[this.id] = id
 
     return this._find(Object.assign({}, params, { query }))
-    .then(page => {
-      if (page.data.length !== 1) {
-        throw new errors.NotFound(`No record found for id '${id}'`)
-      }
+      .then(page => {
+        if (page.data.length !== 1) {
+          throw new errors.NotFound(`No record found for id '${id}'`)
+        }
 
-      return page.data[0]
-    }).catch(errorHandler)
+        return page.data[0]
+      })
+      .catch(errorHandler)
   }
 
   /**
@@ -220,10 +248,14 @@ class Service {
   }
 
   _create (data, params) {
-    return this.Model.query().insert(data, this.id).then(row => {
-      const id = typeof data[this.id] !== 'undefined' ? data[this.id] : row[this.id]
-      return this._get(id, params)
-    }).catch(errorHandler)
+    return this.Model.query()
+      .insert(data, this.id)
+      .then(row => {
+        const id =
+          typeof data[this.id] !== 'undefined' ? data[this.id] : row[this.id]
+        return this._get(id, params)
+      })
+      .catch(errorHandler)
   }
 
   /**
@@ -247,32 +279,39 @@ class Service {
    */
   update (id, data, params) {
     if (Array.isArray(data)) {
-      return Promise.reject('Not replacing multiple records. Did you mean `patch`?')
+      return Promise.reject(
+        'Not replacing multiple records. Did you mean `patch`?'
+      )
     }
 
     // NOTE (EK): First fetch the old record so
     // that we can fill any existing keys that the
     // client isn't updating with null;
-    return this._get(id, params).then(oldData => {
-      let newObject = {}
+    return this._get(id, params)
+      .then(oldData => {
+        let newObject = {}
 
-      for (var key of Object.keys(oldData)) {
-        if (data[key] === undefined) {
-          newObject[key] = null
-        } else {
-          newObject[key] = data[key]
+        for (var key of Object.keys(oldData)) {
+          if (data[key] === undefined) {
+            newObject[key] = null
+          } else {
+            newObject[key] = data[key]
+          }
         }
-      }
 
-      // NOTE (EK): Delete id field so we don't update it
-      delete newObject[this.id]
+        // NOTE (EK): Delete id field so we don't update it
+        delete newObject[this.id]
 
-      return this.Model.query().where(this.id, id).update(newObject).then(() => {
-        // NOTE (EK): Restore the id field so we can return it to the client
-        newObject[this.id] = id
-        return newObject
+        return this.Model.query()
+          .where(this.id, id)
+          .update(newObject)
+          .then(() => {
+            // NOTE (EK): Restore the id field so we can return it to the client
+            newObject[this.id] = id
+            return newObject
+          })
       })
-    }).catch(errorHandler)
+      .catch(errorHandler)
   }
 
   /**
@@ -290,8 +329,8 @@ class Service {
     // By default we will just query for the one id. For multi patch
     // we create a list of the ids of all items that will be changed
     // to re-query them after the update
-    const ids = id === null ? this._find(params)
-      .then(mapIds) : Promise.resolve([ id ])
+    const ids =
+      id === null ? this._find(params).then(mapIds) : Promise.resolve([id])
 
     if (id !== null) {
       query[this.id] = id
@@ -303,32 +342,34 @@ class Service {
 
     delete data[this.id]
 
-    return ids.then(idList => {
-      // Create a new query that re-queries all ids that
-      // were originally changed
-      const findParams = Object.assign({}, params, {
-        query: {
-          [this.id]: { $in: idList },
-          $select: params.query && params.query.$select
-        }
-      })
-
-      return q.patch(data).then(() => {
-        return this._find(findParams).then(page => {
-          const items = page.data
-
-          if (id !== null) {
-            if (items.length === 1) {
-              return items[0]
-            } else {
-              throw new errors.NotFound(`No record found for id '${id}'`)
-            }
+    return ids
+      .then(idList => {
+        // Create a new query that re-queries all ids that
+        // were originally changed
+        const findParams = Object.assign({}, params, {
+          query: {
+            [this.id]: { $in: idList },
+            $select: params.query && params.query.$select
           }
+        })
 
-          return items
+        return q.patch(data).then(() => {
+          return this._find(findParams).then(page => {
+            const items = page.data
+
+            if (id !== null) {
+              if (items.length === 1) {
+                return items[0]
+              } else {
+                throw new errors.NotFound(`No record found for id '${id}'`)
+              }
+            }
+
+            return items
+          })
         })
       })
-    }).catch(errorHandler)
+      .catch(errorHandler)
   }
 
   /**
@@ -345,24 +386,26 @@ class Service {
       params.query[this.id] = id
     }
 
-    return this._find(params).then(page => {
-      const items = page.data
-      const query = this.Model.query()
+    return this._find(params)
+      .then(page => {
+        const items = page.data
+        const query = this.Model.query()
 
-      this.objectify(query, params.query)
+        this.objectify(query, params.query)
 
-      return query.delete().then(() => {
-        if (id !== null) {
-          if (items.length === 1) {
-            return items[0]
-          } else {
-            throw new errors.NotFound(`No record found for id '${id}'`)
+        return query.delete().then(() => {
+          if (id !== null) {
+            if (items.length === 1) {
+              return items[0]
+            } else {
+              throw new errors.NotFound(`No record found for id '${id}'`)
+            }
           }
-        }
 
-        return items
+          return items
+        })
       })
-    }).catch(errorHandler)
+      .catch(errorHandler)
   }
 }
 

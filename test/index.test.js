@@ -11,9 +11,11 @@ import People from './people'
 import PeopleCustomid from './people-customid'
 import Company from './company'
 import { Model } from 'objection'
+import Employee from './employee'
 
 const db = knex({
   client: 'sqlite3',
+  debug: false,
   connection: {
     filename: './db.sqlite'
   }
@@ -23,70 +25,99 @@ const db = knex({
 Model.knex(db)
 
 const app = feathers()
-  .use('/people', service({
-    model: People,
-    id: 'id',
-    events: ['testing']
-  }))
-  .use('/people-customid', service({
-    model: PeopleCustomid,
-    id: 'customid',
-    events: [ 'testing' ]
-  }))
-  .use('/companies', service({
-    model: Company,
-    id: 'id',
-    events: ['testing'],
-    allowedEager: 'ceos',
-    namedEagerFilters: {
-      notSnoop (builder) {
-        return builder.whereNot('name', 'Snoop')
-      }
-    },
-    eagerFilters: [
-      {
-        expression: 'ceos',
-        filter: function youngCEOs (builder) {
-          return builder.where('age', '<', '25')
+  .use(
+    '/people',
+    service({
+      model: People,
+      id: 'id',
+      events: ['testing']
+    })
+  )
+  .use(
+    '/people-customid',
+    service({
+      model: PeopleCustomid,
+      id: 'customid',
+      events: ['testing']
+    })
+  )
+  .use(
+    '/companies',
+    service({
+      model: Company,
+      id: 'id',
+      events: ['testing'],
+      allowedEager: 'ceos',
+      namedEagerFilters: {
+        notSnoop (builder) {
+          return builder.whereNot('name', 'Snoop')
         }
-      }
-    ]
-  }))
+      },
+      eagerFilters: [
+        {
+          expression: 'ceos',
+          filter: function youngCEOs (builder) {
+            return builder.where('age', '<', '25')
+          }
+        }
+      ]
+    })
+  )
+  .use(
+    '/employees',
+    service({
+      model: Employee,
+      allowedEager: 'company'
+    })
+  )
 
 let people = app.service('people')
 let companies = app.service('companies')
+let employees = app.service('employees')
 
 function clean (done) {
-  db.schema.dropTableIfExists('people').then(() => {
-    return db.schema.createTable('people', table => {
-      table.increments('id')
-      table.string('name')
-      table.integer('age')
-      table.integer('time')
-      table.boolean('created')
-    })
-  }).then(() => {
-    return db.schema.dropTableIfExists('people-customid').then(() => {
-      return db.schema.createTable('people-customid', table => {
-        table.increments('customid')
+  db.schema
+    .dropTableIfExists('people')
+    .then(() => {
+      return db.schema.createTable('people', table => {
+        table.increments('id')
         table.string('name')
         table.integer('age')
         table.integer('time')
         table.boolean('created')
       })
     })
-  }).then(() => {
-    return db.schema.dropTableIfExists('companies').then(() => {
-      db.schema.createTable('companies', table => {
-        table.increments('id')
-        table.string('name')
-        table.integer('ceo')
-      })
-        .then(() => {
-          done()
+    .then(() => {
+      return db.schema.dropTableIfExists('people-customid').then(() => {
+        return db.schema.createTable('people-customid', table => {
+          table.increments('customid')
+          table.string('name')
+          table.integer('age')
+          table.integer('time')
+          table.boolean('created')
         })
+      })
     })
-  })
+    .then(() => {
+      return db.schema.dropTableIfExists('companies').then(() => {
+        return db.schema.createTable('companies', table => {
+          table.increments('id')
+          table.string('name')
+          table.integer('ceo')
+        })
+      })
+    })
+    .then(() => {
+      return db.schema.dropTableIfExists('employees').then(() => {
+        return db.schema
+          .createTable('employees', table => {
+            table.increments('id')
+            table.integer('companyId').references('companies.id')
+            table.string('name')
+          })
+          .then(() => done())
+      })
+    })
 }
 
 describe('Feathers Objection Service', () => {
@@ -96,13 +127,17 @@ describe('Feathers Objection Service', () => {
   describe('Initialization', () => {
     describe('when missing options', () => {
       it('throws an error', () => {
-        expect(service.bind(null)).to.throw('Objection options have to be provided')
+        expect(service.bind(null)).to.throw(
+          'Objection options have to be provided'
+        )
       })
     })
 
     describe('when missing a Model', () => {
       it('throws an error', () => {
-        expect(service.bind(null, {})).to.throw(/You must provide an Objection Model/)
+        expect(service.bind(null, {})).to.throw(
+          /You must provide an Objection Model/
+        )
       })
     })
 
@@ -139,8 +174,7 @@ describe('Feathers Objection Service', () => {
 
   describe('Common functionality', () => {
     it('is CommonJS compatible', () =>
-        assert.equal(typeof require('../lib'), 'function')
-    )
+      assert.equal(typeof require('../lib'), 'function'))
 
     base(app, errors, 'people')
     base(app, errors, 'people-customid', 'customid')
@@ -148,36 +182,44 @@ describe('Feathers Objection Service', () => {
 
   describe('Eager queries', () => {
     beforeEach(done => {
-      people.create({
-        name: 'Snoop',
-        age: 20
-      }).then(data => {
-        return companies.create([{
-          name: 'Google',
-          ceo: data.id
-        }, {
-          name: 'Apple',
-          ceo: data.id
-        }]).then(() => done())
-      }, done)
+      people
+        .create({
+          name: 'Snoop',
+          age: 20
+        })
+        .then(data => {
+          return companies
+            .create([
+              {
+                name: 'Google',
+                ceo: data.id
+              },
+              {
+                name: 'Apple',
+                ceo: data.id
+              }
+            ])
+            .then(() => done())
+        }, done)
     })
 
     it('allows eager queries', () => {
-      return companies.find({ query: { $eager: 'ceos' } })
-        .then(data => {
-          expect(data[0].ceos).to.be.ok
-        })
+      return companies.find({ query: { $eager: 'ceos' } }).then(data => {
+        expect(data[0].ceos).to.be.ok
+      })
     })
 
     it('allows eager queries with named filters', () => {
-      return companies.find({ query: { $eager: 'ceos(notSnoop)' } })
+      return companies
+        .find({ query: { $eager: 'ceos(notSnoop)' } })
         .then(data => {
           expect(data[0].ceos).to.be.null
         })
     })
 
     it('disallow eager queries', () => {
-      return companies.find({ query: { $eager: 'employees' } })
+      return companies
+        .find({ query: { $eager: 'employees' } })
         .then(data => {
           throw new Error('Should not reach here')
         })
@@ -190,19 +232,73 @@ describe('Feathers Objection Service', () => {
     })
   })
 
+  describe('Join Eager queries', () => {
+    before(done => {
+      companies
+        .create([
+          {
+            name: 'Google'
+          },
+          {
+            name: 'Apple'
+          }
+        ])
+        .then(data => {
+          const [google, apple] = data
+          return employees
+            .create([
+              {
+                name: 'Luke',
+                companyId: google.id
+              },
+              {
+                name: 'Yoda',
+                companyId: apple.id
+              }
+            ])
+            .then(() => done())
+        }, done)
+    })
+
+    it('allows joinEager queries', () => {
+      return employees.find({ query: { $joinEager: 'company' } }).then(data => {
+        expect(data[0].company).to.be.ok
+        expect(data[1].company).to.be.ok
+      })
+    })
+
+    it('allows filtering by relation field with joinEager quieres', () => {
+      return employees
+        .find({
+          query: {
+            $joinEager: 'company',
+            'company.name': {
+              $like: 'google'
+            }
+          }
+        })
+        .then(data => {
+          expect(data.length).to.equal(1)
+          expect(data[0].company.name).to.equal('Google')
+        })
+    })
+  })
+
   describe('$like method', () => {
     beforeEach(done => {
-      people.create({
-        name: 'Charlie Brown',
-        age: 10
-      }, done)
+      people.create(
+        {
+          name: 'Charlie Brown',
+          age: 10
+        },
+        done
+      )
     })
 
     it('$like in query', () => {
-      return people.find({ query: { name: { $like: '%lie%' } } })
-        .then(data => {
-          expect(data[0].name).to.be.equal('Charlie Brown')
-        })
+      return people.find({ query: { name: { $like: '%lie%' } } }).then(data => {
+        expect(data[0].name).to.be.equal('Charlie Brown')
+      })
     })
   })
 })

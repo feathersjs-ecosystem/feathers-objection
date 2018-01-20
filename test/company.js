@@ -9,9 +9,9 @@ export default class Company extends Model {
     required: ['name'],
 
     properties: {
-      id: {type: 'integer'},
-      name: {type: 'string'},
-      ceo: {type: ['integer', 'null']}
+      id: { type: 'integer' },
+      name: { type: 'string' },
+      ceo: { type: ['integer', 'null'] }
     }
   }
 
@@ -23,6 +23,14 @@ export default class Company extends Model {
       join: {
         from: 'companies.ceo',
         to: 'people.id'
+      }
+    },
+    employees: {
+      relation: Model.HasManyRelation,
+      modelClass: path.join(__dirname, '/employee'),
+      join: {
+        from: 'companies.id',
+        to: 'employees.companyId'
       }
     }
   }
