@@ -1,14 +1,19 @@
 {
   "name": "feathers-objection",
   "description": "A service plugin for ObjectionJS an ORM based on KnexJS",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "homepage": "https://github.com/mcchrish/feathers-objection",
-  "keywords": ["feathers", "feathers-plugin", "knex", "objection", "orm"],
+  "keywords": [
+    "feathers",
+    "feathers-plugin",
+    "knex",
+    "objection",
+    "orm"
+  ],
   "licenses": [
     {
       "type": "MIT",
-      "url":
-        "https://github.com/mcchrish/feathers-objection/blob/master/LICENSE"
+      "url": "https://github.com/mcchrish/feathers-objection/blob/master/LICENSE"
     }
   ],
   "repository": {
@@ -74,7 +79,9 @@
       "transform-class-properties",
       "add-module-exports"
     ],
-    "presets": ["es2015"]
+    "presets": [
+      "es2015"
+    ]
   },
   "standard": {
     "parser": "babel-eslint"
