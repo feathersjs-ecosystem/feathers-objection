@@ -58,6 +58,15 @@ class Service {
    * @param parentKey
    */
   objectify (query, params, parentKey) {
+    // Delete $eager
+    if (params.$eager) {
+      delete params.$eager;
+    }
+
+    // Delete $joinEager
+    if (params.$joinEager) {
+      delete params.$joinEager;
+    }
     Object.keys(params || {}).forEach(key => {
       const value = params[key]
 
