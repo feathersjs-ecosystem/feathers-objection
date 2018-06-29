@@ -301,6 +301,33 @@ describe('Feathers Objection Service', () => {
       })
     })
   })
+
+  describe('$and method', () => {
+    beforeEach(done => {
+      people.create([
+          {
+            name: 'Dave',
+            age: 23
+          },
+          {
+            name: 'Dave',
+            age: 32
+          },
+          {
+            name: 'Dada',
+            age: 1
+          }
+        ],
+        done
+      )
+    })
+
+    it('$and in query', () => {
+      return people.find({ query: { $and: [ { $or: [ { name: 'Dave' }, { name: 'Dada' } ] }, { age: { $lt: 23 } } ] } }).then(data => {
+        expect(data[0].name).to.be.equal('Dada')
+      })
+    })
+  })
 })
 
 describe('Objection service example test', () => {

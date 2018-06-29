@@ -6,6 +6,7 @@ import { errors } from 'feathers-errors'
 
 const METHODS = {
   $or: 'orWhere',
+  $and: 'andWhere',
   $ne: 'whereNot',
   $in: 'whereIn',
   $nin: 'whereNotIn'
@@ -79,7 +80,7 @@ class Service {
       const operator = OPERATORS[key] || '='
 
       if (method) {
-        if (key === '$or') {
+        if (key === '$or' || key === '$and') {
           const self = this
 
           return value.forEach(condition => {
@@ -102,39 +103,23 @@ class Service {
       .skipUndefined()
       .allowEager(this.allowedEager)
 
+    // $select uses a specific find syntax, so it has to come first.
+    if (filters.$select) {
+      q = q.select(...filters.$select.concat(this.id))
+    }
+
     // $eager for objection eager queries
-    let $eager
-    let $joinEager
 
     if (query && query.$eager) {
-      $eager = query.$eager
+      q.eager(query.$eager, this.namedEagerFilters)
       delete query.$eager
-      q.eager($eager, this.namedEagerFilters)
     }
 
     if (query && query.$joinEager) {
-      $joinEager = query.$joinEager
-      delete query.$joinEager
       q
         .eagerAlgorithm(this.Model.JoinEagerAlgorithm)
-        .eager($joinEager, this.namedEagerFilters)
-    }
-
-    // $select uses a specific find syntax, so it has to come first.
-    if (filters.$select) {
-      q = this.Model.query()
-        .skipUndefined()
-        .allowEager(this.allowedEager)
-        .select(...filters.$select.concat(this.id))
-      if ($eager) {
-        q.eager($eager, this.namedEagerFilters)
-      } else if ($joinEager) {
-        q
-          .eagerAlgorithm(this.Model.JoinEagerAlgorithm)
-          .eager($joinEager, this.namedEagerFilters)
-      }
-
-      // .joinEager($joinEager, this.namedEagerFilters)
+        .eager(query.$joinEager, this.namedEagerFilters)
+      delete query.$joinEager
     }
 
     // apply eager filters if specified
