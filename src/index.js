@@ -97,9 +97,15 @@ class Service {
     })
   }
 
-  createQuery (paramsQuery = {}) {
-    const { filters, query } = filter(paramsQuery)
-    let q = this.Model.query()
+  _createQuery (params = {}) {
+    let trx = params.transaction ? params.transaction.trx : null
+    let q = this.Model.query(trx)
+    return q
+  }
+
+  createQuery (params = {}) {
+    const { filters, query } = filter(params.query || {})
+    let q = this._createQuery(params)
       .skipUndefined()
       .allowEager(this.allowedEager)
 
@@ -148,7 +154,7 @@ class Service {
 
   _find (params, count, getFilter = filter) {
     const { filters, query } = getFilter(params.query || {})
-    const q = params.objection || this.createQuery(params.query)
+    const q = params.objection || this.createQuery(params)
 
     // Handle $limit
     if (filters.$limit) {
@@ -242,7 +248,7 @@ class Service {
   }
 
   _create (data, params) {
-    return this.Model.query()
+    return this._createQuery(params)
       .insert(data, this.id)
       .then(row => {
         const id =
@@ -296,7 +302,7 @@ class Service {
         // NOTE (EK): Delete id field so we don't update it
         delete newObject[this.id]
 
-        return this.Model.query()
+        return this._createQuery(params)
           .where(this.id, id)
           .update(newObject)
           .then(() => {
@@ -330,7 +336,7 @@ class Service {
       query[this.id] = id
     }
 
-    let q = this.Model.query()
+    let q = this._createQuery(params)
 
     this.objectify(q, query)
 
@@ -384,7 +390,7 @@ class Service {
       .then(page => {
         const items = page.data
         const { query: queryParams } = filter(params.query || {})
-        const query = this.Model.query()
+        const query = this._createQuery(params)
 
         this.objectify(query, queryParams)
 
