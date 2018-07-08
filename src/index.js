@@ -61,12 +61,12 @@ class Service {
   objectify (query, params, parentKey) {
     // Delete $eager
     if (params.$eager) {
-      delete params.$eager;
+      delete params.$eager
     }
 
     // Delete $joinEager
     if (params.$joinEager) {
-      delete params.$joinEager;
+      delete params.$joinEager
     }
     Object.keys(params || {}).forEach(key => {
       const value = params[key]
@@ -93,7 +93,7 @@ class Service {
         return query[method].call(query, column, value) // eslint-disable-line no-useless-call
       }
 
-      return query.where(column, operator, value)
+      return operator === '=' ? query.where(column, value) : query.where(column, operator, value)
     })
   }
 
@@ -274,7 +274,7 @@ class Service {
   update (id, data, params) {
     if (Array.isArray(data)) {
       return Promise.reject(
-        'Not replacing multiple records. Did you mean `patch`?'
+        new Error('Not replacing multiple records. Did you mean `patch`?')
       )
     }
 
@@ -372,7 +372,7 @@ class Service {
    * @param params
    */
   remove (id, params) {
-    params.query = params.query || {}
+    params.query = Object.assign({}, params.query)
 
     // NOTE (EK): First fetch the record so that we can return
     // it when we delete it.
@@ -383,9 +383,10 @@ class Service {
     return this._find(params)
       .then(page => {
         const items = page.data
+        const { query: queryParams } = filter(params.query || {})
         const query = this.Model.query()
 
-        this.objectify(query, params.query)
+        this.objectify(query, queryParams)
 
         return query.delete().then(() => {
           if (id !== null) {

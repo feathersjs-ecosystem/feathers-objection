@@ -1,4 +1,5 @@
 /* eslint-env mocha */
+/* eslint-disable no-unused-expressions */
 import { expect } from 'chai'
 import assert from 'assert'
 import feathers from 'feathers'
@@ -225,9 +226,7 @@ describe('Feathers Objection Service', () => {
         })
         .catch(error => {
           expect(error.code).to.equal(400)
-          expect(error.data).to.deep.equal({
-            eager: 'eager expression not allowed'
-          })
+          expect(error.data).to.deep.equal({})
         })
     })
   })
@@ -305,20 +304,20 @@ describe('Feathers Objection Service', () => {
   describe('$and method', () => {
     beforeEach(done => {
       people.create([
-          {
-            name: 'Dave',
-            age: 23
-          },
-          {
-            name: 'Dave',
-            age: 32
-          },
-          {
-            name: 'Dada',
-            age: 1
-          }
-        ],
-        done
+        {
+          name: 'Dave',
+          age: 23
+        },
+        {
+          name: 'Dave',
+          age: 32
+        },
+        {
+          name: 'Dada',
+          age: 1
+        }
+      ],
+      done
       )
     })
 
