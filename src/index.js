@@ -6,6 +6,7 @@ import { errors } from 'feathers-errors'
 
 const METHODS = {
   $or: 'orWhere',
+  $and: 'andWhere',
   $ne: 'whereNot',
   $in: 'whereIn',
   $nin: 'whereNotIn'
@@ -60,12 +61,12 @@ class Service {
   objectify (query, params, parentKey) {
     // Delete $eager
     if (params.$eager) {
-      delete params.$eager;
+      delete params.$eager
     }
 
     // Delete $joinEager
     if (params.$joinEager) {
-      delete params.$joinEager;
+      delete params.$joinEager
     }
     Object.keys(params || {}).forEach(key => {
       const value = params[key]
@@ -79,7 +80,7 @@ class Service {
       const operator = OPERATORS[key] || '='
 
       if (method) {
-        if (key === '$or') {
+        if (key === '$or' || key === '$and') {
           const self = this
 
           return value.forEach(condition => {
@@ -92,49 +93,39 @@ class Service {
         return query[method].call(query, column, value) // eslint-disable-line no-useless-call
       }
 
-      return query.where(column, operator, value)
+      return operator === '=' ? query.where(column, value) : query.where(column, operator, value)
     })
   }
 
-  createQuery (paramsQuery = {}) {
-    const { filters, query } = filter(paramsQuery)
-    let q = this.Model.query()
+  _createQuery (params = {}) {
+    let trx = params.transaction ? params.transaction.trx : null
+    let q = this.Model.query(trx)
+    return q
+  }
+
+  createQuery (params = {}) {
+    const { filters, query } = filter(params.query || {})
+    let q = this._createQuery(params)
       .skipUndefined()
       .allowEager(this.allowedEager)
 
+    // $select uses a specific find syntax, so it has to come first.
+    if (filters.$select) {
+      q = q.select(...filters.$select.concat(this.id))
+    }
+
     // $eager for objection eager queries
-    let $eager
-    let $joinEager
 
     if (query && query.$eager) {
-      $eager = query.$eager
+      q.eager(query.$eager, this.namedEagerFilters)
       delete query.$eager
-      q.eager($eager, this.namedEagerFilters)
     }
 
     if (query && query.$joinEager) {
-      $joinEager = query.$joinEager
-      delete query.$joinEager
       q
         .eagerAlgorithm(this.Model.JoinEagerAlgorithm)
-        .eager($joinEager, this.namedEagerFilters)
-    }
-
-    // $select uses a specific find syntax, so it has to come first.
-    if (filters.$select) {
-      q = this.Model.query()
-        .skipUndefined()
-        .allowEager(this.allowedEager)
-        .select(...filters.$select.concat(this.id))
-      if ($eager) {
-        q.eager($eager, this.namedEagerFilters)
-      } else if ($joinEager) {
-        q
-          .eagerAlgorithm(this.Model.JoinEagerAlgorithm)
-          .eager($joinEager, this.namedEagerFilters)
-      }
-
-      // .joinEager($joinEager, this.namedEagerFilters)
+        .eager(query.$joinEager, this.namedEagerFilters)
+      delete query.$joinEager
     }
 
     // apply eager filters if specified
@@ -163,7 +154,7 @@ class Service {
 
   _find (params, count, getFilter = filter) {
     const { filters, query } = getFilter(params.query || {})
-    const q = params.objection || this.createQuery(params.query)
+    const q = params.objection || this.createQuery(params)
 
     // Handle $limit
     if (filters.$limit) {
@@ -257,7 +248,7 @@ class Service {
   }
 
   _create (data, params) {
-    return this.Model.query()
+    return this._createQuery(params)
       .insert(data, this.id)
       .then(row => {
         const id =
@@ -289,7 +280,7 @@ class Service {
   update (id, data, params) {
     if (Array.isArray(data)) {
       return Promise.reject(
-        'Not replacing multiple records. Did you mean `patch`?'
+        new Error('Not replacing multiple records. Did you mean `patch`?')
       )
     }
 
@@ -311,7 +302,7 @@ class Service {
         // NOTE (EK): Delete id field so we don't update it
         delete newObject[this.id]
 
-        return this.Model.query()
+        return this._createQuery(params)
           .where(this.id, id)
           .update(newObject)
           .then(() => {
@@ -345,7 +336,7 @@ class Service {
       query[this.id] = id
     }
 
-    let q = this.Model.query()
+    let q = this._createQuery(params)
 
     this.objectify(q, query)
 
@@ -387,7 +378,7 @@ class Service {
    * @param params
    */
   remove (id, params) {
-    params.query = params.query || {}
+    params.query = Object.assign({}, params.query)
 
     // NOTE (EK): First fetch the record so that we can return
     // it when we delete it.
@@ -398,9 +389,10 @@ class Service {
     return this._find(params)
       .then(page => {
         const items = page.data
-        const query = this.Model.query()
+        const { query: queryParams } = filter(params.query || {})
+        const query = this._createQuery(params)
 
-        this.objectify(query, params.query)
+        this.objectify(query, queryParams)
 
         return query.delete().then(() => {
           if (id !== null) {

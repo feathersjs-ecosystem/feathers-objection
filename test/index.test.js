@@ -1,4 +1,5 @@
 /* eslint-env mocha */
+/* eslint-disable no-unused-expressions */
 import { expect } from 'chai'
 import assert from 'assert'
 import feathers from 'feathers'
@@ -225,9 +226,7 @@ describe('Feathers Objection Service', () => {
         })
         .catch(error => {
           expect(error.code).to.equal(400)
-          expect(error.data).to.deep.equal({
-            eager: 'eager expression not allowed'
-          })
+          expect(error.data).to.deep.equal({})
         })
     })
   })
@@ -298,6 +297,64 @@ describe('Feathers Objection Service', () => {
     it('$like in query', () => {
       return people.find({ query: { name: { $like: '%lie%' } } }).then(data => {
         expect(data[0].name).to.be.equal('Charlie Brown')
+      })
+    })
+  })
+
+  describe('$and method', () => {
+    beforeEach(done => {
+      people.create([
+        {
+          name: 'Dave',
+          age: 23
+        },
+        {
+          name: 'Dave',
+          age: 32
+        },
+        {
+          name: 'Dada',
+          age: 1
+        }
+      ],
+      done
+      )
+    })
+
+    it('$and in query', () => {
+      return people.find({ query: { $and: [ { $or: [ { name: 'Dave' }, { name: 'Dada' } ] }, { age: { $lt: 23 } } ] } }).then(data => {
+        expect(data[0].name).to.be.equal('Dada')
+      })
+    })
+  })
+
+  describe('Transactions', () => {
+    let transaction
+
+    beforeEach(done => {
+      db.transaction(trx => {
+        transaction = { trx }
+        done()
+      }).catch(() => {})
+    })
+
+    it('works with commit', () => {
+      return people.create({ name: 'Commit' }, { transaction }).then(() => {
+        return transaction.trx.commit().then(() => {
+          return people.find({ query: { name: 'Commit' } }).then((data) => {
+            expect(data.length).to.equal(1)
+          })
+        })
+      })
+    })
+
+    it('works with rollback', () => {
+      return people.create({ name: 'Rollback' }, { transaction }).then(() => {
+        return transaction.trx.rollback().then(() => {
+          return people.find({ query: { name: 'Rollback' } }).then((data) => {
+            expect(data.length).to.equal(0)
+          })
+        })
       })
     })
   })
