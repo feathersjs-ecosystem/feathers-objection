@@ -327,6 +327,37 @@ describe('Feathers Objection Service', () => {
       })
     })
   })
+
+  describe('Transactions', () => {
+    let transaction
+
+    beforeEach(done => {
+      db.transaction(trx => {
+        transaction = { trx }
+        done()
+      }).catch(() => {})
+    })
+
+    it('works with commit', () => {
+      return people.create({ name: 'Commit' }, { transaction }).then(() => {
+        return transaction.trx.commit().then(() => {
+          return people.find({ query: { name: 'Commit' } }).then((data) => {
+            expect(data.length).to.equal(1)
+          })
+        })
+      })
+    })
+
+    it('works with rollback', () => {
+      return people.create({ name: 'Rollback' }, { transaction }).then(() => {
+        return transaction.trx.rollback().then(() => {
+          return people.find({ query: { name: 'Rollback' } }).then((data) => {
+            expect(data.length).to.equal(0)
+          })
+        })
+      })
+    })
+  })
 })
 
 describe('Objection service example test', () => {
