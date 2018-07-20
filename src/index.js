@@ -53,9 +53,9 @@ class Service {
     return Proto.extend(obj, this)
   }
 
-  extractIdsFromString (id) {
+  extractIds (id) {
+    if (typeof id === 'object') { return Object.values(id) }
     if (id[0] === '[' && id[id.length - 1] === ']') { return JSON.parse(id) }
-
     if (id[0] === '{' && id[id.length - 1] === '}') { return Object.values(JSON.parse(id)) }
 
     return id.split(this.idSeparator)
@@ -69,7 +69,7 @@ class Service {
       let ids = id
 
       if (id && !Array.isArray(id)) {
-        ids = this.extractIdsFromString(id.toString())
+        ids = this.extractIds(id)
       }
 
       this.id.forEach((idKey, index) => {
