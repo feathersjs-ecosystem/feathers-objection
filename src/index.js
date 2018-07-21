@@ -40,7 +40,6 @@ class Service {
 
     this.options = options || {}
     this.id = options.id || 'id'
-    this.idSeparator = options.idSeparator || ','
     this.paginate = options.paginate || {}
     this.events = options.events || []
     this.Model = options.model
@@ -51,47 +50,6 @@ class Service {
 
   extend (obj) {
     return Proto.extend(obj, this)
-  }
-
-  extractIds (id) {
-    if (typeof id === 'object') { return Object.values(id) }
-    if (id[0] === '[' && id[id.length - 1] === ']') { return JSON.parse(id) }
-    if (id[0] === '{' && id[id.length - 1] === '}') { return Object.values(JSON.parse(id)) }
-
-    return id.split(this.idSeparator)
-  }
-
-  // Create a new query that re-queries all ids that were originally changed
-  getIdsQuery (id, idList) {
-    const query = {}
-
-    if (Array.isArray(this.id)) {
-      let ids = id
-
-      if (id && !Array.isArray(id)) {
-        ids = this.extractIds(id)
-      }
-
-      this.id.forEach((idKey, index) => {
-        if (!ids) {
-          if (idList) {
-            if (idList[index]) {
-              query[idKey] = { $in: idList[index] }
-            }
-          } else {
-            query[idKey] = null
-          }
-        } else if (ids[index]) {
-          query[idKey] = ids[index]
-        } else {
-          throw new errors.BadRequest('When using composite primary key, id must contain values for all primary keys')
-        }
-      })
-    } else {
-      query[this.id] = idList ? { $in: idList } : id
-    }
-
-    return query
   }
 
   /**
@@ -266,7 +224,8 @@ class Service {
   }
 
   _get (id, params) {
-    const query = Object.assign({}, params.query, this.getIdsQuery(id))
+    const query = Object.assign({}, params.query)
+    query[this.id] = id
 
     return this._find(Object.assign({}, params, { query }))
       .then(page => {
@@ -292,18 +251,8 @@ class Service {
     return this._createQuery(params)
       .insert(data, this.id)
       .then(row => {
-        let id = null
-
-        if (Array.isArray(this.id)) {
-          id = []
-
-          for (const idKey of this.id) {
-            id.push(typeof data[idKey] !== 'undefined' ? data[idKey] : row[idKey])
-          }
-        } else {
-          id = typeof data[this.id] !== 'undefined' ? data[this.id] : row[this.id]
-        }
-
+        const id =
+          typeof data[this.id] !== 'undefined' ? data[this.id] : row[this.id]
         return this._get(id, params)
       })
       .catch(errorHandler)
@@ -351,25 +300,14 @@ class Service {
         }
 
         // NOTE (EK): Delete id field so we don't update it
-        if (Array.isArray(this.id)) {
-          for (const idKey of this.id) {
-            delete newObject[idKey]
-          }
-        } else {
-          delete newObject[this.id]
-        }
+        delete newObject[this.id]
 
         return this._createQuery(params)
-          .where(this.getIdsQuery(id))
+          .where(this.id, id)
           .update(newObject)
           .then(() => {
             // NOTE (EK): Restore the id field so we can return it to the client
-            if (Array.isArray(this.id)) {
-              newObject = Object.assign({}, newObject, this.getIdsQuery(id))
-            } else {
-              newObject[this.id] = id
-            }
-
+            newObject[this.id] = id
             return newObject
           })
       })
@@ -383,12 +321,10 @@ class Service {
    * @param params
    */
   patch (id, raw, params) {
-    let query = filter(params.query || {}).query
+    const query = filter(params.query || {}).query
     const data = Object.assign({}, raw)
 
-    const mapIds = page => Array.isArray(this.id)
-      ? this.id.map(idKey => [...new Set(page.data.map(current => current[idKey]))])
-      : page.data.map(current => current[this.id])
+    const mapIds = page => page.data.map(current => current[this.id])
 
     // By default we will just query for the one id. For multi patch
     // we create a list of the ids of all items that will be changed
@@ -397,11 +333,7 @@ class Service {
       id === null ? this._find(params).then(mapIds) : Promise.resolve([id])
 
     if (id !== null) {
-      if (Array.isArray(this.id)) {
-        query = Object.assign({}, query, this.getIdsQuery(id))
-      } else {
-        query[this.id] = id
-      }
+      query[this.id] = id
     }
 
     let q = this._createQuery(params)
@@ -414,7 +346,12 @@ class Service {
       .then(idList => {
         // Create a new query that re-queries all ids that
         // were originally changed
-        const findParams = Object.assign({}, params, { query: Object.assign({}, this.getIdsQuery(id, idList), { $select: params.query && params.query.$select }) })
+        const findParams = Object.assign({}, params, {
+          query: {
+            [this.id]: { $in: idList },
+            $select: params.query && params.query.$select
+          }
+        })
 
         return q.patch(data).then(() => {
           return this._find(findParams).then(page => {
@@ -446,11 +383,7 @@ class Service {
     // NOTE (EK): First fetch the record so that we can return
     // it when we delete it.
     if (id !== null) {
-      if (Array.isArray(this.id)) {
-        params.query = Object.assign({}, params.query, this.getIdsQuery(id))
-      } else {
-        params.query[this.id] = id
-      }
+      params.query[this.id] = id
     }
 
     return this._find(params)
