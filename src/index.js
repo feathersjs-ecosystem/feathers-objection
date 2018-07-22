@@ -64,12 +64,12 @@ class Service {
       delete params.$eager
     }
 
-    // Delete $joinEager & $joinRelation
+    // Delete $joinEager & $pick
     if (params.$joinEager) {
       delete params.$joinEager
     }
-    if (params.$joinRelation) {
-      delete params.$joinRelation
+    if (params.$pick) {
+      delete params.$pick
     }
     Object.keys(params || {}).forEach(key => {
       const value = params[key]
@@ -131,11 +131,6 @@ class Service {
       delete query.$joinEager
     }
 
-    if (query && query.$joinRelation) {
-      q.joinRelation(query.$joinRelation)
-      delete query.$joinRelation
-    }
-
     // apply eager filters if specified
     if (this.eagerFilters) {
       const eagerFilters = this.eagerFilters
@@ -146,6 +141,11 @@ class Service {
       } else {
         q.filterEager(eagerFilters.expression, eagerFilters.filter)
       }
+    }
+
+    if (query && query.$pick) {
+      q = q.pick(query.$pick)
+      delete query.$pick
     }
 
     // build up the knex query out of the query params
@@ -199,7 +199,6 @@ class Service {
     if (count) {
       let countQuery = this.Model.query()
         .skipUndefined()
-        .joinRelation(query.$joinRelation)
         .count(`${this.id} as total`)
 
       this.objectify(countQuery, query)
