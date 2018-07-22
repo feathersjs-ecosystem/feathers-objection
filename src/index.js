@@ -408,7 +408,13 @@ class Service {
 
     this.objectify(q, query)
 
-    delete data[this.id]
+    if (Array.isArray(this.id)) {
+      for (const idKey of this.id) {
+        delete data[idKey]
+      }
+    } else {
+      delete data[this.id]
+    }
 
     return ids
       .then(idList => {
