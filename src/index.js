@@ -200,12 +200,10 @@ class Service {
     }
 
     if (count) {
-      const idColumns = Array.isArray(this.id) ? this.id.map(idKey => `${this.Model.tableName}.${idKey}`) : [`${this.Model.tableName}.${this.id}`]
-
       let countQuery = this.Model.query()
         .skipUndefined()
         .joinRelation(query.$joinRelation)
-        .countDistinct({ total: idColumns })
+        .countDistinct({ total: [`${this.Model.tableName}.${this.id}`] })
 
       this.objectify(countQuery, query)
 
