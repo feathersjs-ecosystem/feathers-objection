@@ -231,9 +231,11 @@ class Service {
     }
 
     if (count) {
+      const idColumns = Array.isArray(this.id) ? this.id.map(idKey => `${this.Model.tableName}.${idKey}`) : [`${this.Model.tableName}.${this.id}`]
+
       let countQuery = this.Model.query()
         .skipUndefined()
-        .count('* as total')
+        .countDistinct({ total: idColumns })
 
       this.objectify(countQuery, query)
 
