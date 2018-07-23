@@ -132,7 +132,10 @@ class Service {
     }
 
     if (query && query.$joinRelation) {
-      q.joinRelation(query.$joinRelation)
+      q
+        .distinct(`${this.Model.tableName}.${this.id}`)
+        .joinRelation(query.$joinRelation)
+
       delete query.$joinRelation
     }
 
@@ -200,7 +203,7 @@ class Service {
       let countQuery = this.Model.query()
         .skipUndefined()
         .joinRelation(query.$joinRelation)
-        .count(`${this.id} as total`)
+        .countDistinct(`${this.Model.tableName}.${this.id} as total`)
 
       this.objectify(countQuery, query)
 
