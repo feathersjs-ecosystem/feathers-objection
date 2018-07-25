@@ -189,7 +189,7 @@ class Service {
     }
 
     if (count) {
-      let countQuery = this.Model.query()
+      let countQuery = this._createQuery(params)
         .skipUndefined()
         .count(`${this.id} as total`)
 
