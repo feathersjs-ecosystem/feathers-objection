@@ -232,7 +232,7 @@ class Service {
 
     if (count) {
       const idColumns = Array.isArray(this.id) ? this.id.map(idKey => `${this.Model.tableName}.${idKey}`) : [`${this.Model.tableName}.${this.id}`]
-
+      
       let countQuery = this._createQuery(params)
         .skipUndefined()
         .countDistinct({ total: idColumns })
