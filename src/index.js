@@ -64,9 +64,12 @@ class Service {
       delete params.$eager
     }
 
-    // Delete $joinEager
+    // Delete $joinEager & $joinRelation
     if (params.$joinEager) {
       delete params.$joinEager
+    }
+    if (params.$joinRelation) {
+      delete params.$joinRelation
     }
     Object.keys(params || {}).forEach(key => {
       const value = params[key]
@@ -126,6 +129,14 @@ class Service {
         .eagerAlgorithm(this.Model.JoinEagerAlgorithm)
         .eager(query.$joinEager, this.namedEagerFilters)
       delete query.$joinEager
+    }
+
+    if (query && query.$joinRelation) {
+      q
+        .distinct(`${this.Model.tableName}.*`)
+        .joinRelation(query.$joinRelation)
+
+      delete query.$joinRelation
     }
 
     // apply eager filters if specified
@@ -191,7 +202,8 @@ class Service {
     if (count) {
       let countQuery = this._createQuery(params)
         .skipUndefined()
-        .count(`${this.id} as total`)
+        .joinRelation(query.$joinRelation)
+        .countDistinct({ total: [`${this.Model.tableName}.${this.id}`] })
 
       this.objectify(countQuery, query)
 
