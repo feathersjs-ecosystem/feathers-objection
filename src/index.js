@@ -80,12 +80,26 @@ class Service {
       const operator = OPERATORS[key] || '='
 
       if (method) {
-        if (key === '$or' || key === '$and') {
+        if (key === '$or') {
           const self = this
 
-          return value.forEach(condition => {
-            query[method](function () {
-              self.objectify(this, condition)
+          return query.where(function () {
+            return value.forEach((condition) => {
+              this.orWhere(function () {
+                self.objectify(this, condition)
+              })
+            })
+          })
+        }
+
+        if (key === '$and') {
+          const self = this
+
+          return query.where(function () {
+            return value.forEach((condition) => {
+              this.andWhere(function () {
+                self.objectify(this, condition)
+              })
             })
           })
         }
