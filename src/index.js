@@ -122,14 +122,32 @@ class Service {
       const operator = OPERATORS[key] || '='
 
       if (method) {
-        if (key === '$or' || key === '$and') {
-          const self = this
+        if (method) {
+          if (key === '$or') { // ref: https://github.com/feathersjs-ecosystem/feathers-knex/pull/122
+            const self = this
 
-          return value.forEach(condition => {
-            query[method](function () {
-              self.objectify(this, condition)
+            return query.where(function () {
+              return value.forEach((condition) => {
+                this.orWhere(function () {
+                  self.objectify(this, condition)
+                })
+              })
             })
-          })
+          }
+
+          if (key === '$and') {
+            const self = this
+
+            return query.where(function () {
+              return value.forEach((condition) => {
+                this.andWhere(function () {
+                  self.objectify(this, condition)
+                })
+              })
+            })
+          }
+
+          return query[method].call(query, column, value) // eslint-disable-line no-useless-call
         }
 
         return query[method].call(query, column, value) // eslint-disable-line no-useless-call
