@@ -210,6 +210,13 @@ describe('Feathers Objection Service', () => {
       })
     })
 
+    it('allows eager queries with pick', () => {
+      return companies.find({ query: { $eager: 'ceos', $pick: ['ceos'] } }).then(data => {
+        expect(data[0].ceos).to.be.ok
+        expect(data[0].ceo).to.be.undefined
+      })
+    })
+
     it('allows eager queries with named filters', () => {
       return companies
         .find({ query: { $eager: 'ceos(notSnoop)' } })
@@ -266,7 +273,7 @@ describe('Feathers Objection Service', () => {
       })
     })
 
-    it('allows filtering by relation field with joinEager quieres', () => {
+    it('allows filtering by relation field with joinEager queries', () => {
       return employees
         .find({
           query: {
@@ -304,52 +311,25 @@ describe('Feathers Objection Service', () => {
   describe('$and method', () => {
     beforeEach(done => {
       people.create([
-        {
-          name: 'Dave',
-          age: 23
-        },
-        {
-          name: 'Dave',
-          age: 32
-        },
-        {
-          name: 'Dada',
-          age: 1
-        }
-      ],
-      done
+          {
+            name: 'Dave',
+            age: 23
+          },
+          {
+            name: 'Dave',
+            age: 32
+          },
+          {
+            name: 'Dada',
+            age: 1
+          }
+        ],
+        done
       )
     })
 
     it('$and in query', () => {
       return people.find({ query: { $and: [ { $or: [ { name: 'Dave' }, { name: 'Dada' } ] }, { age: { $lt: 23 } } ] } }).then(data => {
-        expect(data[0].name).to.be.equal('Dada')
-      })
-    })
-  })
-
-  describe('$or method', () => {
-    beforeEach(done => {
-      people.create([
-        {
-          name: 'Dave',
-          age: 23
-        },
-        {
-          name: 'Dave',
-          age: 32
-        },
-        {
-          name: 'Dada',
-          age: 1
-        }
-      ],
-      done
-      )
-    })
-
-    it('$or in query', () => {
-      return people.find({ query: { $or: [ { name: 'John' }, { name: 'Dada' } ] } }).then(data => {
         expect(data[0].name).to.be.equal('Dada')
       })
     })

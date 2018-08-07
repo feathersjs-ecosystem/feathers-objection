@@ -64,9 +64,12 @@ class Service {
       delete params.$eager
     }
 
-    // Delete $joinEager
+    // Delete $joinEager & $pick
     if (params.$joinEager) {
       delete params.$joinEager
+    }
+    if (params.$pick) {
+      delete params.$pick
     }
     Object.keys(params || {}).forEach(key => {
       const value = params[key]
@@ -80,26 +83,12 @@ class Service {
       const operator = OPERATORS[key] || '='
 
       if (method) {
-        if (key === '$or') {
+        if (key === '$or' || key === '$and') {
           const self = this
 
-          return query.where(function () {
-            return value.forEach((condition) => {
-              this.orWhere(function () {
-                self.objectify(this, condition)
-              })
-            })
-          })
-        }
-
-        if (key === '$and') {
-          const self = this
-
-          return query.where(function () {
-            return value.forEach((condition) => {
-              this.andWhere(function () {
-                self.objectify(this, condition)
-              })
+          return value.forEach(condition => {
+            query[method](function () {
+              self.objectify(this, condition)
             })
           })
         }
@@ -152,6 +141,11 @@ class Service {
       } else {
         q.filterEager(eagerFilters.expression, eagerFilters.filter)
       }
+    }
+
+    if (query && query.$pick) {
+      q = q.pick(query.$pick)
+      delete query.$pick
     }
 
     // build up the knex query out of the query params
