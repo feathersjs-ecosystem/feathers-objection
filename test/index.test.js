@@ -328,6 +328,33 @@ describe('Feathers Objection Service', () => {
     })
   })
 
+  describe('$or method', () => {
+    beforeEach(done => {
+      people.create([
+        {
+          name: 'Dave',
+          age: 23
+        },
+        {
+          name: 'Dave',
+          age: 32
+        },
+        {
+          name: 'Dada',
+          age: 1
+        }
+      ],
+      done
+      )
+    })
+
+    it('$or in query', () => {
+      return people.find({ query: { $or: [ { name: 'John' }, { name: 'Dada' } ] } }).then(data => {
+        expect(data[0].name).to.be.equal('Dada')
+      })
+    })
+  })
+
   describe('Transactions', () => {
     let transaction
 

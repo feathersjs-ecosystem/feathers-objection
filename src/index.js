@@ -122,12 +122,26 @@ class Service {
       const operator = OPERATORS[key] || '='
 
       if (method) {
-        if (key === '$or' || key === '$and') {
+        if (key === '$or') {
           const self = this
 
-          return value.forEach(condition => {
-            query[method](function () {
-              self.objectify(this, condition)
+          return query.where(function () {
+            return value.forEach((condition) => {
+              this.orWhere(function () {
+                self.objectify(this, condition)
+              })
+            })
+          })
+        }
+
+        if (key === '$and') {
+          const self = this
+
+          return query.where(function () {
+            return value.forEach((condition) => {
+              this.andWhere(function () {
+                self.objectify(this, condition)
+              })
             })
           })
         }
@@ -232,7 +246,7 @@ class Service {
 
     if (count) {
       const idColumns = Array.isArray(this.id) ? this.id.map(idKey => `${this.Model.tableName}.${idKey}`) : [`${this.Model.tableName}.${this.id}`]
-      
+
       let countQuery = this._createQuery(params)
         .skipUndefined()
         .countDistinct({ total: idColumns })
