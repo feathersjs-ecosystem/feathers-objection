@@ -122,32 +122,28 @@ class Service {
       const operator = OPERATORS[key] || '='
 
       if (method) {
-        if (method) {
-          if (key === '$or') { // ref: https://github.com/feathersjs-ecosystem/feathers-knex/pull/122
-            const self = this
+        if (key === '$or') { // ref: https://github.com/feathersjs-ecosystem/feathers-knex/pull/122
+          const self = this
 
-            return query.where(function () {
-              return value.forEach((condition) => {
-                this.orWhere(function () {
-                  self.objectify(this, condition)
-                })
+          return query.where(function () {
+            return value.forEach((condition) => {
+              this.orWhere(function () {
+                self.objectify(this, condition)
               })
             })
-          }
+          })
+        }
 
-          if (key === '$and') {
-            const self = this
+        if (key === '$and') {
+          const self = this
 
-            return query.where(function () {
-              return value.forEach((condition) => {
-                this.andWhere(function () {
-                  self.objectify(this, condition)
-                })
+          return query.where(function () {
+            return value.forEach((condition) => {
+              this.andWhere(function () {
+                self.objectify(this, condition)
               })
             })
-          }
-
-          return query[method].call(query, column, value) // eslint-disable-line no-useless-call
+          })
         }
 
         return query[method].call(query, column, value) // eslint-disable-line no-useless-call
@@ -250,7 +246,7 @@ class Service {
 
     if (count) {
       const idColumns = Array.isArray(this.id) ? this.id.map(idKey => `${this.Model.tableName}.${idKey}`) : [`${this.Model.tableName}.${this.id}`]
-      
+
       let countQuery = this._createQuery(params)
         .skipUndefined()
         .countDistinct({ total: idColumns })
