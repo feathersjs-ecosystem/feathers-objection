@@ -64,12 +64,9 @@ class Service {
       delete params.$eager
     }
 
-    // Delete $joinEager & $pick
+    // Delete $joinEager
     if (params.$joinEager) {
       delete params.$joinEager
-    }
-    if (params.$pick) {
-      delete params.$pick
     }
     Object.keys(params || {}).forEach(key => {
       const value = params[key]
@@ -141,11 +138,6 @@ class Service {
       } else {
         q.filterEager(eagerFilters.expression, eagerFilters.filter)
       }
-    }
-
-    if (query && query.$pick) {
-      q = q.pick(query.$pick)
-      delete query.$pick
     }
 
     // build up the knex query out of the query params
