@@ -311,20 +311,20 @@ describe('Feathers Objection Service', () => {
   describe('$and method', () => {
     beforeEach(done => {
       people.create([
-          {
-            name: 'Dave',
-            age: 23
-          },
-          {
-            name: 'Dave',
-            age: 32
-          },
-          {
-            name: 'Dada',
-            age: 1
-          }
-        ],
-        done
+        {
+          name: 'Dave',
+          age: 23
+        },
+        {
+          name: 'Dave',
+          age: 32
+        },
+        {
+          name: 'Dada',
+          age: 1
+        }
+      ],
+      done
       )
     })
 
