@@ -79,7 +79,6 @@ class Service {
       const method = METHODS[key]
       const operator = OPERATORS[key] || '='
 
-
       if (method) {
         if (key === '$or') {
           const self = this
