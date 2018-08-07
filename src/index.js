@@ -122,7 +122,7 @@ class Service {
       const operator = OPERATORS[key] || '='
 
       if (method) {
-        if (key === '$or') { // ref: https://github.com/feathersjs-ecosystem/feathers-knex/pull/122
+        if (key === '$or') {
           const self = this
 
           return query.where(function () {
