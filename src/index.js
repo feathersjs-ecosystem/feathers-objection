@@ -88,7 +88,7 @@ class Service {
         }
       })
     } else {
-      query[this.id] = idList ? { $in: idList } : id
+      query[`${this.Model.tableName}.${this.id}`] = idList ? { $in: idList } : id
     }
 
     return query
