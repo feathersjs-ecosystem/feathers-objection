@@ -1,4 +1,4 @@
-import errors from 'feathers-errors'
+import errors from '@feathersjs/errors'
 
 export default function errorHandler (error) {
   let feathersError = error

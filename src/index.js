@@ -1,8 +1,8 @@
 import Proto from 'uberproto'
-import filter from 'feathers-query-filters'
+import { filterQuery } from '@feathersjs/commons'
 import isPlainObject from 'is-plain-object'
 import errorHandler from './error-handler'
-import { errors } from 'feathers-errors'
+import errors from '@feathersjs/errors'
 
 const METHODS = {
   $or: 'orWhere',
@@ -12,7 +12,21 @@ const METHODS = {
   $nin: 'whereNotIn'
 }
 
-const OPERATORS = {
+const OPERATORS = [
+  '$or',
+  '$and',
+  '$lt',
+  '$lte',
+  '$gt',
+  '$gte',
+  '$like',
+  '$eager',
+  '$joinEager',
+  '$joinRelation',
+  '$pick'
+]
+
+const OPERATORS_MAP = {
   $lt: '<',
   $lte: '<=',
   $gt: '>',
@@ -102,19 +116,6 @@ class Service {
    * @param parentKey
    */
   objectify (query, params, parentKey) {
-    if (params.$eager) {
-      delete params.$eager
-    }
-    if (params.$joinEager) {
-      delete params.$joinEager
-    }
-    if (params.$joinRelation) {
-      delete params.$joinRelation
-    }
-    if (params.$pick) {
-      delete params.$pick
-    }
-
     Object.keys(params || {}).forEach(key => {
       const value = params[key]
 
@@ -124,7 +125,7 @@ class Service {
 
       const column = parentKey || key
       const method = METHODS[key]
-      const operator = OPERATORS[key] || '='
+      const operator = OPERATORS_MAP[key] || '='
 
       if (method) {
         if (key === '$or') {
@@ -165,7 +166,7 @@ class Service {
   }
 
   createQuery (params = {}) {
-    const { filters, query } = filter(params.query || {})
+    const { filters, query } = filterQuery(params.query || {}, { operators: OPERATORS })
     let q = this._createQuery(params)
       .skipUndefined()
       .allowEager(this.allowedEager)
@@ -226,8 +227,8 @@ class Service {
     return q
   }
 
-  _find (params, count, getFilter = filter) {
-    const { filters, query } = getFilter(params.query || {})
+  _find (params, count, getFilter = filterQuery) {
+    const { filters, query } = getFilter(params.query || {}, { operators: OPERATORS })
     const q = params.objection || this.createQuery(params)
 
     // Handle $limit
@@ -290,7 +291,7 @@ class Service {
         ? params.paginate
         : this.paginate
     const result = this._find(params, !!paginate.default, query =>
-      filter(query, paginate)
+      filterQuery(query, { paginate, operators: OPERATORS })
     )
 
     if (!paginate.default) {
@@ -418,7 +419,7 @@ class Service {
    * @param params
    */
   patch (id, raw, params) {
-    let query = filter(params.query || {}).query
+    let query = filterQuery(params.query || {}, { operators: OPERATORS }).query
     const data = Object.assign({}, raw)
 
     const mapIds = page => Array.isArray(this.id)
@@ -497,7 +498,7 @@ class Service {
     return this._find(params)
       .then(page => {
         const items = page.data
-        const { query: queryParams } = filter(params.query || {})
+        const { query: queryParams } = filterQuery(params.query || {}, { operators: OPERATORS })
         const query = this._createQuery(params)
 
         this.objectify(query, queryParams)

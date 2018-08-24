@@ -2,10 +2,10 @@
 /* eslint-disable no-unused-expressions */
 import { expect } from 'chai'
 import assert from 'assert'
-import feathers from 'feathers'
+import feathers from '@feathersjs/feathers'
 import knex from 'knex'
 import { base, example } from 'feathers-service-tests'
-import { errors } from 'feathers-errors'
+import errors from '@feathersjs/errors'
 import service from '../src'
 import server from '../example/app'
 import People from './people'
@@ -21,7 +21,8 @@ const db = knex({
   debug: false,
   connection: {
     filename: './db.sqlite'
-  }
+  },
+  useNullAsDefault: false
 })
 
 // Bind Objection.js
@@ -223,8 +224,8 @@ describe('Feathers Objection Service', () => {
   })
 
   describe('Composite PK queries', () => {
-    beforeEach(done => {
-      peopleRooms
+    beforeEach(async () => {
+      await peopleRooms
         .create([
           {
             peopleId: 1,
@@ -242,32 +243,25 @@ describe('Feathers Objection Service', () => {
             admin: true
           }
         ])
-        .then(data => {
-          return peopleRoomsCustomIdSeparator
-            .create([
-              {
-                peopleId: 1,
-                roomId: 2,
-                admin: false
-              },
-              {
-                peopleId: 2,
-                roomId: 2,
-                admin: true
-              }
-            ])
-            .then(() => done())
-        }, done)
+
+      await peopleRoomsCustomIdSeparator
+        .create([
+          {
+            peopleId: 1,
+            roomId: 2,
+            admin: false
+          },
+          {
+            peopleId: 2,
+            roomId: 2,
+            admin: true
+          }
+        ])
     })
 
-    afterEach(done => {
-      peopleRooms
-        .remove(null)
-        .then(data => {
-          return peopleRoomsCustomIdSeparator
-            .remove(null)
-            .then(() => done())
-        }, done)
+    afterEach(async () => {
+      await peopleRooms.remove(null)
+      await peopleRoomsCustomIdSeparator.remove(null)
     })
 
     it('allows get queries', () => {
@@ -328,26 +322,24 @@ describe('Feathers Objection Service', () => {
   })
 
   describe('Eager queries', () => {
-    beforeEach(done => {
-      people
+    beforeEach(async () => {
+      const data = await people
         .create({
           name: 'Snoop',
           age: 20
         })
-        .then(data => {
-          return companies
-            .create([
-              {
-                name: 'Google',
-                ceo: data.id
-              },
-              {
-                name: 'Apple',
-                ceo: data.id
-              }
-            ])
-            .then(() => done())
-        }, done)
+
+      await companies
+        .create([
+          {
+            name: 'Google',
+            ceo: data.id
+          },
+          {
+            name: 'Apple',
+            ceo: data.id
+          }
+        ])
     })
 
     it('allows eager queries', () => {
@@ -384,9 +376,9 @@ describe('Feathers Objection Service', () => {
     })
   })
 
-  describe('Join Eager queries', () => {
-    before(done => {
-      companies
+  describe('Join Eager/Relation queries', () => {
+    before(async () => {
+      const data = await companies
         .create([
           {
             name: 'Google'
@@ -395,21 +387,19 @@ describe('Feathers Objection Service', () => {
             name: 'Apple'
           }
         ])
-        .then(data => {
-          const [google, apple] = data
-          return employees
-            .create([
-              {
-                name: 'Luke',
-                companyId: google.id
-              },
-              {
-                name: 'Yoda',
-                companyId: apple.id
-              }
-            ])
-            .then(() => done())
-        }, done)
+
+      const [google, apple] = data
+      await employees
+        .create([
+          {
+            name: 'Luke',
+            companyId: google.id
+          },
+          {
+            name: 'Yoda',
+            companyId: apple.id
+          }
+        ])
     })
 
     it('allows joinEager queries', () => {
@@ -436,17 +426,25 @@ describe('Feathers Objection Service', () => {
     })
 
     it('allows joinRelation queries', () => {
-      return employees.find({ query: { $joinRelation: 'company', $eager: 'company' } }).then(data => {
-        expect(data[0].company).to.be.ok
-        expect(data[1].company).to.be.ok
-      })
+      return employees
+        .find({
+          query: {
+            $eager: 'company',
+            $joinRelation: 'company'
+          }
+        })
+        .then(data => {
+          expect(data[0].company).to.be.ok
+          expect(data[1].company).to.be.ok
+        })
     })
 
     it('allows filtering by relation field with joinRelation queries', () => {
       return employees
         .find({
           query: {
-            $joinEager: 'company',
+            $eager: 'company',
+            $joinRelation: 'company',
             'company.name': {
               $like: 'google'
             }
@@ -460,14 +458,12 @@ describe('Feathers Objection Service', () => {
   })
 
   describe('$like method', () => {
-    beforeEach(done => {
-      people.create(
-        {
+    beforeEach(async () => {
+      await people
+        .create({
           name: 'Charlie Brown',
           age: 10
-        },
-        done
-      )
+        })
     })
 
     it('$like in query', () => {
@@ -478,23 +474,22 @@ describe('Feathers Objection Service', () => {
   })
 
   describe('$and method', () => {
-    beforeEach(done => {
-      people.create([
-        {
-          name: 'Dave',
-          age: 23
-        },
-        {
-          name: 'Dave',
-          age: 32
-        },
-        {
-          name: 'Dada',
-          age: 1
-        }
-      ],
-      done
-      )
+    beforeEach(async () => {
+      await people
+        .create([
+          {
+            name: 'Dave',
+            age: 23
+          },
+          {
+            name: 'Dave',
+            age: 32
+          },
+          {
+            name: 'Dada',
+            age: 1
+          }
+        ])
     })
 
     it('$and in query', () => {
@@ -505,23 +500,22 @@ describe('Feathers Objection Service', () => {
   })
 
   describe('$or method', () => {
-    beforeEach(done => {
-      people.create([
-        {
-          name: 'Dave',
-          age: 23
-        },
-        {
-          name: 'Dave',
-          age: 32
-        },
-        {
-          name: 'Dada',
-          age: 1
-        }
-      ],
-      done
-      )
+    beforeEach(async () => {
+      await people
+        .create([
+          {
+            name: 'Dave',
+            age: 23
+          },
+          {
+            name: 'Dave',
+            age: 32
+          },
+          {
+            name: 'Dada',
+            age: 1
+          }
+        ])
     })
 
     it('$or in query', () => {

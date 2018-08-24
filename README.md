@@ -1,11 +1,11 @@
 # feathers-objection
 
 [![Build Status](https://travis-ci.org/mcchrish/feathers-objection.svg?branch=master)](https://travis-ci.org/mcchrish/feathers-objection)
-[![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
+[![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](https://standardjs.com/)
 [![Dependency Status](https://img.shields.io/david/mcchrish/feathers-objection.svg)](https://david-dm.org/mcchrish/feathers-objection)
 [![npm](https://img.shields.io/npm/v/feathers-objection.svg?maxAge=2592000)](https://www.npmjs.com/package/feathers-objection)
 
-> An [Objection.js](http://vincit.github.io/objection.js) service adapter for [FeathersJS](http://feathersjs.com)
+> An [Objection.js](https://vincit.github.io/objection.js) service adapter for [FeathersJS](https://feathersjs.com)
 
 
 ## Installation
@@ -16,13 +16,13 @@ npm install feathers-objection --save
 
 ## Documentation
 
-Please refer to the [Feathers database adapter documentation](http://docs.feathersjs.com/databases/readme.html) for more details or directly at:
+Please refer to the [Feathers database adapter documentation](https://docs.feathersjs.com/databases/readme.html) for more details or directly at:
 
-- [Extending](http://docs.feathersjs.com/databases/extending.html) - How to extend a database adapter
-- [Pagination and Sorting](http://docs.feathersjs.com/databases/pagination.html) - How to use pagination and sorting for the database adapter
-- [Querying](http://docs.feathersjs.com/databases/querying.html) - The common adapter querying mechanism
+- [Extending](https://docs.feathersjs.com/databases/extending.html) - How to extend a database adapter
+- [Pagination and Sorting](https://docs.feathersjs.com/databases/pagination.html) - How to use pagination and sorting for the database adapter
+- [Querying](https://docs.feathersjs.com/databases/querying.html) - The common adapter querying mechanism
 
-Refer to the official [Objection.js documention](http://vincit.github.io/objection.js).
+Refer to the official [Objection.js documention](https://vincit.github.io/objection.js).
 
 It works almost the same as the [Knex
 service](https://github.com/feathersjs/feathers-knex) adapter, except it has all
@@ -69,25 +69,25 @@ Feathers services, instead of relying with hooks.
 Note that all this eager related options are optional.
 
 * **`allowedEager`** - relation expression to limit the allowed eager queries in
-  the service. Defaults to `'[]'`, meaning no eager queries allowed. See [`allowEager`](http://vincit.github.io/objection.js/#alloweager) documentation.
+  the service. Defaults to `'[]'`, meaning no eager queries allowed. See [`allowEager`](https://vincit.github.io/objection.js/#alloweager) documentation.
 * **`eagerFilters`** - option to impose compulsory eager filter. It takes an
   object or array of objects with the following properties:
   * `expression` - the relation expression that the filter will be applied.
   * `filter` - the filter function.
-  It uses [`filterEager`](http://vincit.github.io/objection.js/#filtereager) internally.
+  It uses [`filterEager`](https://vincit.github.io/objection.js/#filtereager) internally.
 * **`namedEagerFilters`** - object containing named eager filter functions.
   Filter is opt-in via `$eager` parameter.
 
 #### Service call parameters
 
 * **`$eager`** - parameter to eager load relations defined in `namedEagerFilters`. See 
-  [`eager`](http://vincit.github.io/objection.js/#eager) documentation.
-
+  [`eager`](https://vincit.github.io/objection.js/#eager) documentation.
 * **`$joinRelation`** - parameter to filter based on a relation's field. See 
-  [`joinRelation`](http://vincit.github.io/objection.js/#joinrelation) documentation.
-  
+  [`joinRelation`](https://vincit.github.io/objection.js/#joinrelation) documentation.
+* **`$joinEager`** - parameter to filter based on a relation's field using `JoinEagerAlgorithm`. See 
+    [`$joinEager`](https://vincit.github.io/objection.js/#joineager) documentation.
 * **`$pick`** - parameter to pick properties from result models. See
-  [`pick`](http://vincit.github.io/objection.js/#pick) documentation.
+  [`pick`](https://vincit.github.io/objection.js/#pick) documentation.
 
 Example:
 
@@ -158,11 +158,12 @@ app.service('/user-todos').get({ userId: 1, todoId: 2 });
 
 ## Complete Example
 
-Here's a complete example of a Feathers server with a `todos` SQLite service. We are using the [Knex schema builder](http://knexjs.org/#Schema).
+Here's a complete example of a Feathers server with a `todos` SQLite service. We are using the [Knex schema builder](https://knexjs.org/#Schema).
 
 ```js
-import feathers from 'feathers'
-import rest from 'feathers-rest'
+import feathers from '@feathersjs/feathers'
+import express from '@feathersjs/express'
+import rest from '@feathersjs/express/rest'
 import bodyParser from 'body-parser'
 import ObjectionService from '../lib'
 import { Model } from 'objection'
@@ -171,7 +172,8 @@ const knex = require('knex')({
   client: 'sqlite3',
   connection: {
     filename: './db.sqlite'
-  }
+  },
+  useNullAsDefault: false
 })
 
 // Bind Objection.js
@@ -192,7 +194,7 @@ knex.schema.dropTableIfExists('todos').then(function () {
 })
 
 // Create a feathers instance.
-const app = feathers()
+const app = express(feathers())
   // Enable REST services
   .configure(rest())
   // Turn on JSON parser for REST services

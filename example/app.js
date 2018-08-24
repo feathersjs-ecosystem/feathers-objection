@@ -1,5 +1,6 @@
-import feathers from 'feathers'
-import rest from 'feathers-rest'
+import feathers from '@feathersjs/feathers'
+import express from '@feathersjs/express'
+import rest from '@feathersjs/express/rest'
 import bodyParser from 'body-parser'
 import ObjectionService from '../lib'
 import { Model } from 'objection'
@@ -9,7 +10,8 @@ const knex = require('knex')({
   client: 'sqlite3',
   connection: {
     filename: './db.sqlite'
-  }
+  },
+  useNullAsDefault: false
 })
 
 // Bind Objection.js
@@ -30,7 +32,7 @@ knex.schema.dropTableIfExists('todos').then(function () {
 })
 
 // Create a feathers instance.
-const app = feathers()
+const app = express(feathers())
   // Enable REST services
   .configure(rest())
   // Turn on JSON parser for REST services
