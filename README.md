@@ -32,24 +32,117 @@ the benefits of the Objection ORM.
 
 Objection requires you to define Models for your tables:
 
+users.model.js
 ```js
-// todo.js
-class Todo extends Model {
-  static tableName = 'todos'
+const { Model } = require('objection');
 
-  static jsonSchema = {
-    type: 'object',
-    required: ['text'],
+class User extends Model {
 
-    properties: {
-      id: {type: 'integer'},
-      text: {type: 'string'},
-      complete: {type: 'boolean'}
-    }
+  static get tableName() {
+    return 'user';
   }
+
+  static get jsonSchema() {
+    return {
+      type: 'object',
+      required: ['firstName', 'lastName', 'todoId'],
+
+      properties: {
+        id: { type: 'integer' },
+        firstName: { type: 'string', maxLength: 45 },
+        lastName: { type: 'string', maxLength: 45 },
+        todoId: { type: 'integer' },
+        status: { type: 'string', enum: ['active', 'disabled'], default: 'active' },
+      },
+    };
+  }
+
+  static get relationMappings() {
+    const Todo = require('./todos.model');
+
+    return {
+      todos: {
+        relation: Model.HasManyRelation,
+        modelClass: Todo,
+        join: {
+          from: 'user.id',
+          to: 'todo.userId',
+        },
+      },
+    };
+  }
+
+  static get namedFilters() {
+    return {
+      active: builder => {
+        builder.where('status', 'active');
+      },
+    };
+  }
+
+  $beforeInsert() {
+    this.createdAt = this.updatedAt = new Date().toISOString();
+  }
+
+  $beforeUpdate() {
+    this.updatedAt = new Date().toISOString();
+  }
+
 }
 
-export default Todo
+module.exports = User;
+```
+
+todos.model.js
+```js
+const { Model } = require('objection');
+
+class Todo extends Model {
+
+  static get tableName() {
+    return 'todo';
+  }
+
+  static get jsonSchema() {
+    return {
+      type: 'object',
+      required: ['userId', 'text'],
+
+      properties: {
+        id: { type: 'integer' },
+        userId: { type: 'integer' },
+        text: { type: 'string' },
+        complete: { type: 'boolean', default: false },
+      },
+    };
+  }
+
+  static get relationMappings() {
+    const User = require('./users.model');
+
+    return {
+      user: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: User,
+        join: {
+          from: 'todo.userId',
+          to: 'user.id',
+        },
+      },
+    };
+  }
+
+  $beforeInsert() {
+    this.createdAt = this.updatedAt = new Date().toISOString();
+  }
+
+  $beforeUpdate() {
+    this.updatedAt = new Date().toISOString();
+  }
+
+}
+
+module.exports = Todo;
 ```
 
 When defining a service, you must provide the model:
@@ -80,7 +173,8 @@ Note that all this eager related options are optional.
 
 #### Service call parameters
 
-* **`$eager`** - parameter to eager load relations defined in `namedEagerFilters`. See 
+* **`$eager`** - parameter to eager load relations defined in models' `relationMappings` 
+  getter methods or in the `namedEagerFilters` option. See 
   [`eager`](https://vincit.github.io/objection.js/#eager) documentation.
 * **`$joinRelation`** - parameter to filter based on a relation's field. See 
   [`joinRelation`](https://vincit.github.io/objection.js/#joinrelation) documentation.
@@ -89,27 +183,65 @@ Note that all this eager related options are optional.
 * **`$pick`** - parameter to pick properties from result models. See
   [`pick`](https://vincit.github.io/objection.js/#pick) documentation.
 
-Example:
+### Service
 
+users.service.js
 ```js
-app.use('/todos', service({
-  model: Todo,
-  allowedEager: 'subtask',
-  namedEagerFilters: {
-    unDone: function (builder) {
-      builder.where('done', false)
-    }
-  },
-  eagerFilters: [
-    {
-      expression: 'subtask',
-      filter: function (builder) {
-        builder.where('archived', true)
-      }
-    }
-  ]
-})
+const createService = require('feathers-objection');
+const model = require('../../models/users.model');
+const hooks = require('./users.hooks');
 
+module.exports = function (app) {
+  const paginate = app.get('paginate');
+
+  const options = {
+    model,
+    paginate,
+    allowedEager: 'todos',
+  };
+
+  app.v2.use('/users', createService(options));
+
+  const service = app.v2.service('users');
+
+  service.hooks(hooks);
+};
+```
+
+todos.service.js
+```js
+const createService = require('feathers-objection');
+const model = require('../../models/todos.model');
+const hooks = require('./todos.hooks');
+
+module.exports = function (app) {
+  const paginate = app.get('paginate');
+
+  const options = {
+    model,
+    paginate,
+    allowedEager: '[user, subtask]',
+    namedEagerFilters: {
+      unDone: function (builder) {
+        builder.where('done', false)
+      }
+    },
+    eagerFilters: [
+      {
+        expression: 'subtask',
+        filter: function (builder) {
+          builder.where('archived', true)
+        }
+      }
+    ]
+  };
+
+  app.v2.use('/todos', createService(options));
+
+  const service = app.v2.service('todos');
+
+  service.hooks(hooks);
+};
 ```
 
 Use eager queries as follows:
@@ -117,9 +249,16 @@ Use eager queries as follows:
 // Get all todos and their unfinished tasks
 app.service('/todos').find({
   query: {
-    'user.name': 'John',
-    $eager: 'subtask(unDone), user',
-    $joinRelation: 'subtask(unDone), user'
+    $eager: 'subtask(unDone)',
+  }
+})
+
+// Get all todos of an active user with firstName 'John'
+app.service('/todos').find({
+  query: {
+    'user.firstName': 'John',
+    $eager: 'user(active)',
+    $joinRelation: 'user(active)'
   }
 })
 ```
@@ -181,12 +320,12 @@ Model.knex(knex)
 
 // Clean up our data. This is optional and is here
 // because of our integration tests
-knex.schema.dropTableIfExists('todos').then(function () {
-  console.log('Dropped todos table')
+knex.schema.dropTableIfExists('todo').then(function () {
+  console.log('Dropped todo table')
 
   // Initialize your table
-  return knex.schema.createTable('todos', function (table) {
-    console.log('Creating todos table')
+  return knex.schema.createTable('todo', function (table) {
+    console.log('Creating todo table')
     table.increments('id')
     table.string('text')
     table.boolean('complete')
@@ -204,7 +343,7 @@ const app = express(feathers())
 
 // Create an Objection Model
 class Todo extends Model {
-  static tableName = 'todos'
+  static tableName = 'todo'
 
   static jsonSchema = {
     type: 'object',
