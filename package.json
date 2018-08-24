@@ -55,12 +55,12 @@
     "feathers-errors": "^2.4.0",
     "feathers-query-filters": "^2.1.0",
     "is-plain-object": "^2.0.1",
-    "uberproto": "^2.0.3"
+    "uberproto": "^2.0.4"
   },
   "devDependencies": {
     "babel-cli": "^6.11.4",
     "babel-core": "^6.26.3",
-    "babel-eslint": "^8.2.5",
+    "babel-eslint": "^8.2.6",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-transform-class-properties": "^6.11.5",
     "babel-plugin-transform-object-assign": "^6.8.0",
@@ -70,11 +70,11 @@
     "feathers": "^2.0.1",
     "feathers-rest": "^1.4.3",
     "feathers-service-tests": "^0.10.2",
-    "knex": "^0.15.0",
+    "knex": "^0.15.2",
     "mocha": "^5.2.0",
-    "objection": "^1.1.10",
+    "objection": "^1.2.3",
     "rimraf": "^2.6.2",
-    "sqlite3": "^4.0.1",
+    "sqlite3": "^4.0.2",
     "standard": "^11.0.1"
   },
   "babel": {
