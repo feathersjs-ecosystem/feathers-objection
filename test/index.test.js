@@ -10,6 +10,8 @@ import service from '../src'
 import server from '../example/app'
 import People from './people'
 import PeopleCustomid from './people-customid'
+import PeopleRoom from './people-rooms'
+import PeopleRoomsCustomIdSeparator from './people-rooms-custom-id-separator'
 import Company from './company'
 import { Model } from 'objection'
 import Employee from './employee'
@@ -39,6 +41,23 @@ const app = feathers()
     service({
       model: PeopleCustomid,
       id: 'customid',
+      events: ['testing']
+    })
+  )
+  .use(
+    '/people-rooms',
+    service({
+      model: PeopleRoom,
+      id: ['peopleId', 'roomId'],
+      events: ['testing']
+    })
+  )
+  .use(
+    '/people-rooms-custom-id-separator',
+    service({
+      model: PeopleRoomsCustomIdSeparator,
+      id: ['peopleId', 'roomId'],
+      idSeparator: '.',
       events: ['testing']
     })
   )
@@ -73,6 +92,8 @@ const app = feathers()
   )
 
 let people = app.service('people')
+let peopleRooms = app.service('people-rooms')
+let peopleRoomsCustomIdSeparator = app.service('people-rooms-custom-id-separator')
 let companies = app.service('companies')
 let employees = app.service('employees')
 
@@ -96,6 +117,26 @@ function clean (done) {
           table.integer('age')
           table.integer('time')
           table.boolean('created')
+        })
+      })
+    })
+    .then(() => {
+      return db.schema.dropTableIfExists('people-rooms').then(() => {
+        return db.schema.createTable('people-rooms', table => {
+          table.integer('peopleId')
+          table.integer('roomId')
+          table.boolean('admin')
+          table.primary(['peopleId', 'roomId'])
+        })
+      })
+    })
+    .then(() => {
+      return db.schema.dropTableIfExists('people-rooms-custom-id-separator').then(() => {
+        return db.schema.createTable('people-rooms-custom-id-separator', table => {
+          table.integer('peopleId')
+          table.integer('roomId')
+          table.boolean('admin')
+          table.primary(['peopleId', 'roomId'])
         })
       })
     })
@@ -179,6 +220,111 @@ describe('Feathers Objection Service', () => {
 
     base(app, errors, 'people')
     base(app, errors, 'people-customid', 'customid')
+  })
+
+  describe('Composite PK queries', () => {
+    beforeEach(done => {
+      peopleRooms
+        .create([
+          {
+            peopleId: 1,
+            roomId: 1,
+            admin: true
+          },
+          {
+            peopleId: 1,
+            roomId: 2,
+            admin: false
+          },
+          {
+            peopleId: 2,
+            roomId: 2,
+            admin: true
+          }
+        ])
+        .then(data => {
+          return peopleRoomsCustomIdSeparator
+            .create([
+              {
+                peopleId: 1,
+                roomId: 2,
+                admin: false
+              },
+              {
+                peopleId: 2,
+                roomId: 2,
+                admin: true
+              }
+            ])
+            .then(() => done())
+        }, done)
+    })
+
+    afterEach(done => {
+      peopleRooms
+        .remove(null)
+        .then(data => {
+          return peopleRoomsCustomIdSeparator
+            .remove(null)
+            .then(() => done())
+        }, done)
+    })
+
+    it('allows get queries', () => {
+      return peopleRooms.get([2, 2]).then(data => {
+        expect(data.peopleId).to.equal(2)
+        expect(data.roomId).to.equal(2)
+        expect(data.admin).to.equal(1)
+      })
+    })
+
+    it('allows get queries by object', () => {
+      return peopleRooms.get({ peopleId: 2, roomId: 2 }).then(data => {
+        expect(data.peopleId).to.equal(2)
+      })
+    })
+
+    it('allows get queries by separator', () => {
+      return peopleRooms.get('2,2').then(data => {
+        expect(data.peopleId).to.equal(2)
+      })
+    })
+
+    it('allows get queries by custom separator', () => {
+      return peopleRoomsCustomIdSeparator.get('2.2').then(data => {
+        expect(data.peopleId).to.equal(2)
+      })
+    })
+
+    it('allows find queries', () => {
+      return peopleRooms.find({ query: { roomId: 2 } }).then(data => {
+        expect(data.length).to.equal(2)
+        expect(data[0].peopleId).to.equal(1)
+        expect(data[1].peopleId).to.equal(2)
+      })
+    })
+
+    it('allows patch queries', () => {
+      return peopleRooms.patch([2, 2], { admin: false, peopleId: 1 }).then(data => {
+        expect(data.peopleId).to.equal(2)
+        expect(data.admin).to.equal(0)
+      })
+    })
+
+    it('allows update queries', () => {
+      return peopleRooms.update([2, 2], { admin: false, peopleId: 1 }).then(data => {
+        expect(data.peopleId).to.equal(2)
+        expect(data.admin).to.equal(false)
+      })
+    })
+
+    it('allows remove queries', () => {
+      return peopleRooms.remove([2, 2]).then(data => {
+        return peopleRooms.find().then(data => {
+          expect(data.length).to.equal(2)
+        })
+      })
+    })
   })
 
   describe('Eager queries', () => {
