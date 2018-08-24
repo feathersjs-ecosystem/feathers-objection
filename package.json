@@ -41,7 +41,7 @@
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
-    "compile": "rm -rf lib/ && babel -d lib/ src/",
+    "compile": "rimraf lib/ && babel -d lib/ src/",
     "watch": "babel --watch -d lib/ src/",
     "lint": "standard --fix src/**/*.js test/**/*.js --config",
     "mocha": "mocha --opts mocha.opts",
@@ -73,6 +73,7 @@
     "knex": "^0.15.0",
     "mocha": "^5.2.0",
     "objection": "^1.1.10",
+    "rimraf": "^2.6.2",
     "sqlite3": "^4.0.1",
     "standard": "^11.0.1"
   },
