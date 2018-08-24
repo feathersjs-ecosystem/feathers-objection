@@ -288,6 +288,29 @@ describe('Feathers Objection Service', () => {
           expect(data[0].company.name).to.equal('Google')
         })
     })
+
+    it('allows joinRelation queries', () => {
+      return employees.find({ query: { $joinRelation: 'company', $eager: 'company' } }).then(data => {
+        expect(data[0].company).to.be.ok
+        expect(data[1].company).to.be.ok
+      })
+    })
+
+    it('allows filtering by relation field with joinRelation queries', () => {
+      return employees
+        .find({
+          query: {
+            $joinEager: 'company',
+            'company.name': {
+              $like: 'google'
+            }
+          }
+        })
+        .then(data => {
+          expect(data.length).to.equal(1)
+          expect(data[0].company.name).to.equal('Google')
+        })
+    })
   })
 
   describe('$like method', () => {
