@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/mcchrish/feathers-objection.svg?branch=master)](https://travis-ci.org/mcchrish/feathers-objection)
 [![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](https://standardjs.com/)
 [![Dependency Status](https://img.shields.io/david/mcchrish/feathers-objection.svg)](https://david-dm.org/mcchrish/feathers-objection)
-[![npm](https://img.shields.io/npm/v/feathers-objection.svg?maxAge=2592000)](https://www.npmjs.com/package/feathers-objection)
+[![npm](https://img.shields.io/npm/v/feathers-objection.svg?maxAge=3600)](https://www.npmjs.com/package/feathers-objection)
 
 > An [Objection.js](https://vincit.github.io/objection.js) service adapter for [FeathersJS](https://feathersjs.com)
 
