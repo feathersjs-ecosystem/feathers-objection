@@ -11,7 +11,9 @@
 ## Installation
 
 ```bash
-npm install feathers-objection --save
+npm install --save feathers-objection
+npm install --save objection
+npm install --save knex
 ```
 
 ## Documentation
@@ -27,6 +29,38 @@ Refer to the official [Objection.js documention](https://vincit.github.io/object
 It works almost the same as the [Knex
 service](https://github.com/feathersjs/feathers-knex) adapter, except it has all
 the benefits of the Objection ORM.
+
+### Knex
+
+config/defaults.json
+```js
+{
+  "mysql": {
+    "host": "mysql.example.com",
+    "user": "root",
+    "password": "secret",
+    "database": "example"
+  }
+}
+```  
+
+knex.js
+```js
+const { Model } = require('objection');
+
+module.exports = function (app) {
+  const connectionInfo = app.get('mysql');
+  const knex = require('knex')({
+    client: 'mysql',
+    useNullAsDefault: false,
+    connection: connectionInfo,
+  });
+
+  Model.knex(knex);
+
+  app.set('knex', knex);
+};
+```
 
 ### Models
 
