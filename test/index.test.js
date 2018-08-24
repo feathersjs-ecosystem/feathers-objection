@@ -210,6 +210,13 @@ describe('Feathers Objection Service', () => {
       })
     })
 
+    it('allows eager queries with pick', () => {
+      return companies.find({ query: { $eager: 'ceos', $pick: ['ceos'] } }).then(data => {
+        expect(data[0].ceos).to.be.ok
+        expect(data[0].ceo).to.be.undefined
+      })
+    })
+
     it('allows eager queries with named filters', () => {
       return companies
         .find({ query: { $eager: 'ceos(notSnoop)' } })
@@ -267,29 +274,6 @@ describe('Feathers Objection Service', () => {
     })
 
     it('allows filtering by relation field with joinEager queries', () => {
-      return employees
-        .find({
-          query: {
-            $joinEager: 'company',
-            'company.name': {
-              $like: 'google'
-            }
-          }
-        })
-        .then(data => {
-          expect(data.length).to.equal(1)
-          expect(data[0].company.name).to.equal('Google')
-        })
-    })
-
-    it('allows joinRelation queries', () => {
-      return employees.find({ query: { $joinRelation: 'company', $eager: 'company' } }).then(data => {
-        expect(data[0].company).to.be.ok
-        expect(data[1].company).to.be.ok
-      })
-    })
-
-    it('allows filtering by relation field with joinRelation queries', () => {
       return employees
         .find({
           query: {
