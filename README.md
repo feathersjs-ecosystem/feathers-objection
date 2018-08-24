@@ -313,9 +313,9 @@ When calling a service method with the `id` argument, all primary keys are requi
 
 #### Options
 
-* **`id`** - (optional) define custom `id` as string or array of string for composite primary keys. Defaults to `'id'`.
+* **`id`** - (optional) define custom `id` as string or array of strings for Composite primary keys. Defaults to `'id'`.
 * **`idSeparator`** - (optional) separator char to separate Composite primary keys in the `id` argument 
-  of a get/patch/update/remove external service calls. Defaults to `','`.
+  of get/patch/update/remove external service calls. Defaults to `','`.
   
 ```js
 app.use('/user-todos', service({
