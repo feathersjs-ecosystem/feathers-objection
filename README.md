@@ -79,6 +79,14 @@ Note that all this eager related options are optional.
   Filter is opt-in via `$eager` parameter. See
   [`eager`](http://vincit.github.io/objection.js/#eager) documentation.
 
+#### Service call parameters
+
+* **`$joinRelation`** - parameter to filter based on a relation's field. See 
+  [`joinRelation`](http://vincit.github.io/objection.js/#joinrelation) documentation.
+  
+* **`$pick`** - parameter to pick properties from result models. See
+  [`pick`](http://vincit.github.io/objection.js/#pick) documentation.
+
 Example:
 
 ```js
@@ -107,7 +115,9 @@ Use eager queries as follows:
 // Get all todos and their unfinished tasks
 app.service('/todos').find({
   query: {
-    $eager: 'subtask(unDone)'
+    'user.name': 'John',
+    $eager: 'subtask(unDone), user',
+    $joinRelation: 'subtask(unDone), user'
   }
 })
 ```
@@ -115,6 +125,33 @@ app.service('/todos').find({
 See [this
 article](https://www.vincit.fi/blog/nested-eager-loading-and-inserts-with-objection-js/)
 for more information.
+
+### Composite primary keys
+
+Composite primary keys can be passed as the `id` argument using the following methods:
+
+* String with values separated by the `idSeparator` property (order matter, recommended for REST)
+* JSON array (order matter, recommended for internal service calls)
+* JSON object (more readable, recommended for internal service calls)
+
+When calling a service method with the `id` argument, all primary keys are required to be passed.
+
+#### Options
+
+* **`id`** - (optional) define custom `id` as string or array of string for composite primary keys. Defaults to `'id'`.
+* **`idSeparator`** - (optional) separator char to separate Composite primary keys in the `id` argument 
+  of a get/patch/update/remove external service calls. Defaults to `','`.
+  
+```js
+app.use('/user-todos', service({
+  id: ['userId', 'todoId'],
+  idSeparator: ','
+})
+
+app.service('/user-todos').get('1,2');
+app.service('/user-todos').get([1, 2]);
+app.service('/user-todos').get({ userId: 1, todoId: 2 });
+```  
 
 
 ## Complete Example

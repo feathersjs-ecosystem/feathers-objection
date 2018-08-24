@@ -23,10 +23,11 @@ const OPERATORS = {
 /**
  * Class representing an feathers adapter for objection.js ORM.
  * @param {object} options
- * @param {string} [id='id'] - database id field
+ * @param {string} [options.id='id'] - database id field
+ * @param {string} [options.idSeparator=','] - id field primary keys separator char
  * @param {object} options.model - an objection model
- * @param {object} [options.paginate]
- * @param {string} [allowedEager] - Objection eager loading string.
+ * @param {object} options.paginate
+ * @param {string} options.allowedEager - Objection eager loading string.
  */
 class Service {
   constructor (options) {
