@@ -76,10 +76,12 @@ Note that all this eager related options are optional.
   * `filter` - the filter function.
   It uses [`filterEager`](http://vincit.github.io/objection.js/#filtereager) internally.
 * **`namedEagerFilters`** - object containing named eager filter functions.
-  Filter is opt-in via `$eager` parameter. See
-  [`eager`](http://vincit.github.io/objection.js/#eager) documentation.
+  Filter is opt-in via `$eager` parameter.
 
 #### Service call parameters
+
+* **`$eager`** - parameter to eager load relations defined in `namedEagerFilters`. See 
+  [`eager`](http://vincit.github.io/objection.js/#eager) documentation.
 
 * **`$joinRelation`** - parameter to filter based on a relation's field. See 
   [`joinRelation`](http://vincit.github.io/objection.js/#joinrelation) documentation.
