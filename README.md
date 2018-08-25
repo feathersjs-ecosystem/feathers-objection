@@ -79,13 +79,12 @@ class User extends Model {
   static get jsonSchema() {
     return {
       type: 'object',
-      required: ['firstName', 'lastName', 'todoId'],
+      required: ['firstName', 'lastName'],
 
       properties: {
         id: { type: 'integer' },
         firstName: { type: 'string', maxLength: 45 },
         lastName: { type: 'string', maxLength: 45 },
-        todoId: { type: 'integer' },
         status: { type: 'string', enum: ['active', 'disabled'], default: 'active' },
       },
     };
