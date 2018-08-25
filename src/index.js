@@ -62,6 +62,8 @@ class Service {
     this.allowedEager = options.allowedEager || '[]'
     this.namedEagerFilters = options.namedEagerFilters
     this.eagerFilters = options.eagerFilters
+    this.allowedInsert = options.allowedInsert
+    this.insertGraphOptions = options.insertGraphOptions
   }
 
   extend (obj) {
@@ -338,8 +340,15 @@ class Service {
   }
 
   _create (data, params) {
-    return this._createQuery(params)
-      .insert(data, this.id)
+    let q = this._createQuery(params)
+
+    if (this.allowedInsert) {
+      q.allowInsert(this.allowedInsert)
+      q.insertGraph(data, this.insertGraphOptions)
+    } else {
+      q.insert(data, this.id)
+    }
+    return q
       .then(row => {
         let id = null
 

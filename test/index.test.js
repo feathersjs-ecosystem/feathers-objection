@@ -15,6 +15,7 @@ import PeopleRoomsCustomIdSeparator from './people-rooms-custom-id-separator'
 import Company from './company'
 import { Model } from 'objection'
 import Employee from './employee'
+import Client from './client'
 
 const db = knex({
   client: 'sqlite3',
@@ -68,7 +69,7 @@ const app = feathers()
       model: Company,
       id: 'id',
       events: ['testing'],
-      allowedEager: 'ceos',
+      allowedEager: '[ceos, clients]',
       namedEagerFilters: {
         notSnoop (builder) {
           return builder.whereNot('name', 'Snoop')
@@ -81,13 +82,21 @@ const app = feathers()
             return builder.where('age', '<', '25')
           }
         }
-      ]
+      ],
+      allowedInsert: 'clients'
     })
   )
   .use(
     '/employees',
     service({
       model: Employee,
+      allowedEager: 'company'
+    })
+  )
+  .use(
+    '/clients',
+    service({
+      model: Client,
       allowedEager: 'company'
     })
   )
@@ -154,6 +163,16 @@ function clean (done) {
       return db.schema.dropTableIfExists('employees').then(() => {
         return db.schema
           .createTable('employees', table => {
+            table.increments('id')
+            table.integer('companyId').references('companies.id')
+            table.string('name')
+          })
+      })
+    })
+    .then(() => {
+      return db.schema.dropTableIfExists('clients').then(() => {
+        return db.schema
+          .createTable('clients', table => {
             table.increments('id')
             table.integer('companyId').references('companies.id')
             table.string('name')
@@ -454,6 +473,36 @@ describe('Feathers Objection Service', () => {
           expect(data.length).to.equal(1)
           expect(data[0].company.name).to.equal('Google')
         })
+    })
+  })
+
+  describe('Graph Insert Queries', () => {
+    before(async () => {
+      await companies.remove(null)
+      await companies
+        .create([
+          {
+            name: 'Google',
+            clients: [
+              {
+                name: 'Dan Davis'
+              },
+              {
+                name: 'Ken Patrick'
+              }
+            ]
+          },
+          {
+            name: 'Apple'
+          }
+        ])
+    })
+
+    it('allows insertGraph queries', () => {
+      return companies.find({ query: { $eager: 'clients' } }).then(data => {
+        expect(data[0].clients).to.be.an('array')
+        expect(data[0].clients).to.have.lengthOf(2)
+      })
     })
   })
 
