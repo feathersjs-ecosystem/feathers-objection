@@ -327,6 +327,53 @@ app.service('/user-todos').get([1, 2]);
 app.service('/user-todos').get({ userId: 1, todoId: 2 });
 ```  
 
+### Graph upsert
+Arbitrary relation graphs can be upserted (insert + update + delete) using the upsertGraph method.
+See [`examples`](https://vincit.github.io/objection.js/#graph-upserts) for a better explanation.
+Runs on the `.update(id, data, params)` service method. 
+
+*The relation being upserted must also be present in `allowedEager` option and included in `$eager` query.*
+
+#### Options
+
+* **`allowedUpsert`** - relation expression to allow relations to be upserted along with update. 
+Defaults to `null`, meaning relations will not be automatically upserted unless specified here. 
+See [`allowUpsert`](https://vincit.github.io/objection.js/#allowupsert) documentation.
+* **`upsertGraphOptions`** - See [`upsertGraphOptions`](https://vincit.github.io/objection.js/#upsertgraphoptions) documentation.
+
+```js
+app.use('/companies', service({
+  model: Company,
+  allowedEager: 'clients',
+  allowedUpsert: 'clients'
+})
+
+app.service('/companies').update(1, { 
+  name: 'New Name',
+  clients: [{
+    id: 100,
+    name: 'Existing Client'
+  }, {
+    name: 'New Client'
+  }]
+})
+```
+
+In the example above, we are updating the name of an existing company, along with adding a new client which is a relationship for companies. The client without the ID would be inserted and related. The client with the ID will just be updated (if there are any changes at all).
+
+### Graph insert
+Arbitrary relation graphs can be inserted using the insertGraph method.
+Provides the ability to relate the inserted object with its associations.
+Runs on the `.create(data, params)` service method. 
+
+*The relation being created must also be present in `allowedEager` option and included in `$eager` query.*
+
+#### Options
+
+* **`allowedInsert`** - relation expression to allow relations to be created along with insert. 
+Defaults to `null`, meaning relations will not be automatically created unless specified here. 
+See [`allowInsert`](https://vincit.github.io/objection.js/#allowinsert) documentation.
+* **`insertGraphOptions`** - See [`insertGraphOptions`](https://vincit.github.io/objection.js/#insertgraphoptions) documentation.
 
 ## Complete Example
 
