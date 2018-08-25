@@ -83,7 +83,8 @@ const app = feathers()
           }
         }
       ],
-      allowedInsert: 'clients'
+      allowedInsert: 'clients',
+      allowedUpsert: 'clients'
     })
   )
   .use(
@@ -500,6 +501,45 @@ describe('Feathers Objection Service', () => {
 
     it('allows insertGraph queries', () => {
       return companies.find({ query: { $eager: 'clients' } }).then(data => {
+        expect(data[0].clients).to.be.an('array')
+        expect(data[0].clients).to.have.lengthOf(2)
+      })
+    })
+  })
+
+  describe('Graph Upsert Queries', () => {
+    before(async () => {
+      await companies.remove(null)
+      const [google] = await companies
+        .create([
+          {
+            name: 'Google',
+            clients: [
+              {
+                name: 'Dan Davis'
+              }
+            ]
+          },
+          {
+            name: 'Apple'
+          }
+        ], { query: { $eager: 'clients' } })
+
+      const newClients = (google.clients) ? google.clients.concat([{
+        name: 'Ken Patrick'
+      }]) : []
+
+      await companies
+        .update(google.id, {
+          id: google.id,
+          name: 'Alphabet',
+          clients: newClients
+        }, { query: { $eager: 'clients' } })
+    })
+
+    it('allows upsertGraph queries on update', () => {
+      return companies.find({ query: { $eager: 'clients' } }).then(data => {
+        expect(data[0].name).equal('Alphabet')
         expect(data[0].clients).to.be.an('array')
         expect(data[0].clients).to.have.lengthOf(2)
       })
