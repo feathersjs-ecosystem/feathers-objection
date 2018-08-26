@@ -32,6 +32,14 @@ export default class Company extends Model {
         from: 'companies.id',
         to: 'employees.companyId'
       }
+    },
+    clients: {
+      relation: Model.HasManyRelation,
+      modelClass: path.join(__dirname, '/client'),
+      join: {
+        from: 'companies.id',
+        to: 'clients.companyId'
+      }
     }
   }
 }

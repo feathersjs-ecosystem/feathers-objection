@@ -62,6 +62,10 @@ class Service {
     this.allowedEager = options.allowedEager || '[]'
     this.namedEagerFilters = options.namedEagerFilters
     this.eagerFilters = options.eagerFilters
+    this.allowedInsert = options.allowedInsert
+    this.insertGraphOptions = options.insertGraphOptions
+    this.allowedUpsert = options.allowedUpsert
+    this.upsertGraphOptions = options.upsertGraphOptions
   }
 
   extend (obj) {
@@ -338,8 +342,15 @@ class Service {
   }
 
   _create (data, params) {
-    return this._createQuery(params)
-      .insert(data, this.id)
+    let q = this._createQuery(params)
+
+    if (this.allowedInsert) {
+      q.allowInsert(this.allowedInsert)
+      q.insertGraph(data, this.insertGraphOptions)
+    } else {
+      q.insert(data, this.id)
+    }
+    return q
       .then(row => {
         let id = null
 
@@ -399,28 +410,32 @@ class Service {
           }
         }
 
-        // NOTE (EK): Delete id field so we don't update it
-        if (Array.isArray(this.id)) {
-          for (const idKey of this.id) {
-            delete newObject[idKey]
-          }
-        } else {
-          delete newObject[this.id]
-        }
-
-        return this._createQuery(params)
-          .where(this.getIdsQuery(id))
-          .update(newObject)
-          .then(() => {
-            // NOTE (EK): Restore the id field so we can return it to the client
-            if (Array.isArray(this.id)) {
-              newObject = Object.assign({}, newObject, this.getIdsQuery(id))
-            } else {
-              newObject[this.id] = id
+        if (!this.allowedUpsert) {
+          // NOTE (EK): Delete id field so we don't update it
+          if (Array.isArray(this.id)) {
+            for (const idKey of this.id) {
+              delete newObject[idKey]
             }
+          } else {
+            delete newObject[this.id]
+          }
+          return this._createQuery(params)
+            .where(this.getIdsQuery(id))
+            .update(newObject)
+            .then(() => {
+              // NOTE (EK): Restore the id field so we can return it to the client
+              if (Array.isArray(this.id)) {
+                newObject = Object.assign({}, newObject, this.getIdsQuery(id))
+              } else {
+                newObject[this.id] = id
+              }
 
-            return newObject
-          })
+              return newObject
+            })
+        } else {
+          return this._createQuery(params)
+            .upsertGraphAndFetch(newObject, this.upsertGraphOptions)
+        }
       })
       .catch(errorHandler)
   }
