@@ -72,22 +72,18 @@ const { Model } = require('objection');
 
 class User extends Model {
 
-  static get tableName() {
-    return 'user';
-  }
+  static tableName = 'user'
+    
+  static jsonSchema = {
+    type: 'object',
+    required: ['firstName', 'lastName'],
 
-  static get jsonSchema() {
-    return {
-      type: 'object',
-      required: ['firstName', 'lastName'],
-
-      properties: {
-        id: { type: 'integer' },
-        firstName: { type: 'string', maxLength: 45 },
-        lastName: { type: 'string', maxLength: 45 },
-        status: { type: 'string', enum: ['active', 'disabled'], default: 'active' },
-      },
-    };
+    properties: {
+      id: { type: 'integer' },
+      firstName: { type: 'string', maxLength: 45 },
+      lastName: { type: 'string', maxLength: 45 },
+      status: { type: 'string', enum: ['active', 'disabled'], default: 'active' },
+    }
   }
 
   static get relationMappings() {
@@ -132,22 +128,18 @@ const { Model } = require('objection');
 
 class Todo extends Model {
 
-  static get tableName() {
-    return 'todo';
-  }
+  static tableName = 'todo'
+      
+  static jsonSchema = {
+    type: 'object',
+    required: ['userId', 'text'],
 
-  static get jsonSchema() {
-    return {
-      type: 'object',
-      required: ['userId', 'text'],
-
-      properties: {
-        id: { type: 'integer' },
-        userId: { type: 'integer' },
-        text: { type: 'string' },
-        complete: { type: 'boolean', default: false },
-      },
-    };
+    properties: {
+      id: { type: 'integer' },
+      userId: { type: 'integer' },
+      text: { type: 'string' },
+      complete: { type: 'boolean', default: false },
+    }
   }
 
   static get relationMappings() {
