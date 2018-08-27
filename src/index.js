@@ -20,6 +20,7 @@ const OPERATORS = [
   '$gt',
   '$gte',
   '$like',
+  '$ilike',
   '$eager',
   '$joinEager',
   '$joinRelation',
@@ -31,7 +32,8 @@ const OPERATORS_MAP = {
   $lte: '<=',
   $gt: '>',
   $gte: '>=',
-  $like: 'like'
+  $like: 'like',
+  $ilike: 'ilike'
 }
 
 /**
