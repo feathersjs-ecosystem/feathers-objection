@@ -340,6 +340,7 @@ Runs on the `.update(id, data, params)` service method.
 Defaults to `null`, meaning relations will not be automatically upserted unless specified here. 
 See [`allowUpsert`](https://vincit.github.io/objection.js/#allowupsert) documentation.
 * **`upsertGraphOptions`** - See [`upsertGraphOptions`](https://vincit.github.io/objection.js/#upsertgraphoptions) documentation.
+* **`createUseUpsertGraph`** - If set to `true`, Graph Upsert will also be used for `.create(data, params)` method instead of Graph Insert.
 
 ```js
 app.use('/companies', service({
