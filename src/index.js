@@ -66,6 +66,7 @@ class Service {
     this.eagerFilters = options.eagerFilters
     this.allowedInsert = options.allowedInsert
     this.insertGraphOptions = options.insertGraphOptions
+    this.createUseUpsertGraph = options.createUseUpsertGraph || false
     this.allowedUpsert = options.allowedUpsert
     this.upsertGraphOptions = options.upsertGraphOptions
   }
@@ -346,7 +347,12 @@ class Service {
   _create (data, params) {
     let q = this._createQuery(params)
 
-    if (this.allowedInsert) {
+    if (this.createUseUpsertGraph) {
+      if (this.allowedUpsert) {
+        q.allowUpsert(this.allowedUpsert)
+      }
+      q.upsertGraphAndFetch(data, this.upsertGraphOptions)
+    } else if (this.allowedInsert) {
       q.allowInsert(this.allowedInsert)
       q.insertGraph(data, this.insertGraphOptions)
     } else {
@@ -436,6 +442,7 @@ class Service {
             })
         } else {
           return this._createQuery(params)
+            .allowUpsert(this.allowedUpsert)
             .upsertGraphAndFetch(newObject, this.upsertGraphOptions)
         }
       })
