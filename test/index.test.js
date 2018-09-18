@@ -257,63 +257,63 @@ describe('Feathers Objection Service', () => {
         expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError)
       })
 
-      it('syntaxError', () => {
+      it('BadRequest 1', () => {
         const error = new Error()
         error.code = 'SQLITE_ERROR'
         error.errno = 1
         expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
       })
 
-      it('invalid', () => {
+      it('BadRequest 8', () => {
         const error = new Error()
         error.code = 'SQLITE_ERROR'
         error.errno = 8
         expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
       })
 
-      it('truncateError', () => {
+      it('BadRequest 18', () => {
         const error = new Error()
         error.code = 'SQLITE_ERROR'
         error.errno = 18
         expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
       })
 
-      it('truncateError', () => {
+      it('BadRequest 19', () => {
         const error = new Error()
         error.code = 'SQLITE_ERROR'
         error.errno = 19
         expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
       })
 
-      it('truncateError', () => {
+      it('BadRequest 20', () => {
         const error = new Error()
         error.code = 'SQLITE_ERROR'
         error.errno = 20
         expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
       })
 
-      it('badCredentials', () => {
+      it('Unavailable 2', () => {
         const error = new Error()
         error.code = 'SQLITE_ERROR'
         error.errno = 2
         expect(errorHandler.bind(null, error)).to.throw(errors.Unavailable)
       })
 
-      it('unauthorized', () => {
+      it('Forbidden 3', () => {
         const error = new Error()
         error.code = 'SQLITE_ERROR'
         error.errno = 3
         expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden)
       })
 
-      it('unauthorized', () => {
+      it('Forbidden 23', () => {
         const error = new Error()
         error.code = 'SQLITE_ERROR'
         error.errno = 23
         expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden)
       })
 
-      it('functionFailure', () => {
+      it('NotFound 12', () => {
         const error = new Error()
         error.code = 'SQLITE_ERROR'
         error.errno = 12
@@ -328,79 +328,79 @@ describe('Feathers Objection Service', () => {
         expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError)
       })
 
-      it('syntaxError', () => {
+      it('BadRequest 400', () => {
         const error = new Error()
         error.statusCode = 400
         expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
       })
 
-      it('invalid', () => {
+      it('NotAuthenticated 401', () => {
         const error = new Error()
         error.statusCode = 401
         expect(errorHandler.bind(null, error)).to.throw(errors.NotAuthenticated)
       })
 
-      it('truncateError', () => {
+      it('PaymentError 402', () => {
         const error = new Error()
         error.statusCode = 402
         expect(errorHandler.bind(null, error)).to.throw(errors.PaymentError)
       })
 
-      it('truncateError', () => {
+      it('Forbidden 403', () => {
         const error = new Error()
         error.statusCode = 403
         expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden)
       })
 
-      it('truncateError', () => {
+      it('NotFound 404', () => {
         const error = new Error()
         error.statusCode = 404
         expect(errorHandler.bind(null, error)).to.throw(errors.NotFound)
       })
 
-      it('badCredentials', () => {
+      it('MethodNotAllowed 405', () => {
         const error = new Error()
         error.statusCode = 405
         expect(errorHandler.bind(null, error)).to.throw(errors.MethodNotAllowed)
       })
 
-      it('unauthorized', () => {
+      it('NotAcceptable 406', () => {
         const error = new Error()
         error.statusCode = 406
         expect(errorHandler.bind(null, error)).to.throw(errors.NotAcceptable)
       })
 
-      it('unauthorized', () => {
+      it('Timeout 408', () => {
         const error = new Error()
         error.statusCode = 408
         expect(errorHandler.bind(null, error)).to.throw(errors.Timeout)
       })
 
-      it('functionFailure', () => {
+      it('Conflict 409', () => {
         const error = new Error()
         error.statusCode = 409
         expect(errorHandler.bind(null, error)).to.throw(errors.Conflict)
       })
 
-      it('functionFailure', () => {
+      it('Unprocessable 422', () => {
         const error = new Error()
         error.statusCode = 422
         expect(errorHandler.bind(null, error)).to.throw(errors.Unprocessable)
       })
 
-      it('functionFailure', () => {
+      it('GeneralError 500', () => {
         const error = new Error()
         error.statusCode = 500
         expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError)
       })
 
-      it('functionFailure', () => {
+      it('NotImplemented 501', () => {
         const error = new Error()
         error.statusCode = 501
         expect(errorHandler.bind(null, error)).to.throw(errors.NotImplemented)
       })
 
-      it('functionFailure', () => {
+      it('Unavailable 503', () => {
         const error = new Error()
         error.statusCode = 503
         expect(errorHandler.bind(null, error)).to.throw(errors.Unavailable)
@@ -414,37 +414,37 @@ describe('Feathers Objection Service', () => {
         expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError)
       })
 
-      it('functionFailure', () => {
+      it('Forbidden 28', () => {
         const error = new Error()
         error.code = '28'
         expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden)
       })
 
-      it('functionFailure', () => {
+      it('Forbidden 42', () => {
         const error = new Error()
         error.code = '42'
         expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden)
       })
 
-      it('functionFailure', () => {
+      it('BadRequest 20', () => {
         const error = new Error()
         error.code = '20'
         expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
       })
 
-      it('functionFailure', () => {
+      it('BadRequest 21', () => {
         const error = new Error()
         error.code = '21'
         expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
       })
 
-      it('functionFailure', () => {
+      it('BadRequest 22', () => {
         const error = new Error()
         error.code = '22'
         expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
       })
 
-      it('functionFailure', () => {
+      it('BadRequest 23', () => {
         const error = new Error()
         error.code = '23'
         expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
