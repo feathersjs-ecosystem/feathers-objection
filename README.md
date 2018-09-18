@@ -18,16 +18,16 @@ npm install --save knex
 
 ## Documentation
 
-Please refer to the [Feathers database adapter documentation](https://docs.feathersjs.com/databases/readme.html) for more details or directly at:
+Please refer to the [Feathers database adapter documentation](https://docs.feathersjs.com/api/databases/adapters.html) for more details or directly at:
 
-- [Extending](https://docs.feathersjs.com/databases/extending.html) - How to extend a database adapter
-- [Pagination and Sorting](https://docs.feathersjs.com/databases/pagination.html) - How to use pagination and sorting for the database adapter
-- [Querying](https://docs.feathersjs.com/databases/querying.html) - The common adapter querying mechanism
+- [Querying](https://docs.feathersjs.com/api/databases/querying.html) - The common adapter querying mechanism
+- [Pagination and Sorting](https://docs.feathersjs.com/api/databases/common.html#pagination) - How to use pagination and sorting for the database adapter
+- [Extending](https://docs.feathersjs.com/api/databases/common.html#extending-adapters) - How to extend a database adapter
 
-Refer to the official [Objection.js documention](https://vincit.github.io/objection.js).
+Refer to the official [Objection.js documention](https://vincit.github.io/objection.js/).
 
 It works almost the same as the [Knex
-service](https://github.com/feathersjs/feathers-knex) adapter, except it has all
+service](https://github.com/feathersjs-ecosystem/feathers-knex) adapter, except it has all
 the benefits of the Objection ORM.
 
 ### Knex
@@ -381,12 +381,13 @@ See [`allowInsert`](https://vincit.github.io/objection.js/#allowinsert) document
 Here's a complete example of a Feathers server with a `todos` SQLite service. We are using the [Knex schema builder](https://knexjs.org/#Schema).
 
 ```js
-import feathers from '@feathersjs/feathers'
-import express from '@feathersjs/express'
-import rest from '@feathersjs/express/rest'
-import bodyParser from 'body-parser'
-import ObjectionService from '../lib'
-import { Model } from 'objection'
+const feathers = require('@feathersjs/feathers')
+const express = require('@feathersjs/express')
+const rest = require('@feathersjs/express/rest')
+const errorHandler = require('@feathersjs/express/errors')
+const bodyParser = require('body-parser')
+const ObjectionService = require('feathers-objection')
+const { Model } = require('objection')
 
 const knex = require('knex')({
   client: 'sqlite3',
@@ -415,7 +416,7 @@ knex.schema.dropTableIfExists('todo').then(function () {
 
 // Create a feathers instance.
 const app = express(feathers())
-  // Enable REST services
+// Enable REST services
   .configure(rest())
   // Turn on JSON parser for REST services
   .use(bodyParser.json())
@@ -424,16 +425,21 @@ const app = express(feathers())
 
 // Create an Objection Model
 class Todo extends Model {
-  static tableName = 'todo'
 
-  static jsonSchema = {
-    type: 'object',
-    required: ['text'],
+  static get tableName() {
+    return 'todo'
+  }
 
-    properties: {
-      id: {type: 'integer'},
-      text: {type: 'string'},
-      complete: {type: 'boolean'}
+  static get jsonSchema() {
+    return {
+      type: 'object',
+      required: ['text'],
+
+      properties: {
+        id: { type: 'integer' },
+        text: { type: 'string' },
+        complete: { type: 'boolean' }
+      }
     }
   }
 }
@@ -449,14 +455,16 @@ app.use('/todos', ObjectionService({
   }
 }))
 
-app.use(function (error, req, res, next) {
-  res.json(error)
-})
+// Handle Errors
+app.use(errorHandler())
+
+// Start the server
+module.exports = app.listen(3030)
 
 console.log('Feathers Todo Objection service running on 127.0.0.1:3030')
 ```
 
-You can run this example by using `node server` and going to [localhost:3030/todos](http://localhost:3030/todos). You should see an empty array. That's because you don't have any Todos yet but you now have full CRUD for your new todos service!
+You can run this example by using `node server` and going to [http://localhost:3030/todos](http://localhost:3030/todos). You should see an empty array. That's because you don't have any Todos yet but you now have full CRUD for your new todos service!
 
 ## Credits
 

@@ -7,6 +7,7 @@ import knex from 'knex'
 import { base, example } from 'feathers-service-tests'
 import errors from '@feathersjs/errors'
 import service from '../src'
+import errorHandler from '../src/error-handler'
 import server from '../example/app'
 import People from './people'
 import PeopleCustomid from './people-customid'
@@ -91,7 +92,13 @@ const app = feathers()
     '/employees',
     service({
       model: Employee,
-      allowedEager: 'company'
+      allowedEager: 'company',
+      eagerFilters: {
+        expression: 'ltd',
+        filter: function ltd (builder) {
+          return builder.where('name', 'like', '% ltd')
+        }
+      }
     })
   )
   .use(
@@ -235,6 +242,216 @@ describe('Feathers Objection Service', () => {
     })
   })
 
+  describe('error handler', () => {
+    it('no error code', () => {
+      const error = new Error('Unknown Error')
+      expect(errorHandler.bind(null, error)).to.throw('Unknown Error')
+      expect(errorHandler.bind(null, error)).to.not.throw(errors.GeneralError)
+    })
+
+    describe('SQLite', () => {
+      it('Unknown error code', () => {
+        const error = new Error()
+        error.code = 'SQLITE_ERROR'
+        error.errno = 999
+        expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError)
+      })
+
+      it('syntaxError', () => {
+        const error = new Error()
+        error.code = 'SQLITE_ERROR'
+        error.errno = 1
+        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
+      })
+
+      it('invalid', () => {
+        const error = new Error()
+        error.code = 'SQLITE_ERROR'
+        error.errno = 8
+        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
+      })
+
+      it('truncateError', () => {
+        const error = new Error()
+        error.code = 'SQLITE_ERROR'
+        error.errno = 18
+        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
+      })
+
+      it('truncateError', () => {
+        const error = new Error()
+        error.code = 'SQLITE_ERROR'
+        error.errno = 19
+        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
+      })
+
+      it('truncateError', () => {
+        const error = new Error()
+        error.code = 'SQLITE_ERROR'
+        error.errno = 20
+        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
+      })
+
+      it('badCredentials', () => {
+        const error = new Error()
+        error.code = 'SQLITE_ERROR'
+        error.errno = 2
+        expect(errorHandler.bind(null, error)).to.throw(errors.Unavailable)
+      })
+
+      it('unauthorized', () => {
+        const error = new Error()
+        error.code = 'SQLITE_ERROR'
+        error.errno = 3
+        expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden)
+      })
+
+      it('unauthorized', () => {
+        const error = new Error()
+        error.code = 'SQLITE_ERROR'
+        error.errno = 23
+        expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden)
+      })
+
+      it('functionFailure', () => {
+        const error = new Error()
+        error.code = 'SQLITE_ERROR'
+        error.errno = 12
+        expect(errorHandler.bind(null, error)).to.throw(errors.NotFound)
+      })
+    })
+
+    describe('Objection', () => {
+      it('Unknown error code', () => {
+        const error = new Error()
+        error.statusCode = 999
+        expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError)
+      })
+
+      it('syntaxError', () => {
+        const error = new Error()
+        error.statusCode = 400
+        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
+      })
+
+      it('invalid', () => {
+        const error = new Error()
+        error.statusCode = 401
+        expect(errorHandler.bind(null, error)).to.throw(errors.NotAuthenticated)
+      })
+
+      it('truncateError', () => {
+        const error = new Error()
+        error.statusCode = 402
+        expect(errorHandler.bind(null, error)).to.throw(errors.PaymentError)
+      })
+
+      it('truncateError', () => {
+        const error = new Error()
+        error.statusCode = 403
+        expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden)
+      })
+
+      it('truncateError', () => {
+        const error = new Error()
+        error.statusCode = 404
+        expect(errorHandler.bind(null, error)).to.throw(errors.NotFound)
+      })
+
+      it('badCredentials', () => {
+        const error = new Error()
+        error.statusCode = 405
+        expect(errorHandler.bind(null, error)).to.throw(errors.MethodNotAllowed)
+      })
+
+      it('unauthorized', () => {
+        const error = new Error()
+        error.statusCode = 406
+        expect(errorHandler.bind(null, error)).to.throw(errors.NotAcceptable)
+      })
+
+      it('unauthorized', () => {
+        const error = new Error()
+        error.statusCode = 408
+        expect(errorHandler.bind(null, error)).to.throw(errors.Timeout)
+      })
+
+      it('functionFailure', () => {
+        const error = new Error()
+        error.statusCode = 409
+        expect(errorHandler.bind(null, error)).to.throw(errors.Conflict)
+      })
+
+      it('functionFailure', () => {
+        const error = new Error()
+        error.statusCode = 422
+        expect(errorHandler.bind(null, error)).to.throw(errors.Unprocessable)
+      })
+
+      it('functionFailure', () => {
+        const error = new Error()
+        error.statusCode = 500
+        expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError)
+      })
+
+      it('functionFailure', () => {
+        const error = new Error()
+        error.statusCode = 501
+        expect(errorHandler.bind(null, error)).to.throw(errors.NotImplemented)
+      })
+
+      it('functionFailure', () => {
+        const error = new Error()
+        error.statusCode = 503
+        expect(errorHandler.bind(null, error)).to.throw(errors.Unavailable)
+      })
+    })
+
+    describe('Postgres', () => {
+      it('Unknown error code', () => {
+        const error = new Error()
+        error.code = '999'
+        expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError)
+      })
+
+      it('functionFailure', () => {
+        const error = new Error()
+        error.code = '28'
+        expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden)
+      })
+
+      it('functionFailure', () => {
+        const error = new Error()
+        error.code = '42'
+        expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden)
+      })
+
+      it('functionFailure', () => {
+        const error = new Error()
+        error.code = '20'
+        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
+      })
+
+      it('functionFailure', () => {
+        const error = new Error()
+        error.code = '21'
+        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
+      })
+
+      it('functionFailure', () => {
+        const error = new Error()
+        error.code = '22'
+        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
+      })
+
+      it('functionFailure', () => {
+        const error = new Error()
+        error.code = '23'
+        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest)
+      })
+    })
+  })
+
   describe('Common functionality', () => {
     it('is CommonJS compatible', () =>
       assert.equal(typeof require('../lib'), 'function'))
@@ -280,8 +497,21 @@ describe('Feathers Objection Service', () => {
     })
 
     afterEach(async () => {
-      await peopleRooms.remove(null)
-      await peopleRoomsCustomIdSeparator.remove(null)
+      try {
+        await peopleRooms.remove([1, 1])
+      } catch (err) {}
+      try {
+        await peopleRooms.remove([1, 2])
+      } catch (err) {}
+      try {
+        await peopleRooms.remove([2, 2])
+      } catch (err) {}
+      try {
+        await peopleRoomsCustomIdSeparator.remove([1, 2])
+      } catch (err) {}
+      try {
+        await peopleRoomsCustomIdSeparator.remove([2, 2])
+      } catch (err) {}
     })
 
     it('allows get queries', () => {
@@ -293,7 +523,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('allows get queries by object', () => {
-      return peopleRooms.get({ peopleId: 2, roomId: 2 }).then(data => {
+      return peopleRooms.get({peopleId: 2, roomId: 2}).then(data => {
         expect(data.peopleId).to.equal(2)
       })
     })
@@ -310,30 +540,109 @@ describe('Feathers Objection Service', () => {
       })
     })
 
+    it('allows get queries by array in string', () => {
+      return peopleRoomsCustomIdSeparator.get('[2, 2]').then(data => {
+        expect(data.peopleId).to.equal(2)
+      })
+    })
+
+    it('allows get queries by object in string', () => {
+      return peopleRoomsCustomIdSeparator.get('{ "peopleId": 2, "roomId": 2 }').then(data => {
+        expect(data.peopleId).to.equal(2)
+      })
+    })
+
+    it('get with partial id in string throws an error', () => {
+      return peopleRooms.update('2', {admin: false}).then(() => {
+        throw new Error('Should never get here')
+      }).catch(function (error) {
+        expect(error).to.be.ok
+        expect(error instanceof errors.BadRequest).to.be.ok
+        expect(error.message).to.equal('When using composite primary key, id must contain values for all primary keys')
+      })
+    })
+
     it('allows find queries', () => {
-      return peopleRooms.find({ query: { roomId: 2 } }).then(data => {
+      return peopleRooms.find({query: {roomId: 2}}).then(data => {
         expect(data.length).to.equal(2)
         expect(data[0].peopleId).to.equal(1)
         expect(data[1].peopleId).to.equal(2)
       })
     })
 
-    it('allows patch queries', () => {
-      return peopleRooms.patch([2, 2], { admin: false, peopleId: 1 }).then(data => {
-        expect(data.peopleId).to.equal(2)
-        expect(data.admin).to.equal(0)
-      })
-    })
-
     it('allows update queries', () => {
-      return peopleRooms.update([2, 2], { admin: false, peopleId: 1 }).then(data => {
+      return peopleRooms.update([2, 2], {admin: false, peopleId: 1}).then(data => {
         expect(data.peopleId).to.equal(2)
         expect(data.admin).to.equal(false)
       })
     })
 
+    it('update multiple records throws an error', () => {
+      return peopleRooms.update([2, 2], [{admin: false}]).then(() => {
+        throw new Error('Should never get here')
+      }).catch(function (error) {
+        expect(error).to.be.ok
+        expect(error instanceof errors.BadRequest).to.be.ok
+        expect(error.message).to.equal('Not replacing multiple records. Did you mean `patch`?')
+      })
+    })
+
+    it('update with partial id throws an error', () => {
+      return peopleRooms.update([2], {admin: false}).then(() => {
+        throw new Error('Should never get here')
+      }).catch(function (error) {
+        expect(error).to.be.ok
+        expect(error instanceof errors.BadRequest).to.be.ok
+        expect(error.message).to.equal('When using composite primary key, id must contain values for all primary keys')
+      })
+    })
+
+    it('allows patch queries', () => {
+      return peopleRooms.patch([2, 2], {admin: false, peopleId: 1}).then(data => {
+        expect(data.peopleId).to.equal(2)
+        expect(data.admin).to.equal(0)
+      })
+    })
+
+    it('patch multiple records', () => {
+      return peopleRooms.patch(null, {admin: true}).then(data => {
+        expect(data).to.be.instanceof(Array)
+        expect(data.length).to.equal(3)
+      })
+    })
+
+    it('patch with partial id throws an error', () => {
+      return peopleRooms.patch([2], {admin: false}).then(() => {
+        throw new Error('Should never get here')
+      }).catch(function (error) {
+        expect(error).to.be.ok
+        expect(error instanceof errors.BadRequest).to.be.ok
+        expect(error.message).to.equal('When using composite primary key, id must contain values for all primary keys')
+      })
+    })
+
+    it('patch with id and no results throws an error', () => {
+      return peopleRooms.patch([999, 999], {admin: false}).then(() => {
+        throw new Error('Should never get here')
+      }).catch(function (error) {
+        expect(error).to.be.ok
+        expect(error instanceof errors.NotFound).to.be.ok
+        expect(error.message).to.equal('No record found for id \'999,999\'')
+      })
+    })
+
+    it('patch with invalid id', () => {
+      return peopleRooms.patch(false, {admin: false}).then(() => {
+        throw new Error('Should never get here')
+      }).catch(function (error) {
+        expect(error).to.be.ok
+        expect(error instanceof errors.NotFound).to.be.ok
+        expect(error.message).to.equal('No record found for id \'false\'')
+      })
+    })
+
     it('allows remove queries', () => {
-      return peopleRooms.remove([2, 2]).then(data => {
+      return peopleRooms.remove([2, 2]).then(() => {
         return peopleRooms.find().then(data => {
           expect(data.length).to.equal(2)
         })
@@ -363,13 +672,13 @@ describe('Feathers Objection Service', () => {
     })
 
     it('allows eager queries', () => {
-      return companies.find({ query: { $eager: 'ceos' } }).then(data => {
+      return companies.find({query: {$eager: 'ceos'}}).then(data => {
         expect(data[0].ceos).to.be.ok
       })
     })
 
     it('allows eager queries with pick', () => {
-      return companies.find({ query: { $eager: 'ceos', $pick: ['ceos'] } }).then(data => {
+      return companies.find({query: {$eager: 'ceos', $pick: ['ceos']}}).then(data => {
         expect(data[0].ceos).to.be.ok
         expect(data[0].ceo).to.be.undefined
       })
@@ -377,7 +686,7 @@ describe('Feathers Objection Service', () => {
 
     it('allows eager queries with named filters', () => {
       return companies
-        .find({ query: { $eager: 'ceos(notSnoop)' } })
+        .find({query: {$eager: 'ceos(notSnoop)'}})
         .then(data => {
           expect(data[0].ceos).to.be.null
         })
@@ -385,7 +694,7 @@ describe('Feathers Objection Service', () => {
 
     it('disallow eager queries', () => {
       return companies
-        .find({ query: { $eager: 'employees' } })
+        .find({query: {$eager: 'employees'}})
         .then(data => {
           throw new Error('Should not reach here')
         })
@@ -423,7 +732,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('allows joinEager queries', () => {
-      return employees.find({ query: { $joinEager: 'company' } }).then(data => {
+      return employees.find({query: {$joinEager: 'company'}}).then(data => {
         expect(data[0].company).to.be.ok
         expect(data[1].company).to.be.ok
       })
@@ -500,10 +809,39 @@ describe('Feathers Objection Service', () => {
     })
 
     it('allows insertGraph queries', () => {
-      return companies.find({ query: { $eager: 'clients' } }).then(data => {
+      return companies.find({query: {$eager: 'clients'}}).then(data => {
         expect(data[0].clients).to.be.an('array')
         expect(data[0].clients).to.have.lengthOf(2)
       })
+    })
+
+    it('allows createUseUpsertGraph queries', () => {
+      companies.createUseUpsertGraph = true
+
+      return companies
+        .create([
+          {
+            name: 'Google',
+            clients: [
+              {
+                name: 'Dan Davis'
+              },
+              {
+                name: 'Ken Patrick'
+              }
+            ]
+          },
+          {
+            name: 'Apple'
+          }
+        ]).then(() => {
+          companies.createUseUpsertGraph = false
+
+          return companies.find({query: {$eager: 'clients'}}).then(data => {
+            expect(data[0].clients).to.be.an('array')
+            expect(data[0].clients).to.have.lengthOf(2)
+          })
+        })
     })
   })
 
@@ -523,7 +861,7 @@ describe('Feathers Objection Service', () => {
           {
             name: 'Apple'
           }
-        ], { query: { $eager: 'clients' } })
+        ], {query: {$eager: 'clients'}})
 
       const newClients = (google.clients) ? google.clients.concat([{
         name: 'Ken Patrick'
@@ -534,11 +872,11 @@ describe('Feathers Objection Service', () => {
           id: google.id,
           name: 'Alphabet',
           clients: newClients
-        }, { query: { $eager: 'clients' } })
+        }, {query: {$eager: 'clients'}})
     })
 
     it('allows upsertGraph queries on update', () => {
-      return companies.find({ query: { $eager: 'clients' } }).then(data => {
+      return companies.find({query: {$eager: 'clients'}}).then(data => {
         expect(data[0].name).equal('Alphabet')
         expect(data[0].clients).to.be.an('array')
         expect(data[0].clients).to.have.lengthOf(2)
@@ -556,7 +894,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('$like in query', () => {
-      return people.find({ query: { name: { $like: '%lie%' } } }).then(data => {
+      return people.find({query: {name: {$like: '%lie%'}}}).then(data => {
         expect(data[0].name).to.be.equal('Charlie Brown')
       })
     })
@@ -582,7 +920,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('$and in query', () => {
-      return people.find({ query: { $and: [ { $or: [ { name: 'Dave' }, { name: 'Dada' } ] }, { age: { $lt: 23 } } ] } }).then(data => {
+      return people.find({query: {$and: [{$or: [{name: 'Dave'}, {name: 'Dada'}]}, {age: {$lt: 23}}]}}).then(data => {
         expect(data[0].name).to.be.equal('Dada')
       })
     })
@@ -608,7 +946,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('$or in query', () => {
-      return people.find({ query: { $or: [ { name: 'John' }, { name: 'Dada' } ] } }).then(data => {
+      return people.find({query: {$or: [{name: 'John'}, {name: 'Dada'}]}}).then(data => {
         expect(data[0].name).to.be.equal('Dada')
       })
     })
@@ -619,15 +957,15 @@ describe('Feathers Objection Service', () => {
 
     beforeEach(done => {
       db.transaction(trx => {
-        transaction = { trx }
+        transaction = {trx}
         done()
       }).catch(() => {})
     })
 
     it('works with commit', () => {
-      return people.create({ name: 'Commit' }, { transaction }).then(() => {
+      return people.create({name: 'Commit'}, {transaction}).then(() => {
         return transaction.trx.commit().then(() => {
-          return people.find({ query: { name: 'Commit' } }).then((data) => {
+          return people.find({query: {name: 'Commit'}}).then((data) => {
             expect(data.length).to.equal(1)
           })
         })
@@ -635,9 +973,9 @@ describe('Feathers Objection Service', () => {
     })
 
     it('works with rollback', () => {
-      return people.create({ name: 'Rollback' }, { transaction }).then(() => {
+      return people.create({name: 'Rollback'}, {transaction}).then(() => {
         return transaction.trx.rollback().then(() => {
-          return people.find({ query: { name: 'Rollback' } }).then((data) => {
+          return people.find({query: {name: 'Rollback'}}).then((data) => {
             expect(data.length).to.equal(0)
           })
         })

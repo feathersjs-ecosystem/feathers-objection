@@ -73,10 +73,6 @@ export default function errorHandler (error) {
         feathersError = new errors.Unprocessable(error.data)
         break
 
-      case 500:
-        feathersError = new errors.GeneralError(error.data)
-        break
-
       case 501:
         feathersError = new errors.NotImplemented(error.data)
         break
@@ -85,6 +81,7 @@ export default function errorHandler (error) {
         feathersError = new errors.Unavailable(error.data)
         break
 
+      case 500:
       default:
         feathersError = new errors.GeneralError(error)
     }
@@ -100,6 +97,7 @@ export default function errorHandler (error) {
 
     switch (pgerror) {
       case '28':
+      case '42':
         feathersError = new errors.Forbidden(error)
         break
 
@@ -108,10 +106,6 @@ export default function errorHandler (error) {
       case '22':
       case '23':
         feathersError = new errors.BadRequest(error)
-        break
-
-      case '42':
-        feathersError = new errors.Forbidden(error)
         break
 
       default:

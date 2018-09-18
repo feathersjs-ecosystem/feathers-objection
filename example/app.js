@@ -1,6 +1,7 @@
 import feathers from '@feathersjs/feathers'
 import express from '@feathersjs/express'
 import rest from '@feathersjs/express/rest'
+import errorHandler from '@feathersjs/express/errors'
 import bodyParser from 'body-parser'
 import ObjectionService from '../lib'
 import { Model } from 'objection'
@@ -49,9 +50,8 @@ app.use('/todos', ObjectionService({
   }
 }))
 
-app.use(function (error, req, res, next) {
-  res.json(error)
-})
+// Handle Errors
+app.use(errorHandler())
 
 // Start the server
 module.exports = app.listen(3030)

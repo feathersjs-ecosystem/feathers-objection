@@ -37,22 +37,23 @@ const OPERATORS_MAP = {
 }
 
 /**
- * Class representing an feathers adapter for objection.js ORM.
+ * Class representing an feathers adapter for Objection.js ORM.
  * @param {object} options
  * @param {string} [options.id='id'] - database id field
  * @param {string} [options.idSeparator=','] - id field primary keys separator char
- * @param {object} options.model - an objection model
+ * @param {object} options.model - an Objection model
  * @param {object} options.paginate
+ * @param {object} options.events
  * @param {string} options.allowedEager - Objection eager loading string.
  */
 class Service {
   constructor (options) {
     if (!options) {
-      throw new Error('Objection options have to be provided')
+      throw new errors.GeneralError('Objection options have to be provided')
     }
 
     if (!options.model) {
-      throw new Error('You must provide an Objection Model')
+      throw new errors.GeneralError('You must provide an Objection Model')
     }
 
     this.options = options || {}
@@ -78,7 +79,12 @@ class Service {
   extractIds (id) {
     if (typeof id === 'object') { return this.id.map(idKey => id[idKey]) }
     if (id[0] === '[' && id[id.length - 1] === ']') { return JSON.parse(id) }
-    if (id[0] === '{' && id[id.length - 1] === '}') { return Object.values(JSON.parse(id)) }
+    if (id[0] === '{' && id[id.length - 1] === '}') {
+      const obj = JSON.parse(id)
+      return Object.keys(obj).map(key => obj[key])
+    }
+
+    if (typeof id !== 'string' || !id.includes(this.idSeparator)) { throw new errors.BadRequest('When using composite primary key, id must contain values for all primary keys') }
 
     return id.split(this.idSeparator)
   }
@@ -98,7 +104,7 @@ class Service {
         if (!ids) {
           if (idList) {
             if (idList[index]) {
-              query[idKey] = { $in: idList[index] }
+              query[idKey] = idList[index].length === 1 ? idList[index] : { $in: idList[index] }
             }
           } else {
             query[idKey] = null
@@ -110,31 +116,23 @@ class Service {
         }
       })
     } else {
-      query[`${this.Model.tableName}.${this.id}`] = idList ? { $in: idList } : id
+      query[`${this.Model.tableName}.${this.id}`] = idList ? (idList.length === 1 ? idList[0] : { $in: idList }) : id
     }
 
     return query
   }
 
   /**
-   * Maps a feathers query to the objection/knex schema builder functions.
+   * Maps a feathers query to the Objection/Knex schema builder functions.
    * @param query - a query object. i.e. { type: 'fish', age: { $lte: 5 }
    * @param params
    * @param parentKey
    */
   objectify (query, params, parentKey) {
-    if (params.$eager) {
-      delete params.$eager
-    }
-    if (params.$joinEager) {
-      delete params.$joinEager
-    }
-    if (params.$joinRelation) {
-      delete params.$joinRelation
-    }
-    if (params.$pick) {
-      delete params.$pick
-    }
+    if (params.$eager) { delete params.$eager }
+    if (params.$joinEager) { delete params.$joinEager }
+    if (params.$joinRelation) { delete params.$joinRelation }
+    if (params.$pick) { delete params.$pick }
 
     Object.keys(params || {}).forEach(key => {
       const value = params[key]
@@ -196,7 +194,7 @@ class Service {
       q = q.select(...filters.$select.concat(this.id))
     }
 
-    // $eager for objection eager queries
+    // $eager for Objection eager queries
 
     if (query && query.$eager) {
       q.eager(query.$eager, this.namedEagerFilters)
@@ -222,7 +220,7 @@ class Service {
     if (this.eagerFilters) {
       const eagerFilters = this.eagerFilters
       if (Array.isArray(eagerFilters)) {
-        for (var eagerFilter of eagerFilters) {
+        for (const eagerFilter of eagerFilters) {
           q.filterEager(eagerFilter.expression, eagerFilter.filter)
         }
       } else {
@@ -296,13 +294,14 @@ class Service {
       return countQuery
         .then(count => parseInt(count[0].total, 10))
         .then(executeQuery)
+        .catch(errorHandler)
     }
 
     return executeQuery().catch(errorHandler)
   }
 
   /**
-   * `find` service function for objection.
+   * `find` service function for Objection.
    * @param params
    */
   find (params) {
@@ -332,11 +331,10 @@ class Service {
 
         return page.data[0]
       })
-      .catch(errorHandler)
   }
 
   /**
-   * `get` service function for objection.
+   * `get` service function for Objection.
    * @param {...object} args
    * @return {Promise} - promise containing the data being retrieved
    */
@@ -378,7 +376,7 @@ class Service {
   }
 
   /**
-   * `create` service function for objection.
+   * `create` service function for Objection.
    * @param {object} data
    * @param {object} params
    */
@@ -391,7 +389,7 @@ class Service {
   }
 
   /**
-   * `update` service function for objection.
+   * `update` service function for Objection.
    * @param id
    * @param data
    * @param params
@@ -399,7 +397,7 @@ class Service {
   update (id, data, params) {
     if (Array.isArray(data)) {
       return Promise.reject(
-        new Error('Not replacing multiple records. Did you mean `patch`?')
+        new errors.BadRequest('Not replacing multiple records. Did you mean `patch`?')
       )
     }
 
@@ -418,46 +416,46 @@ class Service {
           }
         }
 
-        if (!this.allowedUpsert) {
-          // NOTE (EK): Delete id field so we don't update it
-          if (Array.isArray(this.id)) {
-            for (const idKey of this.id) {
-              delete newObject[idKey]
-            }
-          } else {
-            delete newObject[this.id]
-          }
-          return this._createQuery(params)
-            .where(this.getIdsQuery(id))
-            .update(newObject)
-            .then(() => {
-              // NOTE (EK): Restore the id field so we can return it to the client
-              if (Array.isArray(this.id)) {
-                newObject = Object.assign({}, newObject, this.getIdsQuery(id))
-              } else {
-                newObject[this.id] = id
-              }
-
-              return newObject
-            })
-        } else {
+        if (this.allowedUpsert) {
           return this._createQuery(params)
             .allowUpsert(this.allowedUpsert)
             .upsertGraphAndFetch(newObject, this.upsertGraphOptions)
         }
+
+        // NOTE (EK): Delete id field so we don't update it
+        if (Array.isArray(this.id)) {
+          for (const idKey of this.id) {
+            delete newObject[idKey]
+          }
+        } else {
+          delete newObject[this.id]
+        }
+        return this._createQuery(params)
+          .where(this.getIdsQuery(id))
+          .update(newObject)
+          .then(() => {
+            // NOTE (EK): Restore the id field so we can return it to the client
+            if (Array.isArray(this.id)) {
+              newObject = Object.assign({}, newObject, this.getIdsQuery(id))
+            } else {
+              newObject[this.id] = id
+            }
+
+            return newObject
+          })
       })
       .catch(errorHandler)
   }
 
   /**
-   * `patch` service function for objection.
+   * `patch` service function for Objection.
    * @param id
    * @param data
    * @param params
    */
-  patch (id, raw, params) {
+  patch (id, data, params) {
     let query = filterQuery(params.query || {}, { operators: OPERATORS }).query
-    const data = Object.assign({}, raw)
+    const dataCopy = Object.assign({}, data)
 
     const mapIds = page => Array.isArray(this.id)
       ? this.id.map(idKey => [...new Set(page.data.map(current => current[idKey]))])
@@ -483,10 +481,10 @@ class Service {
 
     if (Array.isArray(this.id)) {
       for (const idKey of this.id) {
-        delete data[idKey]
+        delete dataCopy[idKey]
       }
     } else {
-      delete data[this.id]
+      delete dataCopy[this.id]
     }
 
     return ids
@@ -495,7 +493,7 @@ class Service {
         // were originally changed
         const findParams = Object.assign({}, params, { query: Object.assign({}, this.getIdsQuery(id, idList), { $select: params.query && params.query.$select }) })
 
-        return q.patch(data).then(() => {
+        return q.patch(dataCopy).then(() => {
           return this._find(findParams).then(page => {
             const items = page.data
 
@@ -515,7 +513,7 @@ class Service {
   }
 
   /**
-   * `remove` service function for objection.
+   * `remove` service function for Objection.
    * @param id
    * @param params
    */

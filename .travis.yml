@@ -3,3 +3,4 @@ node_js:
   - 'node'
   - '6'
 sudo: false
+after_success: npm run coverage

@@ -30,6 +30,8 @@ node_modules
 lib/
 db.sqlite
 data.db
+.idea
+.nyc_output
 
 # Tern
 .tern-port
