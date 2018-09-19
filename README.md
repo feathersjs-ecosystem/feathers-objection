@@ -6,16 +6,28 @@
 [![Dependency Status](https://img.shields.io/david/mcchrish/feathers-objection.svg)](https://david-dm.org/mcchrish/feathers-objection)
 [![npm](https://img.shields.io/npm/v/feathers-objection.svg?maxAge=3600)](https://www.npmjs.com/package/feathers-objection)
 
-> An [Objection.js](https://vincit.github.io/objection.js) service adapter for [FeathersJS](https://feathersjs.com)
-
+[Feathers](https://feathersjs.com/) database adapter for [Objection.js](https://vincit.github.io/objection.js), an ORM based on [KnexJS](https://knexjs.org/) SQL query builder for Postgres, MSSQL, MySQL, MariaDB, SQLite3, and Oracle.
 
 ## Installation
 
-```bash
+```
 npm install --save feathers-objection
 npm install --save objection
 npm install --save knex
 ```
+
+Then add one of the following:
+
+```
+npm install --save pg
+npm install --save sqlite3
+npm install --save mysql
+npm install --save mysql2
+npm install --save oracle
+npm install --save mssql
+```
+
+If you want to use a MariaDB instance, you can use the mysql driver.
 
 ## Documentation
 
@@ -31,9 +43,10 @@ It works almost the same as the [Knex
 service](https://github.com/feathersjs-ecosystem/feathers-knex) adapter, except it has all
 the benefits of the Objection ORM.
 
-### Knex
+### Knex - [Initializing the Library](https://knexjs.org/#Installation-client)
 
 config/defaults.json
+
 ```js
 {
   "mysql": {
@@ -46,6 +59,7 @@ config/defaults.json
 ```  
 
 knex.js
+
 ```js
 const { Model } = require('objection');
 
@@ -68,6 +82,7 @@ module.exports = function (app) {
 Objection requires you to define Models for your tables:
 
 users.model.js
+
 ```js
 const { Model } = require('objection');
 
@@ -128,6 +143,7 @@ module.exports = User;
 ```
 
 todos.model.js
+
 ```js
 const { Model } = require('objection');
 
@@ -180,6 +196,7 @@ module.exports = Todo;
 ```
 
 When defining a service, you must provide the model:
+
 ```js
 app.use('/todos', service({
   model: Todo
@@ -220,6 +237,7 @@ Note that all this eager related options are optional.
 ### Service
 
 users.service.js
+
 ```js
 const createService = require('feathers-objection');
 const model = require('../../models/users.model');
@@ -243,6 +261,7 @@ module.exports = function (app) {
 ```
 
 todos.service.js
+
 ```js
 const createService = require('feathers-objection');
 const model = require('../../models/todos.model');
@@ -279,6 +298,7 @@ module.exports = function (app) {
 ```
 
 Use eager queries as follows:
+
 ```js
 // Get all todos and their unfinished tasks
 app.service('/todos').find({
@@ -297,9 +317,7 @@ app.service('/todos').find({
 })
 ```
 
-See [this
-article](https://www.vincit.fi/blog/nested-eager-loading-and-inserts-with-objection-js/)
-for more information.
+See [this article](https://www.vincit.fi/blog/nested-eager-loading-and-inserts-with-objection-js/) for more information.
 
 ### Composite primary keys
 
@@ -379,7 +397,11 @@ See [`allowInsert`](https://vincit.github.io/objection.js/#allowinsert) document
 
 ## Complete Example
 
-Here's a complete example of a Feathers server with a `todos` SQLite service. We are using the [Knex schema builder](https://knexjs.org/#Schema).
+Here's a complete example of a Feathers server with a `todos` SQLite service:
+
+`$ npm install @feathersjs/feathers @feathersjs/express body-parser feathers-objection objection knex sqlite3`
+
+app.js
 
 ```js
 const feathers = require('@feathersjs/feathers')
@@ -465,14 +487,12 @@ module.exports = app.listen(3030)
 console.log('Feathers Todo Objection service running on 127.0.0.1:3030')
 ```
 
-You can run this example by using `node server` and going to [http://localhost:3030/todos](http://localhost:3030/todos). You should see an empty array. That's because you don't have any Todos yet but you now have full CRUD for your new todos service!
+Run the example with `node app` and go to [localhost:3030/todos](http://localhost:3030/todos).
 
-## Credits
-
-This adapter is mainly a fork of the Knex feathers adapter by the Feathers team.
+You should see an empty array. That's because you don't have any Todos yet, but you now have full CRUD for your new todos service!
 
 ## License
 
-Copyright © 2016
+Copyright © 2018
 
 Licensed under the [MIT license](LICENSE).
