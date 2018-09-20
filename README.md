@@ -64,16 +64,16 @@ config/defaults.json
 objection.js
 
 ```js
-const { Model } = require('objection');
+const { Model } = require('objection')
 
 module.exports = function (app) {
-  const { client, connection } = app.get('mysql');
-  const knex = require('knex')({ client, connection, useNullAsDefault: false });
+  const { client, connection } = app.get('mysql')
+  const knex = require('knex')({ client, connection, useNullAsDefault: false })
 
-  Model.knex(knex);
+  Model.knex(knex)
 
-  app.set('knex', knex);
-};
+  app.set('knex', knex)
+}
 ```
 
 ### Models
@@ -83,12 +83,12 @@ Objection requires you to define [Models](http://vincit.github.io/objection.js/#
 users.model.js
 
 ```js
-const { Model } = require('objection');
+const { Model } = require('objection')
 
 class User extends Model {
 
   static get tableName() {
-    return 'user';
+    return 'user'
   }
 
   static get jsonSchema() {
@@ -100,13 +100,13 @@ class User extends Model {
         id: { type: 'integer' },
         firstName: { type: 'string', maxLength: 45 },
         lastName: { type: 'string', maxLength: 45 },
-        status: { type: 'string', enum: ['active', 'disabled'], default: 'active' },
-      },
-    };
+        status: { type: 'string', enum: ['active', 'disabled'], default: 'active' }
+      }
+    }
   }
 
   static get relationMappings() {
-    const Todo = require('./todos.model');
+    const Todo = require('./todos.model')
 
     return {
       todos: {
@@ -114,64 +114,64 @@ class User extends Model {
         modelClass: Todo,
         join: {
           from: 'user.id',
-          to: 'todo.userId',
-        },
-      },
-    };
+          to: 'todo.userId'
+        }
+      }
+    }
   }
 
   static get namedFilters() {
     return {
       active: builder => {
-        builder.where('status', 'active');
-      },
-    };
+        builder.where('status', 'active')
+      }
+    }
   }
 
   $beforeInsert() {
-    this.createdAt = this.updatedAt = new Date().toISOString();
+    this.createdAt = this.updatedAt = new Date().toISOString()
   }
 
   $beforeUpdate() {
-    this.updatedAt = new Date().toISOString();
+    this.updatedAt = new Date().toISOString()
   }
 
 }
 
 module.exports = function (app) {
-  const db = app.get('knex');
+  const db = app.get('knex')
 
   db.schema.hasTable('user').then(exists => {
     if (!exists) {
       db.schema.createTable('user', table => {
-        table.increments('id');
-        table.string('firstName', 45);
-        table.string('lastName', 45);
-        table.enum('status', ['active', 'disabled']).defaultTo('active');
-        table.timestamp('createdAt');
-        table.timestamp('updatedAt');
+        table.increments('id')
+        table.string('firstName', 45)
+        table.string('lastName', 45)
+        table.enum('status', ['active', 'disabled']).defaultTo('active')
+        table.timestamp('createdAt')
+        table.timestamp('updatedAt')
       })
         .then(() => console.log('Created user table'))
-        .catch(e => console.error('Error creating user table', e));
+        .catch(e => console.error('Error creating user table', e))
     }
   })
-    .catch(e => console.error('Error creating user table', e));
+    .catch(e => console.error('Error creating user table', e))
 
-  return User;
-};
+  return User
+}
 
-module.exports = User;
+module.exports = User
 ```
 
 todos.model.js
 
 ```js
-const { Model } = require('objection');
+const { Model } = require('objection')
 
 class Todo extends Model {
 
   static get tableName() {
-    return 'todo';
+    return 'todo'
   }
 
   static get jsonSchema() {
@@ -183,13 +183,13 @@ class Todo extends Model {
         id: { type: 'integer' },
         userId: { type: 'integer' },
         text: { type: 'string' },
-        complete: { type: 'boolean', default: false },
-      },
-    };
+        complete: { type: 'boolean', default: false }
+      }
+    }
   }
 
   static get relationMappings() {
-    const User = require('./users.model');
+    const User = require('./users.model')
 
     return {
       user: {
@@ -197,41 +197,41 @@ class Todo extends Model {
         modelClass: User,
         join: {
           from: 'todo.userId',
-          to: 'user.id',
-        },
-      },
-    };
+          to: 'user.id'
+        }
+      }
+    }
   }
 
   $beforeInsert() {
-    this.createdAt = this.updatedAt = new Date().toISOString();
+    this.createdAt = this.updatedAt = new Date().toISOString()
   }
 
   $beforeUpdate() {
-    this.updatedAt = new Date().toISOString();
+    this.updatedAt = new Date().toISOString()
   }
 
 }
 
 module.exports = function (app) {
-  const db = app.get('knex');
+  const db = app.get('knex')
 
   db.schema.hasTable('todo').then(exists => {
     if (!exists) {
       db.schema.createTable('todo', table => {
-        table.increments('id');
-        table.string('text');
-        table.timestamp('createdAt');
-        table.timestamp('updatedAt');
+        table.increments('id')
+        table.string('text')
+        table.timestamp('createdAt')
+        table.timestamp('updatedAt')
       })
         .then(() => console.log('Created todo table'))
-        .catch(e => console.error('Error creating todo table', e));
+        .catch(e => console.error('Error creating todo table', e))
     }
   })
-    .catch(e => console.error('Error creating todo table', e));
+    .catch(e => console.error('Error creating todo table', e))
 
-  return Todo;
-};
+  return Todo
+}
 ```
 
 When defining a service, you must provide the model:
@@ -278,38 +278,38 @@ Note that all this eager related options are optional.
 users.service.js
 
 ```js
-const createService = require('feathers-objection');
-const createModal = require('../../models/users.model');
-const hooks = require('./users.hooks');
+const createService = require('feathers-objection')
+const createModal = require('../../models/users.model')
+const hooks = require('./users.hooks')
 
 module.exports = function (app) {
-  const Modal = createModal(app);
-  const paginate = app.get('paginate');
+  const Modal = createModal(app)
+  const paginate = app.get('paginate')
 
   const options = {
     model: Modal,
     paginate,
-    allowedEager: 'todos',
-  };
+    allowedEager: 'todos'
+  }
 
-  app.use('/users', createService(options));
+  app.use('/users', createService(options))
 
-  const service = app.service('users');
+  const service = app.service('users')
 
-  service.hooks(hooks);
-};
+  service.hooks(hooks)
+}
 ```
 
 todos.service.js
 
 ```js
-const createService = require('feathers-objection');
-const createModal = require('../../models/todos.model');
-const hooks = require('./todos.hooks');
+const createService = require('feathers-objection')
+const createModal = require('../../models/todos.model')
+const hooks = require('./todos.hooks')
 
 module.exports = function (app) {
-  const Modal = createModal(app);
-  const paginate = app.get('paginate');
+  const Modal = createModal(app)
+  const paginate = app.get('paginate')
 
   const options = {
     model: Modal,
@@ -328,14 +328,14 @@ module.exports = function (app) {
         }
       }
     ]
-  };
+  }
 
-  app.use('/todos', createService(options));
+  app.use('/todos', createService(options))
 
-  const service = app.service('todos');
+  const service = app.service('todos')
 
-  service.hooks(hooks);
-};
+  service.hooks(hooks)
+}
 ```
 
 Use eager queries as follows:
@@ -344,7 +344,7 @@ Use eager queries as follows:
 // Get all todos and their unfinished tasks
 app.service('/todos').find({
   query: {
-    $eager: 'subtask(unDone)',
+    $eager: 'subtask(unDone)'
   }
 })
 
@@ -382,9 +382,9 @@ app.use('/user-todos', service({
   idSeparator: ','
 })
 
-app.service('/user-todos').get('1,2');
-app.service('/user-todos').get([1, 2]);
-app.service('/user-todos').get({ userId: 1, todoId: 2 });
+app.service('/user-todos').get('1,2')
+app.service('/user-todos').get([1, 2])
+app.service('/user-todos').get({ userId: 1, todoId: 2 })
 ```  
 
 ### Graph upsert
