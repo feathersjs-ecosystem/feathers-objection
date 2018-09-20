@@ -39,37 +39,36 @@ Please refer to the [Feathers database adapter documentation](https://docs.feath
 
 Refer to the official [Objection.js documention](https://vincit.github.io/objection.js/).
 
-It works almost the same as the [Knex
+It works like the [Knex
 service](https://github.com/feathersjs-ecosystem/feathers-knex) adapter, except it has all
 the benefits of the Objection ORM.
 
-### Knex - [Initializing the Library](https://knexjs.org/#Installation-client)
+### [Initializing the Library](https://knexjs.org/#Installation-client)
 
 config/defaults.json
 
 ```js
 {
   "mysql": {
-    "host": "mysql.example.com",
-    "user": "root",
-    "password": "secret",
-    "database": "example"
+    "client": "mysql2",
+    "connection": {
+      "host": "mysql.example.com",
+      "user": "root",
+      "password": "secret",
+      "database": "example"
+    }
   }
 }
 ```  
 
-knex.js
+objection.js
 
 ```js
 const { Model } = require('objection');
 
 module.exports = function (app) {
-  const connectionInfo = app.get('mysql');
-  const knex = require('knex')({
-    client: 'mysql',
-    useNullAsDefault: false,
-    connection: connectionInfo,
-  });
+  const { client, connection } = app.get('mysql');
+  const knex = require('knex')({ client, connection, useNullAsDefault: false });
 
   Model.knex(knex);
 
@@ -79,7 +78,7 @@ module.exports = function (app) {
 
 ### Models
 
-Objection requires you to define Models for your tables:
+Objection requires you to define [Models](http://vincit.github.io/objection.js/#models) for your tables:
 
 users.model.js
 
@@ -139,6 +138,28 @@ class User extends Model {
 
 }
 
+module.exports = function (app) {
+  const db = app.get('knex');
+
+  db.schema.hasTable('user').then(exists => {
+    if (!exists) {
+      db.schema.createTable('user', table => {
+        table.increments('id');
+        table.string('firstName', 45);
+        table.string('lastName', 45);
+        table.enum('status', ['active', 'disabled']).defaultTo('active');
+        table.timestamp('createdAt');
+        table.timestamp('updatedAt');
+      })
+        .then(() => console.log('Created user table'))
+        .catch(e => console.error('Error creating user table', e));
+    }
+  })
+    .catch(e => console.error('Error creating user table', e));
+
+  return User;
+};
+
 module.exports = User;
 ```
 
@@ -192,7 +213,25 @@ class Todo extends Model {
 
 }
 
-module.exports = Todo;
+module.exports = function (app) {
+  const db = app.get('knex');
+
+  db.schema.hasTable('todo').then(exists => {
+    if (!exists) {
+      db.schema.createTable('todo', table => {
+        table.increments('id');
+        table.string('text');
+        table.timestamp('createdAt');
+        table.timestamp('updatedAt');
+      })
+        .then(() => console.log('Created todo table'))
+        .catch(e => console.error('Error creating todo table', e));
+    }
+  })
+    .catch(e => console.error('Error creating todo table', e));
+
+  return Todo;
+};
 ```
 
 When defining a service, you must provide the model:
@@ -240,21 +279,22 @@ users.service.js
 
 ```js
 const createService = require('feathers-objection');
-const model = require('../../models/users.model');
+const createModal = require('../../models/users.model');
 const hooks = require('./users.hooks');
 
 module.exports = function (app) {
+  const Modal = createModal(app);
   const paginate = app.get('paginate');
 
   const options = {
-    model,
+    model: Modal,
     paginate,
     allowedEager: 'todos',
   };
 
-  app.v2.use('/users', createService(options));
+  app.use('/users', createService(options));
 
-  const service = app.v2.service('users');
+  const service = app.service('users');
 
   service.hooks(hooks);
 };
@@ -264,14 +304,15 @@ todos.service.js
 
 ```js
 const createService = require('feathers-objection');
-const model = require('../../models/todos.model');
+const createModal = require('../../models/todos.model');
 const hooks = require('./todos.hooks');
 
 module.exports = function (app) {
+  const Modal = createModal(app);
   const paginate = app.get('paginate');
 
   const options = {
-    model,
+    model: Modal,
     paginate,
     allowedEager: '[user, subtask]',
     namedEagerFilters: {
@@ -289,9 +330,9 @@ module.exports = function (app) {
     ]
   };
 
-  app.v2.use('/todos', createService(options));
+  app.use('/todos', createService(options));
 
-  const service = app.v2.service('todos');
+  const service = app.service('todos');
 
   service.hooks(hooks);
 };
@@ -409,7 +450,7 @@ const express = require('@feathersjs/express')
 const rest = require('@feathersjs/express/rest')
 const errorHandler = require('@feathersjs/express/errors')
 const bodyParser = require('body-parser')
-const ObjectionService = require('feathers-objection')
+const createService = require('feathers-objection')
 const { Model } = require('objection')
 
 const knex = require('knex')({
@@ -434,6 +475,8 @@ knex.schema.dropTableIfExists('todo').then(function () {
     table.increments('id')
     table.string('text')
     table.boolean('complete')
+    table.timestamp('createdAt')
+    table.timestamp('updatedAt')
   })
 })
 
@@ -461,15 +504,23 @@ class Todo extends Model {
       properties: {
         id: { type: 'integer' },
         text: { type: 'string' },
-        complete: { type: 'boolean' }
+        complete: { type: 'boolean', default: false }
       }
     }
+  }
+  
+  $beforeInsert() {
+    this.createdAt = this.updatedAt = new Date().toISOString()
+  }
+
+  $beforeUpdate() {
+    this.updatedAt = new Date().toISOString()
   }
 }
 
 // Create Objection Feathers service with a default page size of 2 items
 // and a maximum size of 4
-app.use('/todos', ObjectionService({
+app.use('/todos', createService({
   model: Todo,
   id: 'id',
   paginate: {

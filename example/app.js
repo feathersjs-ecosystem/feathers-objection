@@ -3,10 +3,11 @@ import express from '@feathersjs/express'
 import rest from '@feathersjs/express/rest'
 import errorHandler from '@feathersjs/express/errors'
 import bodyParser from 'body-parser'
-import ObjectionService from '../lib'
 import { Model } from 'objection'
-import Todo from './todo'
+import createService from '../src'
+import createModel from './todo'
 
+// Initialize Knex
 const knex = require('knex')({
   client: 'sqlite3',
   connection: {
@@ -18,20 +19,6 @@ const knex = require('knex')({
 // Bind Objection.js
 Model.knex(knex)
 
-// Clean up our data. This is optional and is here
-// because of our integration tests
-knex.schema.dropTableIfExists('todos').then(function () {
-  console.log('Dropped todos table')
-
-  // Initialize your table
-  return knex.schema.createTable('todos', function (table) {
-    console.log('Creating todos table')
-    table.increments('id')
-    table.string('text')
-    table.boolean('complete')
-  })
-})
-
 // Create a feathers instance.
 const app = express(feathers())
   // Enable REST services
@@ -41,8 +28,11 @@ const app = express(feathers())
   // Turn on URL-encoded parser for REST services
   .use(bodyParser.urlencoded({ extended: true }))
 
-app.use('/todos', ObjectionService({
-  model: Todo,
+app.set('knex', knex)
+
+// Create service
+app.use('/todos', createService({
+  model: createModel(app),
   id: 'id',
   paginate: {
     default: 2,
