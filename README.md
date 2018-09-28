@@ -106,7 +106,7 @@ class User extends Model {
   }
 
   static get relationMappings() {
-    const Todo = require('./todos.model')
+    const Todo = require('./todos.model')()
 
     return {
       todos: {
@@ -139,23 +139,25 @@ class User extends Model {
 }
 
 module.exports = function (app) {
-  const db = app.get('knex')
-
-  db.schema.hasTable('user').then(exists => {
-    if (!exists) {
-      db.schema.createTable('user', table => {
-        table.increments('id')
-        table.string('firstName', 45)
-        table.string('lastName', 45)
-        table.enum('status', ['active', 'disabled']).defaultTo('active')
-        table.timestamp('createdAt')
-        table.timestamp('updatedAt')
-      })
-        .then(() => console.log('Created user table'))
-        .catch(e => console.error('Error creating user table', e))
-    }
-  })
-    .catch(e => console.error('Error creating user table', e))
+  if (app) {
+    const db = app.get('knex')
+  
+    db.schema.hasTable('user').then(exists => {
+      if (!exists) {
+        db.schema.createTable('user', table => {
+          table.increments('id')
+          table.string('firstName', 45)
+          table.string('lastName', 45)
+          table.enum('status', ['active', 'disabled']).defaultTo('active')
+          table.timestamp('createdAt')
+          table.timestamp('updatedAt')
+        })
+          .then(() => console.log('Created user table'))
+          .catch(e => console.error('Error creating user table', e))
+      }
+    })
+      .catch(e => console.error('Error creating user table', e))
+  }
 
   return User
 }
@@ -170,6 +172,10 @@ const { Model } = require('objection')
 
 class Todo extends Model {
 
+  static setup(app) {
+    this.app = app;
+  }
+  
   static get tableName() {
     return 'todo'
   }
@@ -183,13 +189,14 @@ class Todo extends Model {
         id: { type: 'integer' },
         userId: { type: 'integer' },
         text: { type: 'string' },
-        complete: { type: 'boolean', default: false }
+        complete: { type: 'boolean', default: false },
+        dueDate: { type: 'string', format: 'date-time' }
       }
     }
   }
 
   static get relationMappings() {
-    const User = require('./users.model')
+    const User = require('./users.model')()
 
     return {
       user: {
@@ -199,6 +206,17 @@ class Todo extends Model {
           from: 'todo.userId',
           to: 'user.id'
         }
+      }
+    }
+  }
+  
+  static get namedFilters() {
+    const knex = this.app.get('knex')
+
+    return {
+      overdue: builder => {
+        builder.where('complete', '=', false)
+          .where('dueDate', '<', knex.fn.now())
       }
     }
   }
@@ -214,21 +232,25 @@ class Todo extends Model {
 }
 
 module.exports = function (app) {
-  const db = app.get('knex')
-
-  db.schema.hasTable('todo').then(exists => {
-    if (!exists) {
-      db.schema.createTable('todo', table => {
-        table.increments('id')
-        table.string('text')
-        table.timestamp('createdAt')
-        table.timestamp('updatedAt')
-      })
-        .then(() => console.log('Created todo table'))
-        .catch(e => console.error('Error creating todo table', e))
-    }
-  })
-    .catch(e => console.error('Error creating todo table', e))
+  if (app) {
+    Todo.setup(app)
+    
+    const db = app.get('knex')
+  
+    db.schema.hasTable('todo').then(exists => {
+      if (!exists) {
+        db.schema.createTable('todo', table => {
+          table.increments('id')
+          table.string('text')
+          table.timestamp('createdAt')
+          table.timestamp('updatedAt')
+        })
+          .then(() => console.log('Created todo table'))
+          .catch(e => console.error('Error creating todo table', e))
+      }
+    })
+      .catch(e => console.error('Error creating todo table', e))
+  }
 
   return Todo
 }
