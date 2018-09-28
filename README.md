@@ -29,6 +29,10 @@ npm install --save mssql
 
 If you want to use a MariaDB instance, you can use the mysql driver.
 
+### [Feathers CLI](https://github.com/feathersjs/feathers/tree/master/packages/cli)
+
+Use `feathers generate service` command to generate a new `Objection` service.
+
 ## Documentation
 
 Please refer to the [Feathers database adapter documentation](https://docs.feathersjs.com/api/databases/adapters.html) for more details or directly at:
