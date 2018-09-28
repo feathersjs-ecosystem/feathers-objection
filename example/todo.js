@@ -29,26 +29,28 @@ class Todo extends Model {
 }
 
 module.exports = function (app) {
-  const db = app.get('knex')
+  if (app) {
+    const db = app.get('knex')
 
-  // Clean up our data. This is optional and is here
-  // because of our integration tests
-  db.schema.dropTableIfExists('todos').then(function () {
-    console.log('Dropped todos table')
+    // Clean up our data. This is optional and is here
+    // because of our integration tests
+    db.schema.dropTableIfExists('todos').then(function () {
+      console.log('Dropped todos table')
 
-    // Initialize your table
-    return db.schema.createTable('todos', function (table) {
-      console.log('Creating todos table')
-      table.increments('id')
-      table.string('text')
-      table.boolean('complete')
-      table.timestamp('createdAt')
-      table.timestamp('updatedAt')
+      // Initialize your table
+      return db.schema.createTable('todos', function (table) {
+        console.log('Creating todos table')
+        table.increments('id')
+        table.string('text')
+        table.boolean('complete')
+        table.timestamp('createdAt')
+        table.timestamp('updatedAt')
+      })
+        .then(() => console.log('Created todos table'))
+        .catch(e => console.error('Error creating todos table', e))
     })
-      .then(() => console.log('Created todos table'))
       .catch(e => console.error('Error creating todos table', e))
-  })
-    .catch(e => console.error('Error creating todos table', e))
+  }
 
   return Todo
 }
