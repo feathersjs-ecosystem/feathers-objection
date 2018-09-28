@@ -188,7 +188,7 @@ class Todo extends Model {
       properties: {
         id: { type: 'integer' },
         userId: { type: 'integer' },
-        text: { type: 'string' },
+        text: { type: 'string', maxLength: 500 },
         complete: { type: 'boolean', default: false },
         dueDate: { type: 'string', format: 'date-time' }
       }
@@ -241,7 +241,10 @@ module.exports = function (app) {
       if (!exists) {
         db.schema.createTable('todo', table => {
           table.increments('id')
-          table.string('text')
+          table.integer('userId')
+          table.string('text', 500)
+          table.boolean('complete')
+          table.timestamp('dueDate')
           table.timestamp('createdAt')
           table.timestamp('updatedAt')
         })
