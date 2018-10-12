@@ -304,8 +304,8 @@ Note that all this eager related options are optional.
   
 #### Params Operators
 
-* **`transaction`** - Optional transaction or knex instance for the query.
-* **`mergeAllowEager`** - Just like allowEager but instead of replacing query builder’s allowEager expression this method merges the given expression to the existing expression.
+* **`transaction`** - A transaction object. See [`transaction`](https://vincit.github.io/objection.js/#transaction) documentation.
+* **`mergeAllowEager`** - Just like allowEager but instead of replacing query builder’s allowEager expression this method merges the given expression to the existing expression. See [`mergeAllowEager`](https://vincit.github.io/objection.js/#mergealloweager) documentation.
 
 ### Service
 
