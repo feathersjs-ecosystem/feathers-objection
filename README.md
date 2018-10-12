@@ -421,6 +421,17 @@ app.service('/user-todos').get([1, 2])
 app.service('/user-todos').get({ userId: 1, todoId: 2 })
 ```  
 
+### JSON column
+
+JSON column will be automatically converted from and to JS object/array and will be saved as text in unsupported databases.
+
+Query against a JSON column in databases with JSON type support:
+```js
+app.service('companies').find({ query: { jsonObject: { numberField: 1.5 } } })
+app.service('companies').find({ query: { jsonObject: { 'objectField.object': 'string in jsonObject.objectField.object' } } })
+app.service('companies').find({ query: { jsonArray: { '[0].objectField.object': 'string in jsonArray[0].objectField.object' } } })
+``` 
+
 ### Graph upsert
 Arbitrary relation graphs can be upserted (insert + update + delete) using the upsertGraph method.
 See [`examples`](https://vincit.github.io/objection.js/#graph-upserts) for a better explanation.
