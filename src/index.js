@@ -1,5 +1,6 @@
 import Proto from 'uberproto'
 import { filterQuery } from '@feathersjs/commons'
+import { ref } from 'objection'
 import isPlainObject from 'is-plain-object'
 import errorHandler from './error-handler'
 import errors from '@feathersjs/errors'
@@ -177,7 +178,7 @@ class Service {
       let columnType = this.jsonSchema.properties[column] && this.jsonSchema.properties[column].type
       if (columnType) {
         if (Array.isArray(columnType)) { columnType = columnType[0] }
-        if (columnType === 'object' || columnType === 'array') { return query.where(query._knex.ref(`${column}:${key}`), operator, value) }
+        if (columnType === 'object' || columnType === 'array') { return query.where(ref(`${this.Model.tableName}.${column}:${key.replace(/\(/g, '[').replace(/\)/g, ']')}`).castText(), operator, value) }
       }
 
       return operator === '=' ? query.where(column, value) : query.where(column, operator, value)

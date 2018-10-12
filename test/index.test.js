@@ -829,7 +829,7 @@ describe('Feathers Objection Service', () => {
       }).catch(function (error) {
         expect(error).to.be.ok
         expect(error instanceof errors.BadRequest).to.be.ok
-        expect(error.message).to.equal('select `companies`.* from `companies` where `jsonObject:numberField` = 1.5 - SQLITE_ERROR: no such column: jsonObject:numberField')
+        expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{numberField}\' AS text) = 1.5 - SQLITE_ERROR: unrecognized token: "#"')
       })
     })
 
@@ -839,7 +839,7 @@ describe('Feathers Objection Service', () => {
       }).catch(function (error) {
         expect(error).to.be.ok
         expect(error instanceof errors.BadRequest).to.be.ok
-        expect(error.message).to.equal('select `companies`.* from `companies` where `jsonObject:objectField`.`object` = \'string in jsonObject.objectField.object\' - SQLITE_ERROR: no such column: jsonObject:objectField.object')
+        expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{objectField,object}\' AS text) = \'string in jsonObject.objectField.object\' - SQLITE_ERROR: unrecognized token: "#"')
       })
     })
 
@@ -855,7 +855,7 @@ describe('Feathers Objection Service', () => {
       }).catch(function (error) {
         expect(error).to.be.ok
         expect(error instanceof errors.BadRequest).to.be.ok
-        expect(error.message).to.equal('select `companies`.* from `companies` where `jsonArray:[0]`.`objectField`.`object` = \'I\'\'m string in jsonArray[0].objectField.object\' - SQLITE_ERROR: no such column: jsonArray:[0].objectField.object')
+        expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonArray`#>>\'{0,objectField,object}\' AS text) = \'I\'\'m string in jsonArray[0].objectField.object\' - SQLITE_ERROR: unrecognized token: "#"')
       })
     })
   })
