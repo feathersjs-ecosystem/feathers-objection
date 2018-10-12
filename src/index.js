@@ -189,6 +189,10 @@ class Service {
       .skipUndefined()
       .allowEager(this.allowedEager)
 
+    if (params.mergeAllowEager) {
+      q.mergeAllowEager(params.mergeAllowEager)
+    }
+
     // $select uses a specific find syntax, so it has to come first.
     if (filters.$select) {
       q = q.select(...filters.$select.concat(this.id))

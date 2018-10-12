@@ -677,6 +677,12 @@ describe('Feathers Objection Service', () => {
       })
     })
 
+    it('allows mergeAllowEager queries', () => {
+      return companies.find({query: {$eager: 'employees'}, mergeAllowEager: 'employees'}).then(data => {
+        expect(data[0].employees).to.be.ok
+      })
+    })
+
     it('allows eager queries with pick', () => {
       return companies.find({query: {$eager: 'ceos', $pick: ['ceos']}}).then(data => {
         expect(data[0].ceos).to.be.ok

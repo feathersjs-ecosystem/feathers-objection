@@ -290,7 +290,7 @@ Note that all this eager related options are optional.
 * **`namedEagerFilters`** - object containing named eager filter functions.
   Filter is opt-in via `$eager` parameter.
 
-#### Service call parameters
+#### Query Operators
 
 * **`$eager`** - parameter to eager load relations defined in models' `relationMappings` 
   getter methods or in the `namedEagerFilters` option. See 
@@ -301,6 +301,11 @@ Note that all this eager related options are optional.
     [`$joinEager`](https://vincit.github.io/objection.js/#joineager) documentation.
 * **`$pick`** - parameter to pick properties from result models. See
   [`pick`](https://vincit.github.io/objection.js/#pick) documentation.
+  
+#### Params Operators
+
+* **`transaction`** - Optional transaction or knex instance for the query.
+* **`mergeAllowEager`** - Just like allowEager but instead of replacing query builder’s allowEager expression this method merges the given expression to the existing expression.
 
 ### Service
 
