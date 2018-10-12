@@ -164,6 +164,8 @@ function clean (done) {
           table.increments('id')
           table.string('name')
           table.integer('ceo')
+          table.json('jsonObject')
+          table.json('jsonArray')
         })
       })
     })
@@ -789,6 +791,72 @@ describe('Feathers Objection Service', () => {
           expect(data.length).to.equal(1)
           expect(data[0].company.name).to.equal('Google')
         })
+    })
+  })
+
+  describe('JSON column', () => {
+    before(async () => {
+      await companies
+        .create([
+          {
+            name: 'Google',
+            jsonObject: {
+              numberField: 1.5,
+              objectField: {
+                object: 'string in jsonObject.objectField.object'
+              }
+            },
+            jsonArray: [
+              {
+                objectField: {
+                  object: `I'm string in jsonArray[0].objectField.object`
+                }
+              }
+            ]
+          }
+        ])
+    })
+
+    it('object', () => {
+      return companies.find({query: {jsonObject: {$ne: null}}}).then(data => {
+        expect(data[0].jsonObject.numberField).to.equal(1.5)
+      })
+    })
+
+    it('object numberField', () => {
+      return companies.find({query: {jsonObject: {numberField: 1.5}}}).then(() => {
+        throw new Error('Should never get here')
+      }).catch(function (error) {
+        expect(error).to.be.ok
+        expect(error instanceof errors.BadRequest).to.be.ok
+        expect(error.message).to.equal('select `companies`.* from `companies` where `jsonObject:numberField` = 1.5 - SQLITE_ERROR: no such column: jsonObject:numberField')
+      })
+    })
+
+    it('object nested object', () => {
+      return companies.find({query: {jsonObject: {'objectField.object': 'string in jsonObject.objectField.object'}}}).then(() => {
+        throw new Error('Should never get here')
+      }).catch(function (error) {
+        expect(error).to.be.ok
+        expect(error instanceof errors.BadRequest).to.be.ok
+        expect(error.message).to.equal('select `companies`.* from `companies` where `jsonObject:objectField`.`object` = \'string in jsonObject.objectField.object\' - SQLITE_ERROR: no such column: jsonObject:objectField.object')
+      })
+    })
+
+    it('array', () => {
+      return companies.find({query: {jsonArray: {$ne: null}}}).then(data => {
+        expect(data[0].jsonArray[0].objectField.object).to.equal(`I'm string in jsonArray[0].objectField.object`)
+      })
+    })
+
+    it('array nested object', () => {
+      return companies.find({query: {jsonArray: { '[0].objectField.object': `I'm string in jsonArray[0].objectField.object` }}}).then(() => {
+        throw new Error('Should never get here')
+      }).catch(function (error) {
+        expect(error).to.be.ok
+        expect(error instanceof errors.BadRequest).to.be.ok
+        expect(error.message).to.equal('select `companies`.* from `companies` where `jsonArray:[0]`.`objectField`.`object` = \'I\'\'m string in jsonArray[0].objectField.object\' - SQLITE_ERROR: no such column: jsonArray:[0].objectField.object')
+      })
     })
   })
 

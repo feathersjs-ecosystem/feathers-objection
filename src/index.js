@@ -62,6 +62,7 @@ class Service {
     this.paginate = options.paginate || {}
     this.events = options.events || []
     this.Model = options.model
+    this.jsonSchema = options.model.jsonSchema
     this.allowedEager = options.allowedEager || '[]'
     this.namedEagerFilters = options.namedEagerFilters
     this.eagerFilters = options.eagerFilters
@@ -171,6 +172,12 @@ class Service {
         }
 
         return query[method].call(query, column, value) // eslint-disable-line no-useless-call
+      }
+
+      let columnType = this.jsonSchema.properties[column] && this.jsonSchema.properties[column].type
+      if (columnType) {
+        if (Array.isArray(columnType)) { columnType = columnType[0] }
+        if (columnType === 'object' || columnType === 'array') { return query.where(query._knex.ref(`${column}:${key}`), operator, value) }
       }
 
       return operator === '=' ? query.where(column, value) : query.where(column, operator, value)

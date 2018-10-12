@@ -11,7 +11,20 @@ export default class Company extends Model {
     properties: {
       id: { type: 'integer' },
       name: { type: 'string' },
-      ceo: { type: ['integer', 'null'] }
+      ceo: { type: ['integer', 'null'] },
+      jsonObject: {
+        type: ['object', 'null'],
+        properties: {
+          numberField: { type: 'number' },
+          objectField: {
+            type: 'object',
+            properties: {
+              object: { type: 'string' }
+            }
+          }
+        }
+      },
+      jsonArray: { type: ['array', 'null'] }
     }
   }
 
