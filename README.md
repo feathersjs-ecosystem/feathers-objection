@@ -428,6 +428,7 @@ JSON column will be automatically converted from and to JS object/array and will
 Query against a JSON column in PostgresSQL:
 ```js
 app.service('companies').find({ query: { obj: { numberField: 1.5 } } })
+app.service('companies').find({ query: { obj: { numberField: { $gt: 1.5 } } } })
 app.service('companies').find({ query: { obj: { 'objectField.object': 'string in obj.objectField.object' } } })
 app.service('companies').find({ query: { obj: { 'arrayField(0).object': 'string in obj.arrayField[0].object' } } })
 app.service('companies').find({ query: { arr: { '(0).objectField.object': 'string in arr[0].objectField.object' } } })
