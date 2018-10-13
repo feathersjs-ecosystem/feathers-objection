@@ -130,7 +130,7 @@ class Service {
    * @param params
    * @param parentKey
    */
-  objectify (query, params, parentKey) {
+  objectify (query, params, parentKey, methodKey) {
     if (params.$eager) { delete params.$eager }
     if (params.$joinEager) { delete params.$joinEager }
     if (params.$joinRelation) { delete params.$joinRelation }
@@ -140,11 +140,11 @@ class Service {
       const value = params[key]
 
       if (isPlainObject(value)) {
-        return this.objectify(query, value, key)
+        return this.objectify(query, value, key, parentKey)
       }
 
-      const column = parentKey || key
-      const method = METHODS[key]
+      const column = parentKey && parentKey[0] !== '$' ? parentKey : key
+      const method = METHODS[methodKey] || METHODS[parentKey] || METHODS[key]
       const operator = OPERATORS_MAP[key] || '='
 
       if (method) {
@@ -175,10 +175,11 @@ class Service {
         return query[method].call(query, column, value) // eslint-disable-line no-useless-call
       }
 
-      let columnType = this.jsonSchema.properties[column] && this.jsonSchema.properties[column].type
+      const property = this.jsonSchema.properties[column] || (methodKey && this.jsonSchema.properties[methodKey])
+      let columnType = property && property.type
       if (columnType) {
         if (Array.isArray(columnType)) { columnType = columnType[0] }
-        if (columnType === 'object' || columnType === 'array') { return query.where(ref(`${this.Model.tableName}.${column}:${key.replace(/\(/g, '[').replace(/\)/g, ']')}`).castText(), operator, value) }
+        if (columnType === 'object' || columnType === 'array') { return query.where(ref(`${this.Model.tableName}.${methodKey || column}:${(methodKey ? column : key).replace(/\(/g, '[').replace(/\)/g, ']')}`).castText(), operator, value) }
       }
 
       return operator === '=' ? query.where(column, value) : query.where(column, operator, value)

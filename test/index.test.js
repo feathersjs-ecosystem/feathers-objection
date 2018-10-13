@@ -833,6 +833,16 @@ describe('Feathers Objection Service', () => {
       })
     })
 
+    it('object numberField $gt', () => {
+      return companies.find({query: {jsonObject: {numberField: {$gt: 1.5}}}}).then(() => {
+        throw new Error('Should never get here')
+      }).catch(function (error) {
+        expect(error).to.be.ok
+        expect(error instanceof errors.BadRequest).to.be.ok
+        expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{numberField}\' AS text) > 1.5 - SQLITE_ERROR: unrecognized token: "#"')
+      })
+    })
+
     it('object nested object', () => {
       return companies.find({query: {jsonObject: {'objectField.object': 'string in jsonObject.objectField.object'}}}).then(() => {
         throw new Error('Should never get here')
