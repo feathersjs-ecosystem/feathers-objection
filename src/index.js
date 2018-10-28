@@ -175,7 +175,7 @@ class Service {
         return query[method].call(query, column, value) // eslint-disable-line no-useless-call
       }
 
-      const property = this.jsonSchema.properties[column] || (methodKey && this.jsonSchema.properties[methodKey])
+      const property = this.jsonSchema && (this.jsonSchema.properties[column] || (methodKey && this.jsonSchema.properties[methodKey]));
       let columnType = property && property.type
       if (columnType) {
         if (Array.isArray(columnType)) { columnType = columnType[0] }
