@@ -25,7 +25,9 @@ const OPERATORS = [
   '$eager',
   '$joinEager',
   '$joinRelation',
-  '$pick'
+  '$pick',
+  '$modify',
+  '$relation'
 ]
 
 const OPERATORS_MAP = {
