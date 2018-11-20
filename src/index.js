@@ -27,7 +27,9 @@ const OPERATORS = [
   '$joinRelation',
   '$pick',
   '$modify',
-  '$relation'
+  '$relation',
+  '$recursive',
+  '$allRecursive'
 ]
 
 const OPERATORS_MAP = {
