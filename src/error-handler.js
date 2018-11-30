@@ -34,56 +34,60 @@ export default function errorHandler (error) {
   if (error.statusCode) {
     switch (error.statusCode) {
       case 400:
-        feathersError = new errors.BadRequest(error.data)
+        feathersError = new errors.BadRequest(error)
         break
 
       case 401:
-        feathersError = new errors.NotAuthenticated(error.data)
+        feathersError = new errors.NotAuthenticated(error)
         break
 
       case 402:
-        feathersError = new errors.PaymentError(error.data)
+        feathersError = new errors.PaymentError(error)
         break
 
       case 403:
-        feathersError = new errors.Forbidden(error.data)
+        feathersError = new errors.Forbidden(error)
         break
 
       case 404:
-        feathersError = new errors.NotFound(error.data)
+        feathersError = new errors.NotFound(error)
         break
 
       case 405:
-        feathersError = new errors.MethodNotAllowed(error.data)
+        feathersError = new errors.MethodNotAllowed(error)
         break
 
       case 406:
-        feathersError = new errors.NotAcceptable(error.data)
+        feathersError = new errors.NotAcceptable(error)
         break
 
       case 408:
-        feathersError = new errors.Timeout(error.data)
+        feathersError = new errors.Timeout(error)
         break
 
       case 409:
-        feathersError = new errors.Conflict(error.data)
+        feathersError = new errors.Conflict(error)
         break
 
       case 422:
-        feathersError = new errors.Unprocessable(error.data)
+        feathersError = new errors.Unprocessable(error)
         break
 
       case 501:
-        feathersError = new errors.NotImplemented(error.data)
+        feathersError = new errors.NotImplemented(error)
         break
 
       case 503:
-        feathersError = new errors.Unavailable(error.data)
+        feathersError = new errors.Unavailable(error)
         break
 
       case 500:
       default:
         feathersError = new errors.GeneralError(error)
+    }
+
+    if (error.data) {
+      feathersError.data = error.data
     }
 
     throw feathersError
