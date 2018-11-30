@@ -208,7 +208,7 @@ class Service {
 
     // $select uses a specific find syntax, so it has to come first.
     if (filters.$select) {
-      q = q.select(...filters.$select.concat(this.id))
+      q = q.select(...filters.$select.concat(`${this.Model.tableName}.${this.id}`))
     }
 
     // $eager for Objection eager queries
