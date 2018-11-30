@@ -8,9 +8,9 @@ export default class PeopleRoomsCustomIdSeparator extends Model {
     required: ['admin'],
 
     properties: {
-      peopleId: {type: 'integer'},
-      roomId: {type: 'integer'},
-      admin: {type: 'boolean'}
+      peopleId: { type: 'integer' },
+      roomId: { type: 'integer' },
+      admin: { type: 'boolean' }
     }
   }
 }
