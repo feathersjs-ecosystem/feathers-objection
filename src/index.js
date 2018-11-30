@@ -434,6 +434,12 @@ class Service {
         }
 
         if (this.allowedUpsert) {
+          if (Array.isArray(this.id)) {
+            newObject = Object.assign({}, newObject, this.getIdsQuery(id))
+          } else {
+            newObject[this.id] = id
+          }
+
           return this._createQuery(params)
             .allowUpsert(this.allowedUpsert)
             .upsertGraphAndFetch(newObject, this.upsertGraphOptions)
