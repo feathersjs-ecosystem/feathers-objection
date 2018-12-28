@@ -1,4 +1,5 @@
 test/
+--require @babel/polyfill
 --require @babel/register
 --timeout 5000
 --exit
