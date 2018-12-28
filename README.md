@@ -89,6 +89,39 @@ module.exports = function (app) {
 - `multi` (*optional*) - Allow `create` with arrays and `update` and `remove` with `id` `null` to change multiple items. Can be `true` for all methods or an array of allowed methods (e.g. `[ 'remove', 'create' ]`)
 - `whitelist` (*optional*) - A list of additional query parameters to allow (e..g `[ '$eager', '$joinRelation' ]`). Default is the supported `operators`
 
+### Query Operators
+ 
+Starting at version 2.0.0 `feathers-objection` converts queries securely. If you want to support additional Objection operators, the `whitelist` service option can contain an array of additional allowed operators. By default, supported operators are:
+ 
+```
+'$eq',
+'$ne',
+'$gte',
+'$gt',
+'$lte',
+'$lt',
+'$in',
+'$nin',
+'$like',
+'$notLike',
+'$iLike',
+'$notILike',
+'$or',
+'$and'
+```
+
+### Migrating
+ 
+`feathers-objection` 2.0.0 comes with important security and usability updates.
+
+> __Important:__ For general migration information to the new database adapter functionality see [crow.docs.feathersjs.com/migrating.html#database-adapters](https://crow.docs.feathersjs.com/migrating.html#database-adapters).
+
+The following breaking changes have been introduced:
+
+- All methods allow additional query parameters
+- Multiple updates are disabled by default (see the `multi` option)
+- Objection related operators are disabled by default (see the `whitelist` option)
+
 ### Eager Queries
 
 Eager queries is one way of solving the SQL database relational model in
@@ -229,6 +262,7 @@ module.exports = function (app) {
   const options = {
     model: Modal,
     paginate,
+    whitelist: ['$eager', '$joinRelation'],
     allowedEager: 'todos'
   }
 
@@ -254,6 +288,7 @@ module.exports = function (app) {
   const options = {
     model: Modal,
     paginate,
+    whitelist: ['$eager', '$joinRelation'],
     allowedEager: '[user, subtask]',
     namedEagerFilters: {
       unDone: function (builder) {
