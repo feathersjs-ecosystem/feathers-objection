@@ -50,9 +50,7 @@
   },
   "dependencies": {
     "@feathersjs/adapter-commons": "^1.0.6",
-    "@feathersjs/commons": "^4.0.0",
-    "@feathersjs/errors": "^3.3.5",
-    "is-plain-object": "^2.0.1"
+    "@feathersjs/errors": "^3.3.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",

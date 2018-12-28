@@ -1,9 +1,8 @@
 import { AdapterService } from '@feathersjs/adapter-commons'
-import { _ } from '@feathersjs/commons'
-import { ref } from 'objection'
-import isPlainObject from 'is-plain-object'
-import errorHandler from './error-handler'
 import errors from '@feathersjs/errors'
+import { ref } from 'objection'
+import utils from './utils'
+import errorHandler from './error-handler'
 
 const METHODS = {
   $or: 'orWhere',
@@ -114,7 +113,7 @@ class Service extends AdapterService {
         return query.map(convertOperators)
       }
 
-      if (!_.isObject(query)) {
+      if (utils.isPlainObject(query)) {
         return query
       }
 
@@ -133,19 +132,6 @@ class Service extends AdapterService {
     return filtered
   }
 
-  extractIds (id) {
-    if (typeof id === 'object') { return this.id.map(idKey => id[idKey]) }
-    if (id[0] === '[' && id[id.length - 1] === ']') { return JSON.parse(id) }
-    if (id[0] === '{' && id[id.length - 1] === '}') {
-      const obj = JSON.parse(id)
-      return Object.keys(obj).map(key => obj[key])
-    }
-
-    if (typeof id !== 'string' || !id.includes(this.idSeparator)) { throw new errors.BadRequest('When using composite primary key, id must contain values for all primary keys') }
-
-    return id.split(this.idSeparator)
-  }
-
   /**
    * Create a new query that re-queries all ids that were originally changed
    * @param id
@@ -158,7 +144,7 @@ class Service extends AdapterService {
       let ids = id
 
       if (id && !Array.isArray(id)) {
-        ids = this.extractIds(id)
+        ids = utils.extractIds(id, this.id, this.idSeparator)
       }
 
       this.id.forEach((idKey, index) => {
@@ -194,7 +180,7 @@ class Service extends AdapterService {
     Object.keys(params || {}).forEach(key => {
       const value = params[key]
 
-      if (isPlainObject(value)) {
+      if (utils.isPlainObject(value)) {
         return this.objectify(query, value, key, parentKey)
       }
 
@@ -243,8 +229,7 @@ class Service extends AdapterService {
 
   _createQuery (params = {}) {
     let trx = params.transaction ? params.transaction.trx : null
-    let q = this.Model.query(trx)
-    return q
+    return this.Model.query(trx)
   }
 
   createQuery (params = {}) {
