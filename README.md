@@ -612,7 +612,7 @@ Run the example with `node app` and go to [localhost:3030/todos](http://localhos
 
 You should see an empty array. That's because you don't have any Todos yet, but you now have full CRUD for your new todos service!
 
-### Migrating
+## Migrating
  
 `feathers-objection` 2.0.0 comes with important security and usability updates.
 
