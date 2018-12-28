@@ -80,6 +80,226 @@ module.exports = function (app) {
 }
 ```
 
+### Service Options
+
+- `model` (**required**) - The Objection model definition
+- `id` (*optional*, default: `'id'`) - The name of the id field property. Use array of strings for composite primary keys
+- `events` (*optional*) - A list of [custom service events](https://docs.feathersjs.com/api/events.html#custom-events) sent by this service
+- `paginate` (*optional*) - A [pagination object](https://docs.feathersjs.com/api/databases/common.html#pagination) containing a `default` and `max` page size
+- `multi` (*optional*) - Allow `create` with arrays and `update` and `remove` with `id` `null` to change multiple items. Can be `true` for all methods or an array of allowed methods (e.g. `[ 'remove', 'create' ]`)
+- `whitelist` (*optional*) - A list of additional query parameters to allow (e..g `[ '$eager', '$joinRelation' ]`). Default is the supported `operators`
+
+### Eager Queries
+
+Eager queries is one way of solving the SQL database relational model in
+Feathers services, instead of relying with hooks.
+
+#### Service Options
+
+Note that all this eager related options are optional.
+
+* **`allowedEager`** - relation expression to limit the allowed eager queries in
+  the service. Defaults to `'[]'`, meaning no eager queries allowed. See [`allowEager`](https://vincit.github.io/objection.js/#alloweager) documentation.
+* **`eagerFilters`** - option to impose compulsory eager filter. It takes an
+  object or array of objects with the following properties:
+  * `expression` - the relation expression that the filter will be applied.
+  * `filter` - the filter function.
+  It uses [`filterEager`](https://vincit.github.io/objection.js/#filtereager) internally.
+* **`namedEagerFilters`** - object containing named eager filter functions.
+  Filter is opt-in via `$eager` parameter.
+
+#### Query Operators
+
+* **`$eager`** - parameter to eager load relations defined in models' `relationMappings` 
+  getter methods or in the `namedEagerFilters` option. See 
+  [`eager`](https://vincit.github.io/objection.js/#eager) documentation.
+* **`$joinRelation`** - parameter to filter based on a relation's field. See 
+  [`joinRelation`](https://vincit.github.io/objection.js/#joinrelation) documentation.
+* **`$joinEager`** - parameter to filter based on a relation's field using `JoinEagerAlgorithm`. See 
+    [`$joinEager`](https://vincit.github.io/objection.js/#joineager) documentation.
+* **`$pick`** - parameter to pick properties from result models. See
+  [`pick`](https://vincit.github.io/objection.js/#pick) documentation.
+  
+#### Params Operators
+
+* **`transaction`** - A transaction object. See [`transaction`](https://vincit.github.io/objection.js/#transaction) documentation.
+* **`mergeAllowEager`** - Just like allowEager but instead of replacing query builder’s allowEager expression this method merges the given expression to the existing expression. See [`mergeAllowEager`](https://vincit.github.io/objection.js/#mergealloweager) documentation.
+
+### Composite primary keys
+
+Composite primary keys can be passed as the `id` argument using the following methods:
+
+* String with values separated by the `idSeparator` property (order matter, recommended for REST)
+* JSON array (order matter, recommended for internal service calls)
+* JSON object (more readable, recommended for internal service calls)
+
+When calling a service method with the `id` argument, all primary keys are required to be passed.
+
+#### Service Options
+
+* **`idSeparator`** - (optional) separator char to separate composite primary keys in the `id` argument 
+  of get/patch/update/remove external service calls. Defaults to `','`.
+  
+```js
+app.use('/user-todos', service({
+  id: ['userId', 'todoId'],
+  idSeparator: ','
+})
+
+app.service('/user-todos').get('1,2')
+app.service('/user-todos').get([1, 2])
+app.service('/user-todos').get({ userId: 1, todoId: 2 })
+```  
+
+### JSON column
+
+JSON column will be automatically converted from and to JS object/array and will be saved as text in unsupported databases.
+
+Query against a JSON column in PostgresSQL:
+```js
+app.service('companies').find({ query: { obj: { numberField: 1.5 } } })
+app.service('companies').find({ query: { obj: { numberField: { $gt: 1.5 } } } })
+app.service('companies').find({ query: { obj: { 'objectField.object': 'string in obj.objectField.object' } } })
+app.service('companies').find({ query: { obj: { 'arrayField(0).object': 'string in obj.arrayField[0].object' } } })
+app.service('companies').find({ query: { arr: { '(0).objectField.object': 'string in arr[0].objectField.object' } } })
+``` 
+
+### Graph upsert
+Arbitrary relation graphs can be upserted (insert + update + delete) using the upsertGraph method.
+See [`examples`](https://vincit.github.io/objection.js/#graph-upserts) for a better explanation.
+Runs on the `.update(id, data, params)` service method. 
+
+*The relation being upserted must also be present in `allowedEager` option and included in `$eager` query.*
+
+#### Service Options
+
+* **`allowedUpsert`** - relation expression to allow relations to be upserted along with update. 
+Defaults to `null`, meaning relations will not be automatically upserted unless specified here. 
+See [`allowUpsert`](https://vincit.github.io/objection.js/#allowupsert) documentation.
+* **`upsertGraphOptions`** - See [`upsertGraphOptions`](https://vincit.github.io/objection.js/#upsertgraphoptions) documentation.
+* **`createUseUpsertGraph`** - If set to `true`, Graph Upsert will also be used for `.create(data, params)` method instead of Graph Insert.
+
+```js
+app.use('/companies', service({
+  model: Company,
+  allowedEager: 'clients',
+  allowedUpsert: 'clients'
+})
+
+app.service('/companies').update(1, { 
+  name: 'New Name',
+  clients: [{
+    id: 100,
+    name: 'Existing Client'
+  }, {
+    name: 'New Client'
+  }]
+})
+```
+
+In the example above, we are updating the name of an existing company, along with adding a new client which is a relationship for companies. The client without the ID would be inserted and related. The client with the ID will just be updated (if there are any changes at all).
+
+### Graph insert
+Arbitrary relation graphs can be inserted using the insertGraph method.
+Provides the ability to relate the inserted object with its associations.
+Runs on the `.create(data, params)` service method. 
+
+*The relation being created must also be present in `allowedEager` option and included in `$eager` query.*
+
+#### Service Options
+
+* **`allowedInsert`** - relation expression to allow relations to be created along with insert. 
+Defaults to `null`, meaning relations will not be automatically created unless specified here. 
+See [`allowInsert`](https://vincit.github.io/objection.js/#allowinsert) documentation.
+* **`insertGraphOptions`** - See [`insertGraphOptions`](https://vincit.github.io/objection.js/#insertgraphoptions) documentation.
+
+### Service
+
+users.service.js
+
+```js
+const createService = require('feathers-objection')
+const createModal = require('../../models/users.model')
+const hooks = require('./users.hooks')
+
+module.exports = function (app) {
+  const Modal = createModal(app)
+  const paginate = app.get('paginate')
+
+  const options = {
+    model: Modal,
+    paginate,
+    allowedEager: 'todos'
+  }
+
+  app.use('/users', createService(options))
+
+  const service = app.service('users')
+
+  service.hooks(hooks)
+}
+```
+
+todos.service.js
+
+```js
+const createService = require('feathers-objection')
+const createModal = require('../../models/todos.model')
+const hooks = require('./todos.hooks')
+
+module.exports = function (app) {
+  const Modal = createModal(app)
+  const paginate = app.get('paginate')
+
+  const options = {
+    model: Modal,
+    paginate,
+    allowedEager: '[user, subtask]',
+    namedEagerFilters: {
+      unDone: function (builder) {
+        builder.where('done', false)
+      }
+    },
+    eagerFilters: [
+      {
+        expression: 'subtask',
+        filter: function (builder) {
+          builder.where('archived', true)
+        }
+      }
+    ]
+  }
+
+  app.use('/todos', createService(options))
+
+  const service = app.service('todos')
+
+  service.hooks(hooks)
+}
+```
+
+Use eager queries as follows:
+
+```js
+// Get all todos and their unfinished tasks
+app.service('/todos').find({
+  query: {
+    $eager: 'subtask(unDone)'
+  }
+})
+
+// Get all todos of an active user with firstName 'John'
+app.service('/todos').find({
+  query: {
+    'user.firstName': 'John',
+    $eager: 'user(active)',
+    $joinRelation: 'user(active)'
+  }
+})
+```
+
+See [this article](https://www.vincit.fi/blog/nested-eager-loading-and-inserts-with-objection-js/) for more information.
+
 ### Models
 
 Objection requires you to define [Models](http://vincit.github.io/objection.js/#models) for your tables:
@@ -262,226 +482,6 @@ module.exports = function (app) {
   return Todo
 }
 ```
-
-When defining a service, you must provide the model:
-
-```js
-app.use('/todos', service({
-  model: Todo
-})
-```
-
-### Eager Queries
-
-Eager queries is one way of solving the SQL database relational model in
-Feathers services, instead of relying with hooks.
-
-#### Options
-
-Note that all this eager related options are optional.
-
-* **`allowedEager`** - relation expression to limit the allowed eager queries in
-  the service. Defaults to `'[]'`, meaning no eager queries allowed. See [`allowEager`](https://vincit.github.io/objection.js/#alloweager) documentation.
-* **`eagerFilters`** - option to impose compulsory eager filter. It takes an
-  object or array of objects with the following properties:
-  * `expression` - the relation expression that the filter will be applied.
-  * `filter` - the filter function.
-  It uses [`filterEager`](https://vincit.github.io/objection.js/#filtereager) internally.
-* **`namedEagerFilters`** - object containing named eager filter functions.
-  Filter is opt-in via `$eager` parameter.
-
-#### Query Operators
-
-* **`$eager`** - parameter to eager load relations defined in models' `relationMappings` 
-  getter methods or in the `namedEagerFilters` option. See 
-  [`eager`](https://vincit.github.io/objection.js/#eager) documentation.
-* **`$joinRelation`** - parameter to filter based on a relation's field. See 
-  [`joinRelation`](https://vincit.github.io/objection.js/#joinrelation) documentation.
-* **`$joinEager`** - parameter to filter based on a relation's field using `JoinEagerAlgorithm`. See 
-    [`$joinEager`](https://vincit.github.io/objection.js/#joineager) documentation.
-* **`$pick`** - parameter to pick properties from result models. See
-  [`pick`](https://vincit.github.io/objection.js/#pick) documentation.
-  
-#### Params Operators
-
-* **`transaction`** - A transaction object. See [`transaction`](https://vincit.github.io/objection.js/#transaction) documentation.
-* **`mergeAllowEager`** - Just like allowEager but instead of replacing query builder’s allowEager expression this method merges the given expression to the existing expression. See [`mergeAllowEager`](https://vincit.github.io/objection.js/#mergealloweager) documentation.
-
-### Service
-
-users.service.js
-
-```js
-const createService = require('feathers-objection')
-const createModal = require('../../models/users.model')
-const hooks = require('./users.hooks')
-
-module.exports = function (app) {
-  const Modal = createModal(app)
-  const paginate = app.get('paginate')
-
-  const options = {
-    model: Modal,
-    paginate,
-    allowedEager: 'todos'
-  }
-
-  app.use('/users', createService(options))
-
-  const service = app.service('users')
-
-  service.hooks(hooks)
-}
-```
-
-todos.service.js
-
-```js
-const createService = require('feathers-objection')
-const createModal = require('../../models/todos.model')
-const hooks = require('./todos.hooks')
-
-module.exports = function (app) {
-  const Modal = createModal(app)
-  const paginate = app.get('paginate')
-
-  const options = {
-    model: Modal,
-    paginate,
-    allowedEager: '[user, subtask]',
-    namedEagerFilters: {
-      unDone: function (builder) {
-        builder.where('done', false)
-      }
-    },
-    eagerFilters: [
-      {
-        expression: 'subtask',
-        filter: function (builder) {
-          builder.where('archived', true)
-        }
-      }
-    ]
-  }
-
-  app.use('/todos', createService(options))
-
-  const service = app.service('todos')
-
-  service.hooks(hooks)
-}
-```
-
-Use eager queries as follows:
-
-```js
-// Get all todos and their unfinished tasks
-app.service('/todos').find({
-  query: {
-    $eager: 'subtask(unDone)'
-  }
-})
-
-// Get all todos of an active user with firstName 'John'
-app.service('/todos').find({
-  query: {
-    'user.firstName': 'John',
-    $eager: 'user(active)',
-    $joinRelation: 'user(active)'
-  }
-})
-```
-
-See [this article](https://www.vincit.fi/blog/nested-eager-loading-and-inserts-with-objection-js/) for more information.
-
-### Composite primary keys
-
-Composite primary keys can be passed as the `id` argument using the following methods:
-
-* String with values separated by the `idSeparator` property (order matter, recommended for REST)
-* JSON array (order matter, recommended for internal service calls)
-* JSON object (more readable, recommended for internal service calls)
-
-When calling a service method with the `id` argument, all primary keys are required to be passed.
-
-#### Options
-
-* **`id`** - (optional) define custom `id` as string or array of strings for Composite primary keys. Defaults to `'id'`.
-* **`idSeparator`** - (optional) separator char to separate Composite primary keys in the `id` argument 
-  of get/patch/update/remove external service calls. Defaults to `','`.
-  
-```js
-app.use('/user-todos', service({
-  id: ['userId', 'todoId'],
-  idSeparator: ','
-})
-
-app.service('/user-todos').get('1,2')
-app.service('/user-todos').get([1, 2])
-app.service('/user-todos').get({ userId: 1, todoId: 2 })
-```  
-
-### JSON column
-
-JSON column will be automatically converted from and to JS object/array and will be saved as text in unsupported databases.
-
-Query against a JSON column in PostgresSQL:
-```js
-app.service('companies').find({ query: { obj: { numberField: 1.5 } } })
-app.service('companies').find({ query: { obj: { numberField: { $gt: 1.5 } } } })
-app.service('companies').find({ query: { obj: { 'objectField.object': 'string in obj.objectField.object' } } })
-app.service('companies').find({ query: { obj: { 'arrayField(0).object': 'string in obj.arrayField[0].object' } } })
-app.service('companies').find({ query: { arr: { '(0).objectField.object': 'string in arr[0].objectField.object' } } })
-``` 
-
-### Graph upsert
-Arbitrary relation graphs can be upserted (insert + update + delete) using the upsertGraph method.
-See [`examples`](https://vincit.github.io/objection.js/#graph-upserts) for a better explanation.
-Runs on the `.update(id, data, params)` service method. 
-
-*The relation being upserted must also be present in `allowedEager` option and included in `$eager` query.*
-
-#### Options
-
-* **`allowedUpsert`** - relation expression to allow relations to be upserted along with update. 
-Defaults to `null`, meaning relations will not be automatically upserted unless specified here. 
-See [`allowUpsert`](https://vincit.github.io/objection.js/#allowupsert) documentation.
-* **`upsertGraphOptions`** - See [`upsertGraphOptions`](https://vincit.github.io/objection.js/#upsertgraphoptions) documentation.
-* **`createUseUpsertGraph`** - If set to `true`, Graph Upsert will also be used for `.create(data, params)` method instead of Graph Insert.
-
-```js
-app.use('/companies', service({
-  model: Company,
-  allowedEager: 'clients',
-  allowedUpsert: 'clients'
-})
-
-app.service('/companies').update(1, { 
-  name: 'New Name',
-  clients: [{
-    id: 100,
-    name: 'Existing Client'
-  }, {
-    name: 'New Client'
-  }]
-})
-```
-
-In the example above, we are updating the name of an existing company, along with adding a new client which is a relationship for companies. The client without the ID would be inserted and related. The client with the ID will just be updated (if there are any changes at all).
-
-### Graph insert
-Arbitrary relation graphs can be inserted using the insertGraph method.
-Provides the ability to relate the inserted object with its associations.
-Runs on the `.create(data, params)` service method. 
-
-*The relation being created must also be present in `allowedEager` option and included in `$eager` query.*
-
-#### Options
-
-* **`allowedInsert`** - relation expression to allow relations to be created along with insert. 
-Defaults to `null`, meaning relations will not be automatically created unless specified here. 
-See [`allowInsert`](https://vincit.github.io/objection.js/#allowinsert) documentation.
-* **`insertGraphOptions`** - See [`insertGraphOptions`](https://vincit.github.io/objection.js/#insertgraphoptions) documentation.
 
 ## Complete Example
 

@@ -76,8 +76,7 @@ class Service extends AdapterService {
       throw new errors.GeneralError('You must provide an Objection Model')
     }
 
-    const defaultOps = defaultOperators(OPERATORS)
-    const operators = Object.assign(defaultOps, options.operators)
+    const operators = defaultOperators(OPERATORS)
     const whitelist = Object.keys(operators).concat(options.whitelist || [])
 
     super(Object.assign({
