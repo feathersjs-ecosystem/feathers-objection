@@ -177,6 +177,11 @@ class Service extends AdapterService {
    * @param methodKey
    */
   objectify (query, params, parentKey, methodKey) {
+    if (params.$eager) { delete params.$eager }
+    if (params.$joinEager) { delete params.$joinEager }
+    if (params.$joinRelation) { delete params.$joinRelation }
+    if (params.$pick) { delete params.$pick }
+
     Object.keys(params || {}).forEach(key => {
       const value = params[key]
 
