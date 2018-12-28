@@ -4,19 +4,79 @@ import { expect } from 'chai'
 import assert from 'assert'
 import feathers from '@feathersjs/feathers'
 import knex from 'knex'
-import { base, example } from 'feathers-service-tests'
+import adaptertests from '@feathersjs/adapter-commons/tests'
 import errors from '@feathersjs/errors'
 import service from '../src'
 import errorHandler from '../src/error-handler'
-import server from '../example/app'
 import People from './people'
 import PeopleCustomid from './people-customid'
 import PeopleRoom from './people-rooms'
 import PeopleRoomsCustomIdSeparator from './people-rooms-custom-id-separator'
 import Company from './company'
-import { Model } from 'objection'
 import Employee from './employee'
 import Client from './client'
+import { Model } from 'objection'
+
+const testSuite = adaptertests([
+  '.options',
+  '.events',
+  '._get',
+  '._find',
+  '._create',
+  '._update',
+  '._patch',
+  '._remove',
+  '.get',
+  '.get + $select',
+  '.get + id + query',
+  '.get + NotFound',
+  '.find',
+  '.remove',
+  '.remove + $select',
+  '.remove + id + query',
+  '.remove + multi',
+  '.update',
+  '.update + $select',
+  '.update + id + query',
+  '.update + NotFound',
+  '.patch',
+  '.patch + $select',
+  '.patch + id + query',
+  '.patch multiple',
+  '.patch multi query',
+  '.patch + NotFound',
+  '.create',
+  '.create + $select',
+  '.create multi',
+  'internal .find',
+  'internal .get',
+  'internal .create',
+  'internal .update',
+  'internal .patch',
+  'internal .remove',
+  '.find + equal',
+  '.find + equal multiple',
+  '.find + $sort',
+  '.find + $sort + string',
+  '.find + $limit',
+  '.find + $limit 0',
+  '.find + $skip',
+  '.find + $select',
+  '.find + $or',
+  '.find + $in',
+  '.find + $nin',
+  '.find + $lt',
+  '.find + $lte',
+  '.find + $gt',
+  '.find + $gte',
+  '.find + $ne',
+  '.find + $gt + $lt + $sort',
+  '.find + $or nested + $sort',
+  '.find + paginate',
+  '.find + paginate + $limit + $skip',
+  '.find + paginate + $limit 0',
+  '.find + paginate + params'
+])
 
 const db = knex({
   client: 'sqlite3',
@@ -36,6 +96,7 @@ const app = feathers()
     service({
       model: People,
       id: 'id',
+      multi: ['create'],
       events: ['testing']
     })
   )
@@ -52,6 +113,7 @@ const app = feathers()
     service({
       model: PeopleRoom,
       id: ['peopleId', 'roomId'],
+      multi: ['create', 'patch'],
       events: ['testing']
     })
   )
@@ -61,6 +123,7 @@ const app = feathers()
       model: PeopleRoomsCustomIdSeparator,
       id: ['peopleId', 'roomId'],
       idSeparator: '.',
+      multi: ['create'],
       events: ['testing']
     })
   )
@@ -69,7 +132,8 @@ const app = feathers()
     service({
       model: Company,
       id: 'id',
-      events: ['testing'],
+      multi: ['create', 'remove'],
+      whitelist: ['$eager', '$pick'],
       allowedEager: '[ceos, clients]',
       namedEagerFilters: {
         notSnoop (builder) {
@@ -85,27 +149,32 @@ const app = feathers()
         }
       ],
       allowedInsert: 'clients',
-      allowedUpsert: 'clients'
+      allowedUpsert: 'clients',
+      events: ['testing']
     })
   )
   .use(
     '/employees',
     service({
       model: Employee,
+      multi: ['create'],
+      whitelist: ['$eager', '$joinRelation', '$joinEager'],
       allowedEager: 'company',
       eagerFilters: {
         expression: 'ltd',
         filter: function ltd (builder) {
           return builder.where('name', 'like', '% ltd')
         }
-      }
+      },
+      events: ['testing']
     })
   )
   .use(
     '/clients',
     service({
       model: Client,
-      allowedEager: 'company'
+      allowedEager: 'company',
+      events: ['testing']
     })
   )
 
@@ -197,14 +266,6 @@ describe('Feathers Objection Service', () => {
   after(clean)
 
   describe('Initialization', () => {
-    describe('when missing options', () => {
-      it('throws an error', () => {
-        expect(service.bind(null)).to.throw(
-          'Objection options have to be provided'
-        )
-      })
-    })
-
     describe('when missing a Model', () => {
       it('throws an error', () => {
         expect(service.bind(null, {})).to.throw(
@@ -221,7 +282,7 @@ describe('Feathers Objection Service', () => {
 
     describe('when missing the paginate option', () => {
       it('sets the default to be {}', () => {
-        expect(people.paginate).to.deep.equal({})
+        expect(people.paginate).to.equal(undefined)
       })
     })
 
@@ -454,12 +515,12 @@ describe('Feathers Objection Service', () => {
     })
   })
 
-  describe('Common functionality', () => {
+  describe('Common Tests', () => {
     it('is CommonJS compatible', () =>
-      assert.equal(typeof require('../lib'), 'function'))
+      assert.strictEqual(typeof require('../lib'), 'function'))
 
-    base(app, errors, 'people')
-    base(app, errors, 'people-customid', 'customid')
+    testSuite(app, errors, 'people', 'id')
+    testSuite(app, errors, 'people-customid', 'customid')
   })
 
   describe('Composite PK queries', () => {
@@ -525,7 +586,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('allows get queries by object', () => {
-      return peopleRooms.get({peopleId: 2, roomId: 2}).then(data => {
+      return peopleRooms.get({ peopleId: 2, roomId: 2 }).then(data => {
         expect(data.peopleId).to.equal(2)
       })
     })
@@ -555,7 +616,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('get with partial id in string throws an error', () => {
-      return peopleRooms.update('2', {admin: false}).then(() => {
+      return peopleRooms.update('2', { admin: false }).then(() => {
         throw new Error('Should never get here')
       }).catch(function (error) {
         expect(error).to.be.ok
@@ -565,7 +626,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('allows find queries', () => {
-      return peopleRooms.find({query: {roomId: 2}}).then(data => {
+      return peopleRooms.find({ query: { roomId: 2 } }).then(data => {
         expect(data.length).to.equal(2)
         expect(data[0].peopleId).to.equal(1)
         expect(data[1].peopleId).to.equal(2)
@@ -573,24 +634,24 @@ describe('Feathers Objection Service', () => {
     })
 
     it('allows update queries', () => {
-      return peopleRooms.update([2, 2], {admin: false, peopleId: 1}).then(data => {
+      return peopleRooms.update([2, 2], { admin: false, peopleId: 1 }).then(data => {
         expect(data.peopleId).to.equal(2)
         expect(data.admin).to.equal(false)
       })
     })
 
     it('update multiple records throws an error', () => {
-      return peopleRooms.update([2, 2], [{admin: false}]).then(() => {
+      return peopleRooms.update([2, 2], [{ admin: false }]).then(() => {
         throw new Error('Should never get here')
       }).catch(function (error) {
         expect(error).to.be.ok
         expect(error instanceof errors.BadRequest).to.be.ok
-        expect(error.message).to.equal('Not replacing multiple records. Did you mean `patch`?')
+        expect(error.message).to.equal(`You can not replace multiple instances. Did you mean 'patch'?`)
       })
     })
 
     it('update with partial id throws an error', () => {
-      return peopleRooms.update([2], {admin: false}).then(() => {
+      return peopleRooms.update([2], { admin: false }).then(() => {
         throw new Error('Should never get here')
       }).catch(function (error) {
         expect(error).to.be.ok
@@ -600,21 +661,21 @@ describe('Feathers Objection Service', () => {
     })
 
     it('allows patch queries', () => {
-      return peopleRooms.patch([2, 2], {admin: false, peopleId: 1}).then(data => {
+      return peopleRooms.patch([2, 2], { admin: false, peopleId: 1 }).then(data => {
         expect(data.peopleId).to.equal(2)
         expect(data.admin).to.equal(0)
       })
     })
 
     it('patch multiple records', () => {
-      return peopleRooms.patch(null, {admin: true}).then(data => {
+      return peopleRooms.patch(null, { admin: true }).then(data => {
         expect(data).to.be.instanceof(Array)
         expect(data.length).to.equal(3)
       })
     })
 
     it('patch with partial id throws an error', () => {
-      return peopleRooms.patch([2], {admin: false}).then(() => {
+      return peopleRooms.patch([2], { admin: false }).then(() => {
         throw new Error('Should never get here')
       }).catch(function (error) {
         expect(error).to.be.ok
@@ -624,7 +685,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('patch with id and no results throws an error', () => {
-      return peopleRooms.patch([999, 999], {admin: false}).then(() => {
+      return peopleRooms.patch([999, 999], { admin: false }).then(() => {
         throw new Error('Should never get here')
       }).catch(function (error) {
         expect(error).to.be.ok
@@ -634,7 +695,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('patch with invalid id', () => {
-      return peopleRooms.patch(false, {admin: false}).then(() => {
+      return peopleRooms.patch(false, { admin: false }).then(() => {
         throw new Error('Should never get here')
       }).catch(function (error) {
         expect(error).to.be.ok
@@ -674,19 +735,19 @@ describe('Feathers Objection Service', () => {
     })
 
     it('allows eager queries', () => {
-      return companies.find({query: {$eager: 'ceos'}}).then(data => {
+      return companies.find({ query: { $eager: 'ceos' } }).then(data => {
         expect(data[0].ceos).to.be.ok
       })
     })
 
     it('allows mergeAllowEager queries', () => {
-      return companies.find({query: {$eager: 'employees'}, mergeAllowEager: 'employees'}).then(data => {
+      return companies.find({ query: { $eager: 'employees' }, mergeAllowEager: 'employees' }).then(data => {
         expect(data[0].employees).to.be.ok
       })
     })
 
     it('allows eager queries with pick', () => {
-      return companies.find({query: {$eager: 'ceos', $pick: ['ceos']}}).then(data => {
+      return companies.find({ query: { $eager: 'ceos', $pick: ['ceos'] } }).then(data => {
         expect(data[0].ceos).to.be.ok
         expect(data[0].ceo).to.be.undefined
       })
@@ -694,7 +755,7 @@ describe('Feathers Objection Service', () => {
 
     it('allows eager queries with named filters', () => {
       return companies
-        .find({query: {$eager: 'ceos(notSnoop)'}})
+        .find({ query: { $eager: 'ceos(notSnoop)' } })
         .then(data => {
           expect(data[0].ceos).to.be.null
         })
@@ -702,7 +763,7 @@ describe('Feathers Objection Service', () => {
 
     it('disallow eager queries', () => {
       return companies
-        .find({query: {$eager: 'employees'}})
+        .find({ query: { $eager: 'employees' } })
         .then(data => {
           throw new Error('Should not reach here')
         })
@@ -740,7 +801,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('allows joinEager queries', () => {
-      return employees.find({query: {$joinEager: 'company'}}).then(data => {
+      return employees.find({ query: { $joinEager: 'company' } }).then(data => {
         expect(data[0].company).to.be.ok
         expect(data[1].company).to.be.ok
       })
@@ -818,13 +879,13 @@ describe('Feathers Objection Service', () => {
     })
 
     it('object', () => {
-      return companies.find({query: {jsonObject: {$ne: null}}}).then(data => {
+      return companies.find({ query: { jsonObject: { $ne: null } } }).then(data => {
         expect(data[0].jsonObject.numberField).to.equal(1.5)
       })
     })
 
     it('object numberField', () => {
-      return companies.find({query: {jsonObject: {numberField: 1.5}}}).then(() => {
+      return companies.find({ query: { jsonObject: { numberField: 1.5 } } }).then(() => {
         throw new Error('Should never get here')
       }).catch(function (error) {
         expect(error).to.be.ok
@@ -834,7 +895,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('object numberField $gt', () => {
-      return companies.find({query: {jsonObject: {numberField: {$gt: 1.5}}}}).then(() => {
+      return companies.find({ query: { jsonObject: { numberField: { $gt: 1.5 } } } }).then(() => {
         throw new Error('Should never get here')
       }).catch(function (error) {
         expect(error).to.be.ok
@@ -844,7 +905,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('object nested object', () => {
-      return companies.find({query: {jsonObject: {'objectField.object': 'string in jsonObject.objectField.object'}}}).then(() => {
+      return companies.find({ query: { jsonObject: { 'objectField.object': 'string in jsonObject.objectField.object' } } }).then(() => {
         throw new Error('Should never get here')
       }).catch(function (error) {
         expect(error).to.be.ok
@@ -854,13 +915,13 @@ describe('Feathers Objection Service', () => {
     })
 
     it('array', () => {
-      return companies.find({query: {jsonArray: {$ne: null}}}).then(data => {
+      return companies.find({ query: { jsonArray: { $ne: null } } }).then(data => {
         expect(data[0].jsonArray[0].objectField.object).to.equal(`I'm string in jsonArray[0].objectField.object`)
       })
     })
 
     it('array nested object', () => {
-      return companies.find({query: {jsonArray: { '[0].objectField.object': `I'm string in jsonArray[0].objectField.object` }}}).then(() => {
+      return companies.find({ query: { jsonArray: { '[0].objectField.object': `I'm string in jsonArray[0].objectField.object` } } }).then(() => {
         throw new Error('Should never get here')
       }).catch(function (error) {
         expect(error).to.be.ok
@@ -893,7 +954,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('allows insertGraph queries', () => {
-      return companies.find({query: {$eager: 'clients'}}).then(data => {
+      return companies.find({ query: { $eager: 'clients' } }).then(data => {
         expect(data[0].clients).to.be.an('array')
         expect(data[0].clients).to.have.lengthOf(2)
       })
@@ -921,7 +982,7 @@ describe('Feathers Objection Service', () => {
         ]).then(() => {
           companies.createUseUpsertGraph = false
 
-          return companies.find({query: {$eager: 'clients'}}).then(data => {
+          return companies.find({ query: { $eager: 'clients' } }).then(data => {
             expect(data[0].clients).to.be.an('array')
             expect(data[0].clients).to.have.lengthOf(2)
           })
@@ -945,7 +1006,7 @@ describe('Feathers Objection Service', () => {
           {
             name: 'Apple'
           }
-        ], {query: {$eager: 'clients'}})
+        ], { query: { $eager: 'clients' } })
 
       const newClients = (google.clients) ? google.clients.concat([{
         name: 'Ken Patrick'
@@ -956,11 +1017,11 @@ describe('Feathers Objection Service', () => {
           id: google.id,
           name: 'Alphabet',
           clients: newClients
-        }, {query: {$eager: 'clients'}})
+        }, { query: { $eager: 'clients' } })
     })
 
     it('allows upsertGraph queries on update', () => {
-      return companies.find({query: {$eager: 'clients'}}).then(data => {
+      return companies.find({ query: { $eager: 'clients' } }).then(data => {
         expect(data[0].name).equal('Alphabet')
         expect(data[0].clients).to.be.an('array')
         expect(data[0].clients).to.have.lengthOf(2)
@@ -978,7 +1039,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('$like in query', () => {
-      return people.find({query: {name: {$like: '%lie%'}}}).then(data => {
+      return people.find({ query: { name: { $like: '%lie%' } } }).then(data => {
         expect(data[0].name).to.be.equal('Charlie Brown')
       })
     })
@@ -1004,7 +1065,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('$and in query', () => {
-      return people.find({query: {$and: [{$or: [{name: 'Dave'}, {name: 'Dada'}]}, {age: {$lt: 23}}]}}).then(data => {
+      return people.find({ query: { $and: [{ $or: [{ name: 'Dave' }, { name: 'Dada' }] }, { age: { $lt: 23 } }] } }).then(data => {
         expect(data[0].name).to.be.equal('Dada')
       })
     })
@@ -1030,7 +1091,7 @@ describe('Feathers Objection Service', () => {
     })
 
     it('$or in query', () => {
-      return people.find({query: {$or: [{name: 'John'}, {name: 'Dada'}]}}).then(data => {
+      return people.find({ query: { $or: [{ name: 'John' }, { name: 'Dada' }] } }).then(data => {
         expect(data[0].name).to.be.equal('Dada')
       })
     })
@@ -1041,15 +1102,15 @@ describe('Feathers Objection Service', () => {
 
     beforeEach(done => {
       db.transaction(trx => {
-        transaction = {trx}
+        transaction = { trx }
         done()
       }).catch(() => {})
     })
 
     it('works with commit', () => {
-      return people.create({name: 'Commit'}, {transaction}).then(() => {
+      return people.create({ name: 'Commit' }, { transaction }).then(() => {
         return transaction.trx.commit().then(() => {
-          return people.find({query: {name: 'Commit'}}).then((data) => {
+          return people.find({ query: { name: 'Commit' } }).then((data) => {
             expect(data.length).to.equal(1)
           })
         })
@@ -1057,19 +1118,13 @@ describe('Feathers Objection Service', () => {
     })
 
     it('works with rollback', () => {
-      return people.create({name: 'Rollback'}, {transaction}).then(() => {
+      return people.create({ name: 'Rollback' }, { transaction }).then(() => {
         return transaction.trx.rollback().then(() => {
-          return people.find({query: {name: 'Rollback'}}).then((data) => {
+          return people.find({ query: { name: 'Rollback' } }).then((data) => {
             expect(data.length).to.equal(0)
           })
         })
       })
     })
   })
-})
-
-describe('Objection service example test', () => {
-  after(done => server.close(() => done()))
-
-  example()
 })

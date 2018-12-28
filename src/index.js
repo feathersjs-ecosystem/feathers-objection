@@ -1,5 +1,5 @@
-import Proto from 'uberproto'
-import { filterQuery } from '@feathersjs/commons'
+import { AdapterService } from '@feathersjs/adapter-commons'
+import { _ } from '@feathersjs/commons'
 import { ref } from 'objection'
 import isPlainObject from 'is-plain-object'
 import errorHandler from './error-handler'
@@ -13,24 +13,22 @@ const METHODS = {
   $nin: 'whereNotIn'
 }
 
-const OPERATORS = [
-  '$or',
-  '$and',
-  '$lt',
-  '$lte',
-  '$gt',
-  '$gte',
-  '$like',
-  '$ilike',
-  '$eager',
-  '$joinEager',
-  '$joinRelation',
-  '$pick',
-  '$modify',
-  '$relation',
-  '$recursive',
-  '$allRecursive'
-]
+const OPERATORS = {
+  eq: '$eq',
+  ne: '$ne',
+  gte: '$gte',
+  gt: '$gt',
+  lte: '$lte',
+  lt: '$lt',
+  in: '$in',
+  notIn: '$nin',
+  like: '$like',
+  notLike: '$notLike',
+  ilike: '$ilike',
+  notILike: '$notILike',
+  or: '$or',
+  and: '$and'
+}
 
 const OPERATORS_MAP = {
   $lt: '<',
@@ -38,7 +36,28 @@ const OPERATORS_MAP = {
   $gt: '>',
   $gte: '>=',
   $like: 'like',
-  $ilike: 'ilike'
+  $notLike: 'not like',
+  $ilike: 'ilike',
+  $notILike: 'not ilike'
+}
+
+const defaultOperators = Op => {
+  return {
+    $eq: Op.eq,
+    $ne: Op.ne,
+    $gte: Op.gte,
+    $gt: Op.gt,
+    $lte: Op.lte,
+    $lt: Op.lt,
+    $in: Op.in,
+    $nin: Op.notIn,
+    $like: Op.like,
+    $notLike: Op.notLike,
+    $iLike: Op.ilike,
+    $notILike: Op.notILike,
+    $or: Op.or,
+    $and: Op.and
+  }
 }
 
 /**
@@ -51,35 +70,68 @@ const OPERATORS_MAP = {
  * @param {object} options.events
  * @param {string} options.allowedEager - Objection eager loading string.
  */
-class Service {
+class Service extends AdapterService {
   constructor (options) {
-    if (!options) {
-      throw new errors.GeneralError('Objection options have to be provided')
-    }
-
     if (!options.model) {
       throw new errors.GeneralError('You must provide an Objection Model')
     }
 
-    this.options = options || {}
-    this.id = options.id || 'id'
+    const defaultOps = defaultOperators(OPERATORS)
+    const operators = Object.assign(defaultOps, options.operators)
+    const whitelist = Object.keys(operators).concat(options.whitelist || [])
+
+    super(Object.assign({
+      id: 'id',
+      operators,
+      whitelist
+    }, options))
+
+    this.whitelist = whitelist
     this.idSeparator = options.idSeparator || ','
-    this.paginate = options.paginate || {}
-    this.events = options.events || []
-    this.Model = options.model
     this.jsonSchema = options.model.jsonSchema
     this.allowedEager = options.allowedEager || '[]'
     this.namedEagerFilters = options.namedEagerFilters
     this.eagerFilters = options.eagerFilters
     this.allowedInsert = options.allowedInsert
     this.insertGraphOptions = options.insertGraphOptions
-    this.createUseUpsertGraph = options.createUseUpsertGraph || false
+    this.createUseUpsertGraph = options.createUseUpsertGraph
     this.allowedUpsert = options.allowedUpsert
     this.upsertGraphOptions = options.upsertGraphOptions
   }
 
-  extend (obj) {
-    return Proto.extend(obj, this)
+  get Model () {
+    return this.options.model
+  }
+
+  getModel (params) {
+    return this.options.model
+  }
+
+  filterQuery (params) {
+    const filtered = super.filterQuery(params, { operators: this.whitelist })
+    const operators = this.options.operators
+    const convertOperators = query => {
+      if (Array.isArray(query)) {
+        return query.map(convertOperators)
+      }
+
+      if (!_.isObject(query)) {
+        return query
+      }
+
+      return Object.keys(query).reduce((result, prop) => {
+        const value = query[prop]
+        const key = operators[prop] ? operators[prop] : prop
+
+        result[key] = convertOperators(value)
+
+        return result
+      }, {})
+    }
+
+    filtered.query = convertOperators(filtered.query)
+
+    return filtered
   }
 
   extractIds (id) {
@@ -95,7 +147,11 @@ class Service {
     return id.split(this.idSeparator)
   }
 
-  // Create a new query that re-queries all ids that were originally changed
+  /**
+   * Create a new query that re-queries all ids that were originally changed
+   * @param id
+   * @param idList
+   */
   getIdsQuery (id, idList) {
     const query = {}
 
@@ -133,13 +189,9 @@ class Service {
    * @param query - a query object. i.e. { type: 'fish', age: { $lte: 5 }
    * @param params
    * @param parentKey
+   * @param methodKey
    */
   objectify (query, params, parentKey, methodKey) {
-    if (params.$eager) { delete params.$eager }
-    if (params.$joinEager) { delete params.$joinEager }
-    if (params.$joinRelation) { delete params.$joinRelation }
-    if (params.$pick) { delete params.$pick }
-
     Object.keys(params || {}).forEach(key => {
       const value = params[key]
 
@@ -197,7 +249,7 @@ class Service {
   }
 
   createQuery (params = {}) {
-    const { filters, query } = filterQuery(params.query || {}, { operators: OPERATORS })
+    const { filters, query } = this.filterQuery(params)
     let q = this._createQuery(params)
       .skipUndefined()
       .allowEager(this.allowedEager)
@@ -262,76 +314,70 @@ class Service {
     return q
   }
 
-  _find (params, count, getFilter = filterQuery) {
-    const { filters, query } = getFilter(params.query || {}, { operators: OPERATORS })
-    const q = params.objection || this.createQuery(params)
-
-    // Handle $limit
-    if (filters.$limit) {
-      q.limit(filters.$limit)
-    }
-
-    // Handle $skip
-    if (filters.$skip) {
-      q.offset(filters.$skip)
-    }
-
-    let executeQuery = total => {
-      return q.then(data => {
-        return {
-          total,
-          limit: filters.$limit,
-          skip: filters.$skip || 0,
-          data
-        }
-      })
-    }
-
-    if (filters.$limit === 0) {
-      executeQuery = total => {
-        return Promise.resolve({
-          total,
-          limit: filters.$limit,
-          skip: filters.$skip || 0,
-          data: []
-        })
-      }
-    }
-
-    if (count) {
-      const idColumns = Array.isArray(this.id) ? this.id.map(idKey => `${this.Model.tableName}.${idKey}`) : [`${this.Model.tableName}.${this.id}`]
-
-      let countQuery = this._createQuery(params)
-        .skipUndefined()
-        .joinRelation(query.$joinRelation)
-        .countDistinct({ total: idColumns })
-
-      this.objectify(countQuery, query)
-
-      return countQuery
-        .then(count => parseInt(count[0].total, 10))
-        .then(executeQuery)
-        .catch(errorHandler)
-    }
-
-    return executeQuery().catch(errorHandler)
-  }
-
   /**
    * `find` service function for Objection.
    * @param params
    */
-  find (params) {
-    const paginate =
-      params && typeof params.paginate !== 'undefined'
-        ? params.paginate
-        : this.paginate
-    const result = this._find(params, !!paginate.default, query =>
-      filterQuery(query, { paginate, operators: OPERATORS })
-    )
+  _find (params) {
+    const find = (params, count, filters, query) => {
+      const q = params.objection || this.createQuery(params)
 
-    if (!paginate.default) {
-      return result.then(page => page.data)
+      // Handle $limit
+      if (filters.$limit) {
+        q.limit(filters.$limit)
+      }
+
+      // Handle $skip
+      if (filters.$skip) {
+        q.offset(filters.$skip)
+      }
+
+      let executeQuery = total => {
+        return q.then(data => {
+          return {
+            total,
+            limit: filters.$limit,
+            skip: filters.$skip || 0,
+            data
+          }
+        })
+      }
+
+      if (filters.$limit === 0) {
+        executeQuery = total => {
+          return Promise.resolve({
+            total,
+            limit: filters.$limit,
+            skip: filters.$skip || 0,
+            data: []
+          })
+        }
+      }
+
+      if (count) {
+        const idColumns = Array.isArray(this.id) ? this.id.map(idKey => `${this.Model.tableName}.${idKey}`) : [`${this.Model.tableName}.${this.id}`]
+
+        let countQuery = this._createQuery(params)
+          .skipUndefined()
+          .joinRelation(query.$joinRelation)
+          .countDistinct({ total: idColumns })
+
+        this.objectify(countQuery, query)
+
+        return countQuery
+          .then(count => parseInt(count[0].total, 10))
+          .then(executeQuery)
+          .catch(errorHandler)
+      }
+
+      return executeQuery().catch(errorHandler)
+    }
+
+    const { filters, query, paginate } = this.filterQuery(params)
+    const result = find(params, Boolean(paginate && paginate.default), filters, query)
+
+    if (!paginate || !paginate.default) {
+      return result.then(page => page.data || page)
     }
 
     return result
@@ -342,54 +388,14 @@ class Service {
 
     return this._find(Object.assign({}, params, { query }))
       .then(page => {
-        if (page.data.length !== 1) {
+        const data = page.data || page
+
+        if (data.length !== 1) {
           throw new errors.NotFound(`No record found for id '${id}'`)
         }
 
-        return page.data[0]
+        return data[0]
       })
-  }
-
-  /**
-   * `get` service function for Objection.
-   * @param {...object} args
-   * @return {Promise} - promise containing the data being retrieved
-   */
-  get (...args) {
-    return this._get(...args)
-  }
-
-  _create (data, params) {
-    let q = this._createQuery(params)
-
-    if (this.createUseUpsertGraph) {
-      if (this.allowedUpsert) {
-        q.allowUpsert(this.allowedUpsert)
-      }
-      q.upsertGraphAndFetch(data, this.upsertGraphOptions)
-    } else if (this.allowedInsert) {
-      q.allowInsert(this.allowedInsert)
-      q.insertGraph(data, this.insertGraphOptions)
-    } else {
-      q.insert(data, this.id)
-    }
-    return q
-      .then(row => {
-        let id = null
-
-        if (Array.isArray(this.id)) {
-          id = []
-
-          for (const idKey of this.id) {
-            id.push(typeof data[idKey] !== 'undefined' ? data[idKey] : row[idKey])
-          }
-        } else {
-          id = typeof data[this.id] !== 'undefined' ? data[this.id] : row[this.id]
-        }
-
-        return this._get(id, params)
-      })
-      .catch(errorHandler)
   }
 
   /**
@@ -397,12 +403,45 @@ class Service {
    * @param {object} data
    * @param {object} params
    */
-  create (data, params) {
-    if (Array.isArray(data)) {
-      return Promise.all(data.map(current => this._create(current, params)))
+  _create (data, params) {
+    const create = (data, params) => {
+      let q = this._createQuery(params)
+
+      if (this.createUseUpsertGraph) {
+        if (this.allowedUpsert) {
+          q.allowUpsert(this.allowedUpsert)
+        }
+        q.upsertGraphAndFetch(data, this.upsertGraphOptions)
+      } else if (this.allowedInsert) {
+        q.allowInsert(this.allowedInsert)
+        q.insertGraph(data, this.insertGraphOptions)
+      } else {
+        q.insert(data, this.id)
+      }
+      return q
+        .then(row => {
+          let id = null
+
+          if (Array.isArray(this.id)) {
+            id = []
+
+            for (const idKey of this.id) {
+              id.push(typeof data[idKey] !== 'undefined' ? data[idKey] : row[idKey])
+            }
+          } else {
+            id = typeof data[this.id] !== 'undefined' ? data[this.id] : row[this.id]
+          }
+
+          return this._get(id, params)
+        })
+        .catch(errorHandler)
     }
 
-    return this._create(data, params)
+    if (Array.isArray(data)) {
+      return Promise.all(data.map(current => create(current, params)))
+    }
+
+    return create(data, params)
   }
 
   /**
@@ -411,13 +450,7 @@ class Service {
    * @param data
    * @param params
    */
-  update (id, data, params) {
-    if (Array.isArray(data)) {
-      return Promise.reject(
-        new errors.BadRequest('Not replacing multiple records. Did you mean `patch`?')
-      )
-    }
-
+  _update (id, data, params) {
     // NOTE (EK): First fetch the old record so
     // that we can fill any existing keys that the
     // client isn't updating with null;
@@ -425,7 +458,7 @@ class Service {
       .then(oldData => {
         let newObject = {}
 
-        for (var key of Object.keys(oldData)) {
+        for (const key of Object.keys(oldData)) {
           if (data[key] === undefined) {
             newObject[key] = null
           } else {
@@ -470,13 +503,13 @@ class Service {
    * @param data
    * @param params
    */
-  patch (id, data, params) {
-    let query = filterQuery(params.query || {}, { operators: OPERATORS }).query
+  _patch (id, data, params) {
+    let { filters, query } = this.filterQuery(params)
     const dataCopy = Object.assign({}, data)
 
     const mapIds = page => Array.isArray(this.id)
-      ? this.id.map(idKey => [...new Set(page.data.map(current => current[idKey]))])
-      : page.data.map(current => current[this.id])
+      ? this.id.map(idKey => [...new Set((page.data || page).map(current => current[idKey]))])
+      : (page.data || page).map(current => current[this.id])
 
     // By default we will just query for the one id. For multi patch
     // we create a list of the ids of all items that will be changed
@@ -508,11 +541,12 @@ class Service {
       .then(idList => {
         // Create a new query that re-queries all ids that
         // were originally changed
-        const findParams = Object.assign({}, params, { query: Object.assign({}, this.getIdsQuery(id, idList), { $select: params.query && params.query.$select }) })
+        const selectParam = filters.$select ? { $select: filters.$select } : undefined
+        const findParams = Object.assign({}, params, { query: Object.assign({}, params.query, this.getIdsQuery(id, idList), selectParam) })
 
         return q.patch(dataCopy).then(() => {
           return this._find(findParams).then(page => {
-            const items = page.data
+            const items = page.data || page
 
             if (id !== null) {
               if (items.length === 1) {
@@ -520,6 +554,8 @@ class Service {
               } else {
                 throw new errors.NotFound(`No record found for id '${id}'`)
               }
+            } else if (!items.length) {
+              throw new errors.NotFound(`No record found for id '${id}'`)
             }
 
             return items
@@ -534,7 +570,7 @@ class Service {
    * @param id
    * @param params
    */
-  remove (id, params) {
+  _remove (id, params) {
     params.query = Object.assign({}, params.query)
 
     // NOTE (EK): First fetch the record so that we can return
@@ -549,8 +585,8 @@ class Service {
 
     return this._find(params)
       .then(page => {
-        const items = page.data
-        const { query: queryParams } = filterQuery(params.query || {}, { operators: OPERATORS })
+        const items = page.data || page
+        const { query: queryParams } = this.filterQuery(params)
         const query = this._createQuery(params)
 
         this.objectify(query, queryParams)
@@ -562,6 +598,8 @@ class Service {
             } else {
               throw new errors.NotFound(`No record found for id '${id}'`)
             }
+          } else if (!items.length) {
+            throw new errors.NotFound(`No record found for id '${id}'`)
           }
 
           return items

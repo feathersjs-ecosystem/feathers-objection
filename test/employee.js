@@ -1,4 +1,5 @@
 import { Model } from 'objection'
+import path from 'path'
 
 export default class Employee extends Model {
   static tableName = 'employees'
@@ -17,7 +18,7 @@ export default class Employee extends Model {
     return {
       company: {
         relation: Model.BelongsToOneRelation,
-        modelClass: require('./company'),
+        modelClass: path.join(__dirname, '/company'),
         join: {
           from: 'employees.companyId',
           to: 'companies.id'
