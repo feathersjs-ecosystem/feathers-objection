@@ -40,25 +40,6 @@ const OPERATORS_MAP = {
   $notILike: 'not ilike'
 }
 
-const defaultOperators = Op => {
-  return {
-    $eq: Op.eq,
-    $ne: Op.ne,
-    $gte: Op.gte,
-    $gt: Op.gt,
-    $lte: Op.lte,
-    $lt: Op.lt,
-    $in: Op.in,
-    $nin: Op.notIn,
-    $like: Op.like,
-    $notLike: Op.notLike,
-    $iLike: Op.ilike,
-    $notILike: Op.notILike,
-    $or: Op.or,
-    $and: Op.and
-  }
-}
-
 /**
  * Class representing an feathers adapter for Objection.js ORM.
  * @param {object} options
@@ -75,16 +56,13 @@ class Service extends AdapterService {
       throw new errors.GeneralError('You must provide an Objection Model')
     }
 
-    const operators = defaultOperators(OPERATORS)
-    const whitelist = Object.keys(operators).concat(options.whitelist || [])
+    const whitelist = Object.values(OPERATORS).concat(options.whitelist || [])
 
     super(Object.assign({
       id: 'id',
-      operators,
       whitelist
     }, options))
 
-    this.whitelist = whitelist
     this.idSeparator = options.idSeparator || ','
     this.jsonSchema = options.model.jsonSchema
     this.allowedEager = options.allowedEager || '[]'
