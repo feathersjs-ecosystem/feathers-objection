@@ -158,7 +158,7 @@ const app = feathers()
     service({
       model: Employee,
       multi: ['create'],
-      whitelist: ['$eager', '$joinRelation', '$joinEager'],
+      whitelist: ['$eager', '$joinRelation', '$joinEager', '$like'],
       allowedEager: 'company',
       eagerFilters: {
         expression: 'ltd',

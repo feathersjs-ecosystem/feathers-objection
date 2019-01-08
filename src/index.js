@@ -105,39 +105,6 @@ class Service extends AdapterService {
     return this.options.model
   }
 
-  filterQuery (params = {}) {
-    const filtered = super.filterQuery(params, { operators: this.whitelist })
-    const operators = this.options.operators
-    const convertOperators = query => {
-      if (Array.isArray(query)) {
-        return query.map(convertOperators)
-      }
-
-      if (!utils.isPlainObject(query)) {
-        return query
-      }
-
-      const converted = Object.keys(query).reduce((result, prop) => {
-        const value = query[prop]
-        const key = operators[prop] ? operators[prop] : prop
-
-        result[key] = convertOperators(value)
-
-        return result
-      }, {})
-
-      Object.getOwnPropertySymbols(query).forEach(symbol => {
-        converted[symbol] = query[symbol]
-      })
-
-      return converted
-    }
-
-    filtered.query = convertOperators(filtered.query)
-
-    return filtered
-  }
-
   /**
    * Create a new query that re-queries all ids that were originally changed
    * @param id
