@@ -4,7 +4,7 @@ import { expect } from 'chai'
 import assert from 'assert'
 import feathers from '@feathersjs/feathers'
 import knex from 'knex'
-import adaptertests from '@feathersjs/adapter-commons/tests'
+import adapterTests from '@feathersjs/adapter-tests'
 import errors from '@feathersjs/errors'
 import service from '../src'
 import errorHandler from '../src/error-handler'
@@ -17,7 +17,7 @@ import Employee from './employee'
 import Client from './client'
 import { Model } from 'objection'
 
-const testSuite = adaptertests([
+const testSuite = adapterTests([
   '.options',
   '.events',
   '._get',
