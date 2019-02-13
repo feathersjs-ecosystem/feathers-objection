@@ -1,12 +1,15 @@
 # feathers-objection
 
-[![Build Status](https://travis-ci.org/mcchrish/feathers-objection.svg?branch=master)](https://travis-ci.org/mcchrish/feathers-objection)
-[![Coverage Status](https://coveralls.io/repos/github/mcchrish/feathers-objection/badge.svg?branch=master)](https://coveralls.io/github/mcchrish/feathers-objection?branch=master)
+[![Build Status](https://travis-ci.org/feathersjs-ecosystem/feathers-objection.svg?branch=master)](https://travis-ci.org/feathersjs-ecosystem/feathers-objection)
+[![Coverage Status](https://coveralls.io/repos/github/feathersjs-ecosystem/feathers-objection/badge.svg?branch=master)](https://coveralls.io/github/feathersjs-ecosystem/feathers-objection?branch=master)
 [![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](https://standardjs.com/)
-[![Dependency Status](https://img.shields.io/david/mcchrish/feathers-objection.svg)](https://david-dm.org/mcchrish/feathers-objection)
+[![Dependency Status](https://img.shields.io/david/feathersjs-ecosystem/feathers-objection.svg)](https://david-dm.org/feathersjs-ecosystem/feathers-objection)
 [![npm](https://img.shields.io/npm/v/feathers-objection.svg?maxAge=3600)](https://www.npmjs.com/package/feathers-objection)
 
-[Feathers](https://feathersjs.com/) database adapter for [Objection.js](https://vincit.github.io/objection.js), an ORM based on [KnexJS](https://knexjs.org/) SQL query builder for Postgres, MSSQL, MySQL, MariaDB, SQLite3, and Oracle.
+[Feathers](https://feathersjs.com/) database adapter for
+[Objection.js](https://vincit.github.io/objection.js), an ORM based on
+[KnexJS](https://knexjs.org/) SQL query builder for Postgres, MSSQL, MySQL,
+MariaDB, SQLite3, and Oracle.
 
 ## Installation
 
@@ -35,17 +38,23 @@ Use `feathers generate service` command to generate a new `Objection` service.
 
 ## Documentation
 
-Please refer to the [Feathers database adapter documentation](https://docs.feathersjs.com/api/databases/adapters.html) for more details or directly at:
+Please refer to the
+[Feathers database adapter documentation](https://docs.feathersjs.com/api/databases/adapters.html)
+for more details or directly at:
 
-- [Querying](https://docs.feathersjs.com/api/databases/querying.html) - The common adapter querying mechanism
-- [Pagination and Sorting](https://docs.feathersjs.com/api/databases/common.html#pagination) - How to use pagination and sorting for the database adapter
-- [Extending](https://docs.feathersjs.com/api/databases/common.html#extending-adapters) - How to extend a database adapter
+- [Querying](https://docs.feathersjs.com/api/databases/querying.html) - The
+  common adapter querying mechanism
+- [Pagination and Sorting](https://docs.feathersjs.com/api/databases/common.html#pagination) -
+  How to use pagination and sorting for the database adapter
+- [Extending](https://docs.feathersjs.com/api/databases/common.html#extending-adapters) -
+  How to extend a database adapter
 
-Refer to the official [Objection.js documention](https://vincit.github.io/objection.js/).
+Refer to the official
+[Objection.js documention](https://vincit.github.io/objection.js/).
 
-It works like the [Knex
-service](https://github.com/feathersjs-ecosystem/feathers-knex) adapter, except it has all
-the benefits of the Objection ORM.
+It works like the
+[Knex service](https://github.com/feathersjs-ecosystem/feathers-knex) adapter,
+except it has all the benefits of the Objection ORM.
 
 ### [Initializing the Library](https://knexjs.org/#Installation-client)
 
@@ -63,36 +72,47 @@ config/defaults.json
     }
   }
 }
-```  
+```
 
 objection.js
 
 ```js
-const { Model } = require('objection')
+const { Model } = require('objection');
 
-module.exports = function (app) {
-  const { client, connection } = app.get('mysql')
-  const knex = require('knex')({ client, connection, useNullAsDefault: false })
+module.exports = function(app) {
+  const { client, connection } = app.get('mysql');
+  const knex = require('knex')({ client, connection, useNullAsDefault: false });
 
-  Model.knex(knex)
+  Model.knex(knex);
 
-  app.set('knex', knex)
-}
+  app.set('knex', knex);
+};
 ```
 
 ### Service Options
 
 - `model` (**required**) - The Objection model definition
-- `id` (*optional*, default: `'id'`) - The name of the id field property. Use array of strings for composite primary keys
-- `events` (*optional*) - A list of [custom service events](https://docs.feathersjs.com/api/events.html#custom-events) sent by this service
-- `paginate` (*optional*) - A [pagination object](https://docs.feathersjs.com/api/databases/common.html#pagination) containing a `default` and `max` page size
-- `multi` (*optional*) - Allow `create` with arrays and `update` and `remove` with `id` `null` to change multiple items. Can be `true` for all methods or an array of allowed methods (e.g. `[ 'remove', 'create' ]`)
-- `whitelist` (*optional*) - A list of additional query operators to allow (e.g. `[ '$eager', '$joinRelation' ]`)
+- `id` (_optional_, default: `'id'`) - The name of the id field property. Use
+  array of strings for composite primary keys
+- `events` (_optional_) - A list of
+  [custom service events](https://docs.feathersjs.com/api/events.html#custom-events)
+  sent by this service
+- `paginate` (_optional_) - A
+  [pagination object](https://docs.feathersjs.com/api/databases/common.html#pagination)
+  containing a `default` and `max` page size
+- `multi` (_optional_) - Allow `create` with arrays and `update` and `remove`
+  with `id` `null` to change multiple items. Can be `true` for all methods or an
+  array of allowed methods (e.g. `[ 'remove', 'create' ]`)
+- `whitelist` (_optional_) - A list of additional query operators to allow (e.g.
+  `[ '$eager', '$joinRelation' ]`)
 
 ### Default Query Operators
- 
-Starting at version 2.0.0 `feathers-objection` converts queries securely. If you want to support additional Objection operators, the `whitelist` service option can contain an array of additional allowed operators. By default, supported operators are:
- 
+
+Starting at version 2.0.0 `feathers-objection` converts queries securely. If you
+want to support additional Objection operators, the `whitelist` service option
+can contain an array of additional allowed operators. By default, supported
+operators are:
+
 ```
 '$eq',
 '$ne',
@@ -119,48 +139,64 @@ Feathers services, instead of relying with hooks.
 
 Note that all this eager related options are optional.
 
-* **`allowedEager`** - relation expression to limit the allowed eager queries in
-  the service. Defaults to `'[]'`, meaning no eager queries allowed. See [`allowEager`](https://vincit.github.io/objection.js/#alloweager) documentation.
-* **`eagerFilters`** - option to impose compulsory eager filter. It takes an
+- **`allowedEager`** - relation expression to limit the allowed eager queries in
+  the service. Defaults to `'[]'`, meaning no eager queries allowed. See
+  [`allowEager`](https://vincit.github.io/objection.js/#alloweager)
+  documentation.
+- **`eagerFilters`** - option to impose compulsory eager filter. It takes an
   object or array of objects with the following properties:
-  * `expression` - the relation expression that the filter will be applied.
-  * `filter` - the filter function.
-  It uses [`filterEager`](https://vincit.github.io/objection.js/#filtereager) internally.
-* **`namedEagerFilters`** - object containing named eager filter functions.
+  - `expression` - the relation expression that the filter will be applied.
+  - `filter` - the filter function. It uses
+    [`filterEager`](https://vincit.github.io/objection.js/#filtereager)
+    internally.
+- **`namedEagerFilters`** - object containing named eager filter functions.
   Filter is opt-in via `$eager` parameter.
 
 #### Query Operators
 
-* **`$eager`** - parameter to eager load relations defined in models' `relationMappings` 
-  getter methods or in the `namedEagerFilters` option. See 
+- **`$eager`** - parameter to eager load relations defined in models'
+  `relationMappings` getter methods or in the `namedEagerFilters` option. See
   [`eager`](https://vincit.github.io/objection.js/#eager) documentation.
-* **`$joinRelation`** - parameter to filter based on a relation's field. See 
-  [`joinRelation`](https://vincit.github.io/objection.js/#joinrelation) documentation.
-* **`$joinEager`** - parameter to filter based on a relation's field using `JoinEagerAlgorithm`. See 
-    [`$joinEager`](https://vincit.github.io/objection.js/#joineager) documentation.
-* **`$pick`** - parameter to pick properties from result models. See
+- **`$joinRelation`** - parameter to filter based on a relation's field. See
+  [`joinRelation`](https://vincit.github.io/objection.js/#joinrelation)
+  documentation.
+- **`$joinEager`** - parameter to filter based on a relation's field using
+  `JoinEagerAlgorithm`. See
+  [`$joinEager`](https://vincit.github.io/objection.js/#joineager)
+  documentation.
+- **`$pick`** - parameter to pick properties from result models. See
   [`pick`](https://vincit.github.io/objection.js/#pick) documentation.
-  
+
 #### Params Operators
 
-* **`transaction`** - A transaction object. See [`transaction`](https://vincit.github.io/objection.js/#transaction) documentation.
-* **`mergeAllowEager`** - Just like allowEager but instead of replacing query builder’s allowEager expression this method merges the given expression to the existing expression. See [`mergeAllowEager`](https://vincit.github.io/objection.js/#mergealloweager) documentation.
+- **`transaction`** - A transaction object. See
+  [`transaction`](https://vincit.github.io/objection.js/#transaction)
+  documentation.
+- **`mergeAllowEager`** - Just like allowEager but instead of replacing query
+  builder’s allowEager expression this method merges the given expression to the
+  existing expression. See
+  [`mergeAllowEager`](https://vincit.github.io/objection.js/#mergealloweager)
+  documentation.
 
 ### Composite primary keys
 
-Composite primary keys can be passed as the `id` argument using the following methods:
+Composite primary keys can be passed as the `id` argument using the following
+methods:
 
-* String with values separated by the `idSeparator` property (order matter, recommended for REST)
-* JSON array (order matter, recommended for internal service calls)
-* JSON object (more readable, recommended for internal service calls)
+- String with values separated by the `idSeparator` property (order matter,
+  recommended for REST)
+- JSON array (order matter, recommended for internal service calls)
+- JSON object (more readable, recommended for internal service calls)
 
-When calling a service method with the `id` argument, all primary keys are required to be passed.
+When calling a service method with the `id` argument, all primary keys are
+required to be passed.
 
 #### Service Options
 
-* **`idSeparator`** - (optional) separator char to separate composite primary keys in the `id` argument 
-  of get/patch/update/remove external service calls. Defaults to `','`.
-  
+- **`idSeparator`** - (optional) separator char to separate composite primary
+  keys in the `id` argument of get/patch/update/remove external service calls.
+  Defaults to `','`.
+
 ```js
 app.use('/user-todos', service({
   id: ['userId', 'todoId'],
@@ -170,35 +206,57 @@ app.use('/user-todos', service({
 app.service('/user-todos').get('1,2')
 app.service('/user-todos').get([1, 2])
 app.service('/user-todos').get({ userId: 1, todoId: 2 })
-```  
+```
 
 ### JSON column
 
-JSON column will be automatically converted from and to JS object/array and will be saved as text in unsupported databases.
+JSON column will be automatically converted from and to JS object/array and will
+be saved as text in unsupported databases.
 
 Query against a JSON column in PostgresSQL:
+
 ```js
-app.service('companies').find({ query: { obj: { numberField: 1.5 } } })
-app.service('companies').find({ query: { obj: { numberField: { $gt: 1.5 } } } })
-app.service('companies').find({ query: { obj: { 'objectField.object': 'string in obj.objectField.object' } } })
-app.service('companies').find({ query: { obj: { 'arrayField(0).object': 'string in obj.arrayField[0].object' } } })
-app.service('companies').find({ query: { arr: { '(0).objectField.object': 'string in arr[0].objectField.object' } } })
-``` 
+app.service('companies').find({ query: { obj: { numberField: 1.5 } } });
+app
+  .service('companies')
+  .find({ query: { obj: { numberField: { $gt: 1.5 } } } });
+app.service('companies').find({
+  query: { obj: { 'objectField.object': 'string in obj.objectField.object' } }
+});
+app.service('companies').find({
+  query: {
+    obj: { 'arrayField(0).object': 'string in obj.arrayField[0].object' }
+  }
+});
+app.service('companies').find({
+  query: {
+    arr: { '(0).objectField.object': 'string in arr[0].objectField.object' }
+  }
+});
+```
 
 ### Graph upsert
-Arbitrary relation graphs can be upserted (insert + update + delete) using the upsertGraph method.
-See [`examples`](https://vincit.github.io/objection.js/#graph-upserts) for a better explanation.
-Runs on the `.update(id, data, params)` service method. 
 
-*The relation being upserted must also be present in `allowedEager` option and included in `$eager` query.*
+Arbitrary relation graphs can be upserted (insert + update + delete) using the
+upsertGraph method. See
+[`examples`](https://vincit.github.io/objection.js/#graph-upserts) for a better
+explanation. Runs on the `.update(id, data, params)` service method.
+
+_The relation being upserted must also be present in `allowedEager` option and
+included in `$eager` query._
 
 #### Service Options
 
-* **`allowedUpsert`** - relation expression to allow relations to be upserted along with update. 
-Defaults to `null`, meaning relations will not be automatically upserted unless specified here. 
-See [`allowUpsert`](https://vincit.github.io/objection.js/#allowupsert) documentation.
-* **`upsertGraphOptions`** - See [`upsertGraphOptions`](https://vincit.github.io/objection.js/#upsertgraphoptions) documentation.
-* **`createUseUpsertGraph`** - If set to `true`, Graph Upsert will also be used for `.create(data, params)` method instead of Graph Insert.
+- **`allowedUpsert`** - relation expression to allow relations to be upserted
+  along with update. Defaults to `null`, meaning relations will not be
+  automatically upserted unless specified here. See
+  [`allowUpsert`](https://vincit.github.io/objection.js/#allowupsert)
+  documentation.
+- **`upsertGraphOptions`** - See
+  [`upsertGraphOptions`](https://vincit.github.io/objection.js/#upsertgraphoptions)
+  documentation.
+- **`createUseUpsertGraph`** - If set to `true`, Graph Upsert will also be used
+  for `.create(data, params)` method instead of Graph Insert.
 
 ```js
 app.use('/companies', service({
@@ -207,7 +265,7 @@ app.use('/companies', service({
   allowedUpsert: 'clients'
 })
 
-app.service('/companies').update(1, { 
+app.service('/companies').update(1, {
   name: 'New Name',
   clients: [{
     id: 100,
@@ -218,60 +276,69 @@ app.service('/companies').update(1, {
 })
 ```
 
-In the example above, we are updating the name of an existing company, along with adding a new client which is a relationship for companies. The client without the ID would be inserted and related. The client with the ID will just be updated (if there are any changes at all).
+In the example above, we are updating the name of an existing company, along
+with adding a new client which is a relationship for companies. The client
+without the ID would be inserted and related. The client with the ID will just
+be updated (if there are any changes at all).
 
 ### Graph insert
-Arbitrary relation graphs can be inserted using the insertGraph method.
-Provides the ability to relate the inserted object with its associations.
-Runs on the `.create(data, params)` service method. 
 
-*The relation being created must also be present in `allowedEager` option and included in `$eager` query.*
+Arbitrary relation graphs can be inserted using the insertGraph method. Provides
+the ability to relate the inserted object with its associations. Runs on the
+`.create(data, params)` service method.
+
+_The relation being created must also be present in `allowedEager` option and
+included in `$eager` query._
 
 #### Service Options
 
-* **`allowedInsert`** - relation expression to allow relations to be created along with insert. 
-Defaults to `null`, meaning relations will not be automatically created unless specified here. 
-See [`allowInsert`](https://vincit.github.io/objection.js/#allowinsert) documentation.
-* **`insertGraphOptions`** - See [`insertGraphOptions`](https://vincit.github.io/objection.js/#insertgraphoptions) documentation.
+- **`allowedInsert`** - relation expression to allow relations to be created
+  along with insert. Defaults to `null`, meaning relations will not be
+  automatically created unless specified here. See
+  [`allowInsert`](https://vincit.github.io/objection.js/#allowinsert)
+  documentation.
+- **`insertGraphOptions`** - See
+  [`insertGraphOptions`](https://vincit.github.io/objection.js/#insertgraphoptions)
+  documentation.
 
 ### Service
 
 users.service.js
 
 ```js
-const createService = require('feathers-objection')
-const createModal = require('../../models/users.model')
-const hooks = require('./users.hooks')
+const createService = require('feathers-objection');
+const createModal = require('../../models/users.model');
+const hooks = require('./users.hooks');
 
-module.exports = function (app) {
-  const Modal = createModal(app)
-  const paginate = app.get('paginate')
+module.exports = function(app) {
+  const Modal = createModal(app);
+  const paginate = app.get('paginate');
 
   const options = {
     model: Modal,
     paginate,
     whitelist: ['$eager', '$joinRelation'],
     allowedEager: 'todos'
-  }
+  };
 
-  app.use('/users', createService(options))
+  app.use('/users', createService(options));
 
-  const service = app.service('users')
+  const service = app.service('users');
 
-  service.hooks(hooks)
-}
+  service.hooks(hooks);
+};
 ```
 
 todos.service.js
 
 ```js
-const createService = require('feathers-objection')
-const createModal = require('../../models/todos.model')
-const hooks = require('./todos.hooks')
+const createService = require('feathers-objection');
+const createModal = require('../../models/todos.model');
+const hooks = require('./todos.hooks');
 
-module.exports = function (app) {
-  const Modal = createModal(app)
-  const paginate = app.get('paginate')
+module.exports = function(app) {
+  const Modal = createModal(app);
+  const paginate = app.get('paginate');
 
   const options = {
     model: Modal,
@@ -279,26 +346,26 @@ module.exports = function (app) {
     whitelist: ['$eager', '$joinRelation'],
     allowedEager: '[user, subtask]',
     namedEagerFilters: {
-      unDone: function (builder) {
-        builder.where('done', false)
+      unDone: function(builder) {
+        builder.where('done', false);
       }
     },
     eagerFilters: [
       {
         expression: 'subtask',
-        filter: function (builder) {
-          builder.where('archived', true)
+        filter: function(builder) {
+          builder.where('archived', true);
         }
       }
     ]
-  }
+  };
 
-  app.use('/todos', createService(options))
+  app.use('/todos', createService(options));
 
-  const service = app.service('todos')
+  const service = app.service('todos');
 
-  service.hooks(hooks)
-}
+  service.hooks(hooks);
+};
 ```
 
 Use eager queries as follows:
@@ -309,7 +376,7 @@ app.service('/todos').find({
   query: {
     $eager: 'subtask(unDone)'
   }
-})
+});
 
 // Get all todos of an active user with firstName 'John'
 app.service('/todos').find({
@@ -318,24 +385,26 @@ app.service('/todos').find({
     $eager: 'user(active)',
     $joinRelation: 'user(active)'
   }
-})
+});
 ```
 
-See [this article](https://www.vincit.fi/blog/nested-eager-loading-and-inserts-with-objection-js/) for more information.
+See
+[this article](https://www.vincit.fi/blog/nested-eager-loading-and-inserts-with-objection-js/)
+for more information.
 
 ### Models
 
-Objection requires you to define [Models](http://vincit.github.io/objection.js/#models) for your tables:
+Objection requires you to define
+[Models](http://vincit.github.io/objection.js/#models) for your tables:
 
 users.model.js
 
 ```js
-const { Model } = require('objection')
+const { Model } = require('objection');
 
 class User extends Model {
-
   static get tableName() {
-    return 'user'
+    return 'user';
   }
 
   static get jsonSchema() {
@@ -347,13 +416,17 @@ class User extends Model {
         id: { type: 'integer' },
         firstName: { type: 'string', maxLength: 45 },
         lastName: { type: 'string', maxLength: 45 },
-        status: { type: 'string', enum: ['active', 'disabled'], default: 'active' }
+        status: {
+          type: 'string',
+          enum: ['active', 'disabled'],
+          default: 'active'
+        }
       }
-    }
+    };
   }
 
   static get relationMappings() {
-    const Todo = require('./todos.model')()
+    const Todo = require('./todos.model')();
 
     return {
       todos: {
@@ -364,67 +437,68 @@ class User extends Model {
           to: 'todo.userId'
         }
       }
-    }
+    };
   }
 
   static get namedFilters() {
     return {
       active: builder => {
-        builder.where('status', 'active')
+        builder.where('status', 'active');
       }
-    }
+    };
   }
 
   $beforeInsert() {
-    this.createdAt = this.updatedAt = new Date().toISOString()
+    this.createdAt = this.updatedAt = new Date().toISOString();
   }
 
   $beforeUpdate() {
-    this.updatedAt = new Date().toISOString()
+    this.updatedAt = new Date().toISOString();
   }
-
 }
 
-module.exports = function (app) {
+module.exports = function(app) {
   if (app) {
-    const db = app.get('knex')
-  
-    db.schema.hasTable('user').then(exists => {
-      if (!exists) {
-        db.schema.createTable('user', table => {
-          table.increments('id')
-          table.string('firstName', 45)
-          table.string('lastName', 45)
-          table.enum('status', ['active', 'disabled']).defaultTo('active')
-          table.timestamp('createdAt')
-          table.timestamp('updatedAt')
-        })
-          .then(() => console.log('Created user table'))
-          .catch(e => console.error('Error creating user table', e))
-      }
-    })
-      .catch(e => console.error('Error creating user table', e))
+    const db = app.get('knex');
+
+    db.schema
+      .hasTable('user')
+      .then(exists => {
+        if (!exists) {
+          db.schema
+            .createTable('user', table => {
+              table.increments('id');
+              table.string('firstName', 45);
+              table.string('lastName', 45);
+              table.enum('status', ['active', 'disabled']).defaultTo('active');
+              table.timestamp('createdAt');
+              table.timestamp('updatedAt');
+            })
+            .then(() => console.log('Created user table'))
+            .catch(e => console.error('Error creating user table', e));
+        }
+      })
+      .catch(e => console.error('Error creating user table', e));
   }
 
-  return User
-}
+  return User;
+};
 
-module.exports = User
+module.exports = User;
 ```
 
 todos.model.js
 
 ```js
-const { Model } = require('objection')
+const { Model } = require('objection');
 
 class Todo extends Model {
-
   static setup(app) {
     this.app = app;
   }
-  
+
   static get tableName() {
-    return 'todo'
+    return 'todo';
   }
 
   static get jsonSchema() {
@@ -439,11 +513,11 @@ class Todo extends Model {
         complete: { type: 'boolean', default: false },
         dueDate: { type: 'string', format: 'date-time' }
       }
-    }
+    };
   }
 
   static get relationMappings() {
-    const User = require('./users.model')()
+    const User = require('./users.model')();
 
     return {
       user: {
@@ -454,56 +528,59 @@ class Todo extends Model {
           to: 'user.id'
         }
       }
-    }
+    };
   }
-  
+
   static get namedFilters() {
-    const knex = this.app.get('knex')
+    const knex = this.app.get('knex');
 
     return {
       overdue: builder => {
-        builder.where('complete', '=', false)
-          .where('dueDate', '<', knex.fn.now())
+        builder
+          .where('complete', '=', false)
+          .where('dueDate', '<', knex.fn.now());
       }
-    }
+    };
   }
 
   $beforeInsert() {
-    this.createdAt = this.updatedAt = new Date().toISOString()
+    this.createdAt = this.updatedAt = new Date().toISOString();
   }
 
   $beforeUpdate() {
-    this.updatedAt = new Date().toISOString()
+    this.updatedAt = new Date().toISOString();
   }
-
 }
 
-module.exports = function (app) {
+module.exports = function(app) {
   if (app) {
-    Todo.setup(app)
-    
-    const db = app.get('knex')
-  
-    db.schema.hasTable('todo').then(exists => {
-      if (!exists) {
-        db.schema.createTable('todo', table => {
-          table.increments('id')
-          table.integer('userId')
-          table.string('text', 500)
-          table.boolean('complete')
-          table.timestamp('dueDate')
-          table.timestamp('createdAt')
-          table.timestamp('updatedAt')
-        })
-          .then(() => console.log('Created todo table'))
-          .catch(e => console.error('Error creating todo table', e))
-      }
-    })
-      .catch(e => console.error('Error creating todo table', e))
+    Todo.setup(app);
+
+    const db = app.get('knex');
+
+    db.schema
+      .hasTable('todo')
+      .then(exists => {
+        if (!exists) {
+          db.schema
+            .createTable('todo', table => {
+              table.increments('id');
+              table.integer('userId');
+              table.string('text', 500);
+              table.boolean('complete');
+              table.timestamp('dueDate');
+              table.timestamp('createdAt');
+              table.timestamp('updatedAt');
+            })
+            .then(() => console.log('Created todo table'))
+            .catch(e => console.error('Error creating todo table', e));
+        }
+      })
+      .catch(e => console.error('Error creating todo table', e));
   }
 
-  return Todo
-}
+  return Todo;
+};
 ```
 
 ## Complete Example
@@ -515,13 +592,13 @@ Here's a complete example of a Feathers server with a `todos` SQLite service:
 app.js
 
 ```js
-const feathers = require('@feathersjs/feathers')
-const express = require('@feathersjs/express')
-const rest = require('@feathersjs/express/rest')
-const errorHandler = require('@feathersjs/express/errors')
-const bodyParser = require('body-parser')
-const createService = require('feathers-objection')
-const { Model } = require('objection')
+const feathers = require('@feathersjs/feathers');
+const express = require('@feathersjs/express');
+const rest = require('@feathersjs/express/rest');
+const errorHandler = require('@feathersjs/express/errors');
+const bodyParser = require('body-parser');
+const createService = require('feathers-objection');
+const { Model } = require('objection');
 
 const knex = require('knex')({
   client: 'sqlite3',
@@ -529,41 +606,40 @@ const knex = require('knex')({
     filename: './db.sqlite'
   },
   useNullAsDefault: false
-})
+});
 
 // Bind Objection.js
-Model.knex(knex)
+Model.knex(knex);
 
 // Clean up our data. This is optional and is here
 // because of our integration tests
-knex.schema.dropTableIfExists('todo').then(function () {
-  console.log('Dropped todo table')
+knex.schema.dropTableIfExists('todo').then(function() {
+  console.log('Dropped todo table');
 
   // Initialize your table
-  return knex.schema.createTable('todo', function (table) {
-    console.log('Creating todo table')
-    table.increments('id')
-    table.string('text')
-    table.boolean('complete')
-    table.timestamp('createdAt')
-    table.timestamp('updatedAt')
-  })
-})
+  return knex.schema.createTable('todo', function(table) {
+    console.log('Creating todo table');
+    table.increments('id');
+    table.string('text');
+    table.boolean('complete');
+    table.timestamp('createdAt');
+    table.timestamp('updatedAt');
+  });
+});
 
 // Create a feathers instance.
 const app = express(feathers())
-// Enable REST services
+  // Enable REST services
   .configure(rest())
   // Turn on JSON parser for REST services
   .use(bodyParser.json())
   // Turn on URL-encoded parser for REST services
-  .use(bodyParser.urlencoded({ extended: true }))
+  .use(bodyParser.urlencoded({ extended: true }));
 
 // Create an Objection Model
 class Todo extends Model {
-
   static get tableName() {
-    return 'todo'
+    return 'todo';
   }
 
   static get jsonSchema() {
@@ -576,53 +652,61 @@ class Todo extends Model {
         text: { type: 'string' },
         complete: { type: 'boolean', default: false }
       }
-    }
+    };
   }
-  
+
   $beforeInsert() {
-    this.createdAt = this.updatedAt = new Date().toISOString()
+    this.createdAt = this.updatedAt = new Date().toISOString();
   }
 
   $beforeUpdate() {
-    this.updatedAt = new Date().toISOString()
+    this.updatedAt = new Date().toISOString();
   }
 }
 
 // Create Objection Feathers service with a default page size of 2 items
 // and a maximum size of 4
-app.use('/todos', createService({
-  model: Todo,
-  id: 'id',
-  paginate: {
-    default: 2,
-    max: 4
-  }
-}))
+app.use(
+  '/todos',
+  createService({
+    model: Todo,
+    id: 'id',
+    paginate: {
+      default: 2,
+      max: 4
+    }
+  })
+);
 
 // Handle Errors
-app.use(errorHandler())
+app.use(errorHandler());
 
 // Start the server
-module.exports = app.listen(3030)
+module.exports = app.listen(3030);
 
-console.log('Feathers Todo Objection service running on 127.0.0.1:3030')
+console.log('Feathers Todo Objection service running on 127.0.0.1:3030');
 ```
 
-Run the example with `node app` and go to [localhost:3030/todos](http://localhost:3030/todos).
+Run the example with `node app` and go to
+[localhost:3030/todos](http://localhost:3030/todos).
 
-You should see an empty array. That's because you don't have any Todos yet, but you now have full CRUD for your new todos service!
+You should see an empty array. That's because you don't have any Todos yet, but
+you now have full CRUD for your new todos service!
 
 ## Migrating
- 
+
 `feathers-objection` 2.0.0 comes with important security and usability updates.
 
-> __Important:__ For general migration information to the new database adapter functionality see [crow.docs.feathersjs.com/migrating.html#database-adapters](https://crow.docs.feathersjs.com/migrating.html#database-adapters).
+> **Important:** For general migration information to the new database adapter
+> functionality see
+> [crow.docs.feathersjs.com/migrating.html#database-adapters](https://crow.docs.feathersjs.com/migrating.html#database-adapters).
 
 The following breaking changes have been introduced:
 
 - All methods allow additional query parameters
 - Multiple updates are disabled by default (see the `multi` option)
-- Objection related operators are disabled by default (see the `whitelist` option)
+- Objection related operators are disabled by default (see the `whitelist`
+  option)
 
 ## License
 
