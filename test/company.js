@@ -1,5 +1,5 @@
-import { Model } from 'objection'
-import path from 'path'
+import { Model } from 'objection';
+import path from 'path';
 
 export default class Company extends Model {
   static tableName = 'companies'

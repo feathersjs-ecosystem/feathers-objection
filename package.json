@@ -2,7 +2,7 @@
   "name": "feathers-objection",
   "description": "A service plugin for ObjectionJS an ORM based on KnexJS",
   "version": "3.0.1",
-  "homepage": "https://github.com/mcchrish/feathers-objection",
+  "homepage": "https://github.com/feathersjs-ecosystem/feathers-objection",
   "keywords": [
     "feathers",
     "feathers-plugin",
@@ -11,21 +11,27 @@
     "objection",
     "orm"
   ],
-  "license": "MIT",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/feathersjs-ecosystem/feathers-objection/blob/master/LICENSE"
+    }
+  ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/mcchrish/feathers-objection.git"
+    "url": "git://github.com/feathersjs-ecosystem/feathers-objection.git"
   },
   "author": {
-    "name": "Michael Chris Lopez",
-    "email": "mcchrish@gmail.com"
+    "name": "Feathers contributors",
+    "email": "hello@feathersjs.com",
+    "url": "https://feathersjs.com"
   },
   "contributors": [],
   "bugs": {
-    "url": "https://github.com/mcchrish/feathers-objection/issues"
+    "url": "https://github.com/feathersjs-ecosystem/feathers-objection/issues"
   },
   "engines": {
-    "node": ">= 0.12.0"
+    "node": ">= 6"
   },
   "main": "lib/",
   "files": [
@@ -39,7 +45,7 @@
     "release:major": "npm version major && npm publish",
     "compile": "rimraf lib/ && babel -d lib/ src/",
     "watch": "babel --watch -d lib/ src/",
-    "lint": "standard --fix src/**/*.js test/**/*.js --config",
+    "lint": "semistandard --fix src/**/*.js test/**/*.js --config",
     "mocha": "nyc mocha --opts mocha.opts",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "test": "npm run compile && npm run lint && npm run mocha",
@@ -73,8 +79,8 @@
     "nyc": "^13.1.0",
     "objection": "^1.4.0",
     "rimraf": "^2.6.3",
-    "sqlite3": "^4.0.6",
-    "standard": "^12.0.1"
+    "semistandard": "^13.0.1",
+    "sqlite3": "^4.0.6"
   },
   "babel": {
     "plugins": [
@@ -100,7 +106,7 @@
       "example/**"
     ]
   },
-  "standard": {
+  "semistandard": {
     "parser": "babel-eslint",
     "env": [
       "mocha"

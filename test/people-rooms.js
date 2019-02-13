@@ -1,4 +1,4 @@
-import { Model } from 'objection'
+import { Model } from 'objection';
 
 export default class PeopleRoom extends Model {
   static tableName = 'people-rooms'
