@@ -39,7 +39,7 @@
     "release:major": "npm version major && npm publish",
     "compile": "rimraf lib/ && babel -d lib/ src/",
     "watch": "babel --watch -d lib/ src/",
-    "lint": "standard --fix src/**/*.js test/**/*.js --config",
+    "lint": "semistandard --fix src/**/*.js test/**/*.js --config",
     "mocha": "nyc mocha --opts mocha.opts",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "test": "npm run compile && npm run lint && npm run mocha",
@@ -73,8 +73,8 @@
     "nyc": "^13.1.0",
     "objection": "^1.4.0",
     "rimraf": "^2.6.3",
-    "sqlite3": "^4.0.6",
-    "standard": "^12.0.1"
+    "semistandard": "^13.0.1",
+    "sqlite3": "^4.0.6"
   },
   "babel": {
     "plugins": [
@@ -100,7 +100,7 @@
       "example/**"
     ]
   },
-  "standard": {
+  "semistandard": {
     "parser": "babel-eslint",
     "env": [
       "mocha"

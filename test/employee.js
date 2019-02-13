@@ -1,5 +1,5 @@
-import { Model } from 'objection'
-import path from 'path'
+import { Model } from 'objection';
+import path from 'path';
 
 export default class Employee extends Model {
   static tableName = 'employees'
@@ -24,6 +24,6 @@ export default class Employee extends Model {
           to: 'companies.id'
         }
       }
-    }
+    };
   }
 }
