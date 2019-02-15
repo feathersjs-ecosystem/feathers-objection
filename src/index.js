@@ -61,7 +61,7 @@ class Service extends AdapterService {
     super(Object.assign({
       id: 'id',
       whitelist
-    }, options));
+    }, { id: options.model.idColumn, ...options }));
 
     this.idSeparator = options.idSeparator || ',';
     this.jsonSchema = options.model.jsonSchema;
