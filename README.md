@@ -92,7 +92,7 @@ module.exports = function(app) {
 ### Service Options
 
 - `model` (**required**) - The Objection model definition
-- `id` (_optional_, default: `'id'`) - The name of the id field property. Use
+- `id` (_optional_, default: `model.idColumn` or `'id'`) - The name of the id field property. Use
   array of strings for composite primary keys
 - `events` (_optional_) - A list of
   [custom service events](https://docs.feathersjs.com/api/events.html#custom-events)
