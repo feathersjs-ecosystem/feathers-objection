@@ -59,9 +59,9 @@ class Service extends AdapterService {
     const whitelist = Object.values(OPERATORS).concat(options.whitelist || []);
 
     super(Object.assign({
-      id: 'id',
+      id: options.model.idColumn || 'id',
       whitelist
-    }, { id: options.model.idColumn, ...options }));
+    }, options));
 
     this.idSeparator = options.idSeparator || ',';
     this.jsonSchema = options.model.jsonSchema;
