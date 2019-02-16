@@ -154,18 +154,48 @@ Note that all this eager related options are optional.
 
 #### Query Operators
 
-- **`$eager`** - parameter to eager load relations defined in models'
+- **`$eager`** - eager load relations defined in models'
   `relationMappings` getter methods or in the `namedEagerFilters` option. See
   [`eager`](https://vincit.github.io/objection.js/#eager) documentation.
-- **`$joinRelation`** - parameter to filter based on a relation's field. See
+- **`$joinRelation`** - filter based on a relation's field. See
   [`joinRelation`](https://vincit.github.io/objection.js/#joinrelation)
   documentation.
-- **`$joinEager`** - parameter to filter based on a relation's field using
+- **`$joinEager`** - filter based on a relation's field using
   `JoinEagerAlgorithm`. See
   [`$joinEager`](https://vincit.github.io/objection.js/#joineager)
   documentation.
-- **`$pick`** - parameter to pick properties from result models. See
+- **`$pick`** - pick properties from result models. See
   [`pick`](https://vincit.github.io/objection.js/#pick) documentation.
+  
+- **`$between`** - filter based on if a column value is between range of values
+
+- **`$notBetween`** - filter based on if a column value is not between range of values  
+
+- **`$like`** - filter column value based on a LIKE pattern
+
+- **`$notLike`** - filter column value based on a NOT LIKE pattern
+
+- **`$regexp`** - filter column value based on a REGEXP pattern
+
+- **`$notRegexp`** - filter column value based on a NOT REGEXP pattern
+
+- **`$ilike`** - (Postgres) filter column value based on a case-insensitive LIKE pattern
+
+- **`$notILike`** - (Postgres) filter column value based on a case-insensitive NOT LIKE pattern
+
+- **`$iRegexp`** - (Postgres) filter column value based on a case-insensitive REGEXP pattern
+
+- **`$notIRegexp`** - (Postgres) filter column value based on a case-insensitive NOT REGEXP pattern
+  
+- **`$containsKey`** (Postgres) - filter based on if a column contains a key
+
+- **`$any`** (Postgres) - filter based on if a column contains any key from array of strings
+
+- **`$all`** (Postgres) - filter based on if a column contains all keys from array of strings
+
+- **`$contains`** (Postgres) - filter based on if a column contains a value
+
+- **`$contained`** (Postgres) - filter based on if a column is contained in a value
 
 #### Params Operators
 

@@ -37,8 +37,26 @@ const OPERATORS_MAP = {
   $like: 'like',
   $notLike: 'not like',
   $ilike: 'ilike',
-  $notILike: 'not ilike'
+  $notILike: 'not ilike',
+  $regexp: '~',
+  $notRegexp: '!~',
+  $iRegexp: '~*',
+  $notIRegexp: '!~*',
+  $between: 'between',
+  $notBetween: 'not between',
+  $contains: '@>',
+  $containsKey: '?',
+  $contained: '<@',
+  $any: '?|',
+  $all: '?&'
 };
+
+const RANGE_OPERATORS = [
+  'between',
+  'not between',
+  '?|',
+  '?&'
+];
 
 /**
  * Class representing an feathers adapter for Objection.js ORM.
@@ -134,7 +152,7 @@ class Service extends AdapterService {
     if (params.$pick) { delete params.$pick; }
 
     Object.keys(params || {}).forEach(key => {
-      const value = params[key];
+      let value = params[key];
 
       if (utils.isPlainObject(value)) {
         return this.objectify(query, value, key, parentKey);
@@ -176,7 +194,25 @@ class Service extends AdapterService {
       let columnType = property && property.type;
       if (columnType) {
         if (Array.isArray(columnType)) { columnType = columnType[0]; }
-        if (columnType === 'object' || columnType === 'array') { return query.where(ref(`${this.Model.tableName}.${methodKey || column}:${(methodKey ? column : key).replace(/\(/g, '[').replace(/\)/g, ']')}`).castText(), operator, value); }
+        if (columnType === 'object' || columnType === 'array') {
+          let refColumn = null;
+
+          if (!methodKey && key[0] === '$') {
+            refColumn = ref(`${this.Model.tableName}.${methodKey || column}`);
+          } else {
+            refColumn = ref(`${this.Model.tableName}.${methodKey || column}:${(methodKey ? column : key).replace(/\(/g, '[').replace(/\)/g, ']')}`);
+          }
+
+          if (RANGE_OPERATORS.includes(operator) && typeof value === 'string' && value[0] === '[' && value[value.length - 1] === ']') {
+            value = JSON.parse(value);
+          }
+
+          return query.where(refColumn, operator, value);
+        }
+      }
+
+      if (RANGE_OPERATORS.includes(operator) && typeof value === 'string' && value[0] === '[' && value[value.length - 1] === ']') {
+        value = JSON.parse(value);
       }
 
       return operator === '=' ? query.where(column, value) : query.where(column, operator, value);

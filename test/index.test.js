@@ -97,6 +97,7 @@ const app = feathers()
       model: People,
       id: 'id',
       multi: ['create'],
+      whitelist: ['$and', '$like', '$between', '$notBetween'],
       events: ['testing']
     })
   )
@@ -133,7 +134,7 @@ const app = feathers()
       model: Company,
       id: 'id',
       multi: ['create', 'remove'],
-      whitelist: ['$eager', '$pick'],
+      whitelist: ['$eager', '$pick', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all'],
       allowedEager: '[ceos, clients]',
       namedEagerFilters: {
         notSnoop (builder) {
@@ -228,13 +229,19 @@ function clean (done) {
       });
     })
     .then(() => {
-      return db.schema.dropTableIfExists('companies').then(() => {
-        return db.schema.createTable('companies', table => {
-          table.increments('id');
-          table.string('name');
-          table.integer('ceo');
-          table.json('jsonObject');
-          table.json('jsonArray');
+      return db.schema.dropTableIfExists('clients').then(() => {
+        return db.schema.dropTableIfExists('employees').then(() => {
+          return db.schema.dropTableIfExists('companies').then(() => {
+            return db.schema.createTable('companies', table => {
+              table.increments('id');
+              table.string('name');
+              table.integer('ceo');
+              table.json('jsonObject');
+              table.json('jsonArray');
+              table.jsonb('jsonbObject');
+              table.jsonb('jsonbArray');
+            });
+          });
         });
       });
     })
@@ -890,7 +897,7 @@ describe('Feathers Objection Service', () => {
       }).catch(function (error) {
         expect(error).to.be.ok;
         expect(error instanceof errors.BadRequest).to.be.ok;
-        expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{numberField}\' AS text) = 1.5 - SQLITE_ERROR: unrecognized token: "#"');
+        expect(error.message).to.equal('select `companies`.* from `companies` where `companies`.`jsonObject`#>\'{numberField}\' = 1.5 - SQLITE_ERROR: unrecognized token: "#"');
       });
     });
 
@@ -900,7 +907,7 @@ describe('Feathers Objection Service', () => {
       }).catch(function (error) {
         expect(error).to.be.ok;
         expect(error instanceof errors.BadRequest).to.be.ok;
-        expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{numberField}\' AS text) > 1.5 - SQLITE_ERROR: unrecognized token: "#"');
+        expect(error.message).to.equal('select `companies`.* from `companies` where `companies`.`jsonObject`#>\'{numberField}\' > 1.5 - SQLITE_ERROR: unrecognized token: "#"');
       });
     });
 
@@ -910,7 +917,7 @@ describe('Feathers Objection Service', () => {
       }).catch(function (error) {
         expect(error).to.be.ok;
         expect(error instanceof errors.BadRequest).to.be.ok;
-        expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{objectField,object}\' AS text) = \'string in jsonObject.objectField.object\' - SQLITE_ERROR: unrecognized token: "#"');
+        expect(error.message).to.equal('select `companies`.* from `companies` where `companies`.`jsonObject`#>\'{objectField,object}\' = \'string in jsonObject.objectField.object\' - SQLITE_ERROR: unrecognized token: "#"');
       });
     });
 
@@ -926,7 +933,7 @@ describe('Feathers Objection Service', () => {
       }).catch(function (error) {
         expect(error).to.be.ok;
         expect(error instanceof errors.BadRequest).to.be.ok;
-        expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonArray`#>>\'{0,objectField,object}\' AS text) = \'I\'\'m string in jsonArray[0].objectField.object\' - SQLITE_ERROR: unrecognized token: "#"');
+        expect(error.message).to.equal('select `companies`.* from `companies` where `companies`.`jsonArray`#>\'{0,objectField,object}\' = \'I\'\'m string in jsonArray[0].objectField.object\' - SQLITE_ERROR: unrecognized token: "#"');
       });
     });
   });
@@ -1030,7 +1037,7 @@ describe('Feathers Objection Service', () => {
   });
 
   describe('$like method', () => {
-    beforeEach(async () => {
+    before(async () => {
       await people
         .create({
           name: 'Charlie Brown',
@@ -1046,7 +1053,7 @@ describe('Feathers Objection Service', () => {
   });
 
   describe('$and method', () => {
-    beforeEach(async () => {
+    before(async () => {
       await people
         .create([
           {
@@ -1072,7 +1079,7 @@ describe('Feathers Objection Service', () => {
   });
 
   describe('$or method', () => {
-    beforeEach(async () => {
+    before(async () => {
       await people
         .create([
           {
@@ -1093,6 +1100,144 @@ describe('Feathers Objection Service', () => {
     it('$or in query', () => {
       return people.find({ query: { $or: [{ name: 'John' }, { name: 'Dada' }] } }).then(data => {
         expect(data[0].name).to.be.equal('Dada');
+      });
+    });
+  });
+
+  describe('between & not between operators', () => {
+    before(async () => {
+      await people
+        .create([
+          {
+            name: 'Dave',
+            age: 1
+          },
+          {
+            name: 'John',
+            age: 101
+          },
+          {
+            name: 'Dada',
+            age: 15
+          }
+        ]);
+    });
+
+    it('$between', () => {
+      return people.find({ query: { age: { $between: [100, 102] } } }).then(data => {
+        expect(data[0].name).to.be.equal('John');
+      });
+    });
+
+    it('$between - string', () => {
+      return people.find({ query: { age: { $between: '[100, 102]' } } }).then(data => {
+        expect(data[0].name).to.be.equal('John');
+      });
+    });
+
+    it('$notBetween', () => {
+      return people.find({ query: { age: { $notBetween: [0, 100] } } }).then(data => {
+        expect(data[0].name).to.be.equal('John');
+      });
+    });
+
+    it('$notBetween - string', () => {
+      return people.find({ query: { age: { $notBetween: '[0, 100]' } } }).then(data => {
+        expect(data[0].name).to.be.equal('John');
+      });
+    });
+  });
+
+  describe.skip('JSON operators (Postgres)', () => {
+    before(async () => {
+      await companies
+        .create([
+          {
+            name: 'Google',
+            jsonbObject: { a: 1, b: 2, c: { d: [3] }, e: [4] },
+            jsonbArray: [1, 2]
+          },
+          {
+            name: 'Apple',
+            jsonbObject: { z: 0 },
+            jsonbArray: [0]
+          }
+        ]);
+    });
+
+    after(async () => {
+      await companies.remove(null);
+    });
+
+    it('$containsKey', () => {
+      return companies.find({ query: { jsonbObject: { $containsKey: 'a' } } }).then(data => {
+        expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('$containsKey - nested', () => {
+      return companies.find({ query: { jsonbObject: { c: { $containsKey: 'd' } } } }).then(data => {
+        expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('$contains', () => {
+      return companies.find({ query: { jsonbArray: { $contains: 1 } } }).then(data => {
+        expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('$contains', () => {
+      return companies.find({ query: { jsonbArray: { $contains: 1 } } }).then(data => {
+        expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('$contains - nested', () => {
+      return companies.find({ query: { jsonbObject: { e: { $contains: 4 } } } }).then(data => {
+        expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('$contained', () => {
+      return companies.find({ query: { jsonbObject: { $contained: JSON.stringify({ a: 1, b: 2, c: { d: [3] }, e: [4], f: 5 }) } } }).then(data => {
+        expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('$any', () => {
+      return companies.find({ query: { jsonbObject: { $any: ['a', 'aa'] } } }).then(data => {
+        expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('$all', () => {
+      return companies.find({ query: { jsonbObject: { $all: ['a', 'b'] } } }).then(data => {
+        expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('$between', () => {
+      return companies.find({ query: { jsonbObject: { b: { $between: [1, 3] } } } }).then(data => {
+        expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('$between - string', () => {
+      return companies.find({ query: { jsonbObject: { b: { $between: '[1, 3]' } } } }).then(data => {
+        expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('$notBetween', () => {
+      return companies.find({ query: { jsonbObject: { b: { $notBetween: [3, 5] } } } }).then(data => {
+        expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('$notBetween - string', () => {
+      return companies.find({ query: { jsonbObject: { b: { $notBetween: '[3, 5]' } } } }).then(data => {
+        expect(data[0].name).to.be.equal('Google');
       });
     });
   });

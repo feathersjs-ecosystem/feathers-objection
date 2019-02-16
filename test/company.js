@@ -24,7 +24,9 @@ export default class Company extends Model {
           }
         }
       },
-      jsonArray: { type: ['array', 'null'] }
+      jsonArray: { type: ['array', 'null'] },
+      jsonbObject: { type: ['object', 'null'] },
+      jsonbArray: { type: ['array', 'null'] }
     }
   }
 
