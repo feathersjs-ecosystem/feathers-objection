@@ -1,12 +1,15 @@
 # Change Log
 
-## [Unreleased](https://github.com/feathersjs-ecosystem/feathers-objection/tree/HEAD)
-
-[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v3.2.1...HEAD)
+## [v4.0.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.0.0) (2019-07-08)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v3.2.1...v4.0.0)
 
 **Closed issues:**
 
 - custom id return 'undefined' [\#46](https://github.com/feathersjs-ecosystem/feathers-objection/issues/46)
+
+**Merged pull requests:**
+
+- Add TypeScript definitions and upgrade tests to Feathers 4 [\#47](https://github.com/feathersjs-ecosystem/feathers-objection/pull/47) ([daffl](https://github.com/daffl))
 
 ## [v3.2.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v3.2.1) (2019-04-26)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v3.2.0...v3.2.1)
