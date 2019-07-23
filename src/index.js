@@ -340,12 +340,18 @@ class Service extends AdapterService {
       }
 
       if (count) {
-        const idColumns = Array.isArray(this.id) ? this.id.map(idKey => `${this.Model.tableName}.${idKey}`) : [`${this.Model.tableName}.${this.id}`];
 
         let countQuery = this._createQuery(params)
           .skipUndefined()
-          .joinRelation(query.$joinRelation)
-          .countDistinct({ total: idColumns });
+          .joinRelation(query.$joinRelation);
+
+        if (params.query.$group) {
+          const groupColumns = Array.isArray(params.query.$group) ? params.query.$group.map(groupKey => `${this.Model.tableName}.${groupKey}`) : [`${this.Model.tableName}.${params.query.$group}`];
+          countQuery.countDistinct({ total: groupColumns });
+        } else {
+          const idColumns = Array.isArray(this.id) ? this.id.map(idKey => `${this.Model.tableName}.${idKey}`) : [`${this.Model.tableName}.${this.id}`];
+          countQuery.countDistinct({ total: idColumns });
+        }
 
         this.objectify(countQuery, query);
 
