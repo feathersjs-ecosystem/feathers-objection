@@ -239,6 +239,13 @@ class Service extends AdapterService {
       q = q.select(...filters.$select.concat(`${this.Model.tableName}.${this.id}`));
     }
 
+    // $group for Objection groupBy queries
+
+    if (query && query.$group) {
+      q.groupBy(query.$group);
+      delete query.$group;
+    }
+
     // $eager for Objection eager queries
 
     if (query && query.$eager) {
