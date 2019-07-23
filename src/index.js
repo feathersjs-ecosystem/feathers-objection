@@ -146,6 +146,7 @@ class Service extends AdapterService {
    * @param methodKey
    */
   objectify (query, params, parentKey, methodKey) {
+    if (params.$group) { delete params.$group; }
     if (params.$eager) { delete params.$eager; }
     if (params.$joinEager) { delete params.$joinEager; }
     if (params.$joinRelation) { delete params.$joinRelation; }
@@ -245,6 +246,7 @@ class Service extends AdapterService {
       q.groupBy(query.$group);
       delete query.$group;
     }
+
 
     // $eager for Objection eager queries
 
