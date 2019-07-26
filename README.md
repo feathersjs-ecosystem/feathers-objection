@@ -274,7 +274,7 @@ explanation.
 Runs on `update` and `patch` service methods when `id` is set.
 
 _The relation being upserted must also be present in `allowedEager` option and
-included in `$eager` query._
+included in `$eager` query when using the `update` service method._
 
 #### Service Options
 
