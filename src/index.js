@@ -105,8 +105,9 @@ class Service extends AdapterService {
    * Create a new query that re-queries all ids that were originally changed
    * @param id
    * @param idList
+   * @param addTableName
    */
-  getIdsQuery (id, idList) {
+  getIdsQuery (id, idList, addTableName = true) {
     const query = {};
 
     if (Array.isArray(this.id)) {
@@ -132,7 +133,7 @@ class Service extends AdapterService {
         }
       });
     } else {
-      query[`${this.Model.tableName}.${this.id}`] = idList ? (idList.length === 1 ? idList[0] : { $in: idList }) : id;
+      query[addTableName ? `${this.Model.tableName}.${this.id}` : this.id] = idList ? (idList.length === 1 ? idList[0] : { $in: idList }) : id;
     }
 
     return query;
@@ -481,7 +482,16 @@ class Service extends AdapterService {
    */
   _patch (id, data, params) {
     let { filters, query } = this.filterQuery(params);
-    const dataCopy = Object.assign({}, data);
+
+    if (this.allowedUpsert && id !== null) {
+      let dataCopy = Object.assign({}, data, this.getIdsQuery(id, null, false));
+
+      return this._createQuery(params)
+        .allowUpsert(this.allowedUpsert)
+        .upsertGraphAndFetch(dataCopy, this.upsertGraphOptions);
+    }
+
+    let dataCopy = Object.assign({}, data);
 
     const mapIds = page => Array.isArray(this.id)
       ? this.id.map(idKey => [...new Set((page.data || page).map(current => current[idKey]))])

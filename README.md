@@ -270,7 +270,8 @@ app.service('companies').find({
 Arbitrary relation graphs can be upserted (insert + update + delete) using the
 upsertGraph method. See
 [`examples`](https://vincit.github.io/objection.js/#graph-upserts) for a better
-explanation. Runs on the `.update(id, data, params)` service method.
+explanation.  
+Runs on `update` and `patch` service methods when `id` is set.
 
 _The relation being upserted must also be present in `allowedEager` option and
 included in `$eager` query._

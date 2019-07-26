@@ -998,12 +998,15 @@ describe('Feathers Objection Service', () => {
   });
 
   describe('Graph Upsert Queries', () => {
-    before(async () => {
+    let google;
+
+    beforeEach(async () => {
       await companies.remove(null);
-      const [google] = await companies
+      [google] = await companies
         .create([
           {
             name: 'Google',
+            ceo: 1,
             clients: [
               {
                 name: 'Dan Davis'
@@ -1014,25 +1017,46 @@ describe('Feathers Objection Service', () => {
             name: 'Apple'
           }
         ], { query: { $eager: 'clients' } });
+    });
 
+    it('allows upsertGraph queries on update', () => {
       const newClients = (google.clients) ? google.clients.concat([{
         name: 'Ken Patrick'
       }]) : [];
 
-      await companies
+      return companies
         .update(google.id, {
           id: google.id,
           name: 'Alphabet',
           clients: newClients
-        }, { query: { $eager: 'clients' } });
+        }, { query: { $eager: 'clients' } }).then(() => {
+          return companies.find({ query: { $eager: 'clients' } }).then(data => {
+            expect(data[0].name).equal('Alphabet');
+            expect(data[0].clients).to.be.an('array');
+            expect(data[0].clients).to.have.lengthOf(2);
+          });
+        });
     });
 
-    it('allows upsertGraph queries on update', () => {
-      return companies.find({ query: { $eager: 'clients' } }).then(data => {
-        expect(data[0].name).equal('Alphabet');
-        expect(data[0].clients).to.be.an('array');
-        expect(data[0].clients).to.have.lengthOf(2);
-      });
+    it('allows upsertGraph queries on patch', () => {
+      const newClients = (google.clients) ? google.clients.concat([{
+        name: 'Ken Patrick'
+      }]) : [];
+
+      return companies
+        .patch(google.id, {
+          name: 'Google Alphabet',
+          clients: newClients
+        }).then(data => {
+          expect(data.name).equal('Google Alphabet');
+          expect(data.ceo).equal(1);
+
+          return companies.find({ query: { $eager: 'clients' } }).then(data => {
+            expect(data[0].name).equal('Google Alphabet');
+            expect(data[0].clients).to.be.an('array');
+            expect(data[0].clients).to.have.lengthOf(2);
+          });
+        });
     });
   });
 
