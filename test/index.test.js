@@ -1318,6 +1318,7 @@ describe('Feathers Objection Service', () => {
         }
       }).then(data => {
         expect(data).to.be.ok;
+        expect(data.id).to.equal(undefined);
         expect(data.name).to.equal('Apple');
         expect(data.ceo).to.equal(2);
       });
