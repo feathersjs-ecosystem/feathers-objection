@@ -141,13 +141,13 @@ Note that all this eager related options are optional.
 
 - **`allowedEager`** - relation expression to limit the allowed eager queries in
   the service. Defaults to `'[]'`, meaning no eager queries allowed. See
-  [`allowEager`](https://vincit.github.io/objection.js/#alloweager)
+  [`allowEager`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#alloweager)
   documentation.
 - **`eagerFilters`** - option to impose compulsory eager filter. It takes an
   object or array of objects with the following properties:
   - `expression` - the relation expression that the filter will be applied.
   - `filter` - the filter function. It uses
-    [`filterEager`](https://vincit.github.io/objection.js/#filtereager)
+    [`filterEager`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#filtereager)
     internally.
 - **`namedEagerFilters`** - object containing named eager filter functions.
   Filter is opt-in via `$eager` parameter.
@@ -156,17 +156,22 @@ Note that all this eager related options are optional.
 
 - **`$eager`** - eager load relations defined in models'
   `relationMappings` getter methods or in the `namedEagerFilters` option. See
-  [`eager`](https://vincit.github.io/objection.js/#eager) documentation.
+  [`eager`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#eager) documentation.
 - **`$joinRelation`** - filter based on a relation's field. See
-  [`joinRelation`](https://vincit.github.io/objection.js/#joinrelation)
+  [`joinRelation`](https://vincit.github.io/objection.js/api/query-builder/join-methods.html#joinrelation)
   documentation.
 - **`$joinEager`** - filter based on a relation's field using
   `JoinEagerAlgorithm`. See
-  [`$joinEager`](https://vincit.github.io/objection.js/#joineager)
+  [`$joinEager`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#joineager)
   documentation.
 - **`$pick`** - pick properties from result models. See
-  [`pick`](https://vincit.github.io/objection.js/#pick) documentation.
+  [`pick`](https://vincit.github.io/objection.js/api/query-builder/other-methods.html#pick) documentation.
   
+- **`$select`** - add SELECT statement with given array of column names. See
+    [`$select`](https://vincit.github.io/objection.js/api/query-builder/find-methods.html#select) documentation.
+
+- **`$noSelect`** - skips SELECT queries in create, patch & remove requests. response data will be based on the input data.
+
 - **`$between`** - filter based on if a column value is between range of values
 
 - **`$notBetween`** - filter based on if a column value is not between range of values  
@@ -200,12 +205,12 @@ Note that all this eager related options are optional.
 #### Params Operators
 
 - **`transaction`** - A transaction object. See
-  [`transaction`](https://vincit.github.io/objection.js/#transaction)
+  [`transaction`](https://vincit.github.io/objection.js/api/objection/#transaction)
   documentation.
 - **`mergeAllowEager`** - Just like allowEager but instead of replacing query
   builder’s allowEager expression this method merges the given expression to the
   existing expression. See
-  [`mergeAllowEager`](https://vincit.github.io/objection.js/#mergealloweager)
+  [`mergeAllowEager`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#mergealloweager)
   documentation.
 
 ### Composite primary keys
@@ -269,7 +274,7 @@ app.service('companies').find({
 
 Arbitrary relation graphs can be upserted (insert + update + delete) using the
 upsertGraph method. See
-[`examples`](https://vincit.github.io/objection.js/#graph-upserts) for a better
+[`examples`](https://vincit.github.io/objection.js/guide/query-examples.html#graph-upserts) for a better
 explanation.  
 Runs on `update` and `patch` service methods when `id` is set.
 
@@ -281,10 +286,10 @@ included in `$eager` query when using the `update` service method._
 - **`allowedUpsert`** - relation expression to allow relations to be upserted
   along with update. Defaults to `null`, meaning relations will not be
   automatically upserted unless specified here. See
-  [`allowUpsert`](https://vincit.github.io/objection.js/#allowupsert)
+  [`allowUpsert`](https://vincit.github.io/objection.js/api/query-builder/mutate-methods.html#allowupsert)
   documentation.
 - **`upsertGraphOptions`** - See
-  [`upsertGraphOptions`](https://vincit.github.io/objection.js/#upsertgraphoptions)
+  [`upsertGraphOptions`](https://vincit.github.io/objection.js/api/types/#type-upsertgraphoptions)
   documentation.
 - **`createUseUpsertGraph`** - If set to `true`, Graph Upsert will also be used
   for `.create(data, params)` method instead of Graph Insert.
@@ -326,10 +331,10 @@ included in `$eager` query._
 - **`allowedInsert`** - relation expression to allow relations to be created
   along with insert. Defaults to `null`, meaning relations will not be
   automatically created unless specified here. See
-  [`allowInsert`](https://vincit.github.io/objection.js/#allowinsert)
+  [`allowInsert`](https://vincit.github.io/objection.js/api/query-builder/mutate-methods.html#allowinsert)
   documentation.
 - **`insertGraphOptions`** - See
-  [`insertGraphOptions`](https://vincit.github.io/objection.js/#insertgraphoptions)
+  [`insertGraphOptions`](https://vincit.github.io/objection.js/api/types/#type-insertgraphoptions)
   documentation.
 
 ### Service
@@ -426,7 +431,7 @@ for more information.
 ### Models
 
 Objection requires you to define
-[Models](http://vincit.github.io/objection.js/#models) for your tables:
+[Models](https://vincit.github.io/objection.js/api/model/#models) for your tables:
 
 users.model.js
 

@@ -133,8 +133,8 @@ const app = feathers()
     service({
       model: Company,
       id: 'id',
-      multi: ['create', 'remove'],
-      whitelist: ['$eager', '$pick', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all'],
+      multi: ['create', 'remove', 'patch'],
+      whitelist: ['$eager', '$pick', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect'],
       allowedEager: '[ceos, clients]',
       namedEagerFilters: {
         notSnoop (builder) {
@@ -1293,6 +1293,59 @@ describe('Feathers Objection Service', () => {
             expect(data.length).to.equal(0);
           });
         });
+      });
+    });
+  });
+
+  describe('$noSelect', () => {
+    beforeEach(async () => {
+      await companies
+        .create([
+          {
+            name: 'Google',
+            ceo: 1
+          }
+        ]);
+    });
+
+    it('create with $noSelect', () => {
+      return companies.create({
+        name: 'Apple',
+        ceo: 2
+      }, {
+        query: {
+          $noSelect: true
+        }
+      }).then(data => {
+        expect(data).to.be.ok;
+        expect(data.name).to.equal('Apple');
+        expect(data.ceo).to.equal(2);
+      });
+    });
+
+    it('patch with $noSelect', () => {
+      return companies.patch(null, {
+        name: 'Amazon'
+      }, {
+        query: {
+          ceo: 1,
+          $noSelect: true
+        }
+      }).then(data => {
+        expect(data).to.be.ok;
+        expect(data).to.be.empty;
+      });
+    });
+
+    it('remove with $noSelect', () => {
+      return companies.remove(null, {
+        query: {
+          name: 'Google',
+          $noSelect: true
+        }
+      }).then(data => {
+        expect(data).to.be.ok;
+        expect(data).to.be.empty;
       });
     });
   });
