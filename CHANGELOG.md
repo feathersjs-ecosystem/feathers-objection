@@ -1,10 +1,7 @@
 # Change Log
 
-## [v4.1.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.1.1) (2019-07-26)
-[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.1.0...v4.1.1)
-
-## [v4.1.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.1.0) (2019-07-26)
-[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.0.0...v4.1.0)
+## [v4.2.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.2.0) (2019-08-09)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.1.1...v4.2.0)
 
 **Implemented enhancements:**
 
@@ -12,10 +9,19 @@
 
 **Closed issues:**
 
+- Patching record with query, causes NotFound error to be thrown [\#49](https://github.com/feathersjs-ecosystem/feathers-objection/issues/49)
+
+## [v4.1.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.1.1) (2019-07-26)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.1.0...v4.1.1)
+
+## [v4.1.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.1.0) (2019-07-26)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.0.0...v4.1.0)
+
+**Closed issues:**
+
 - Present demo application with working relations [\#54](https://github.com/feathersjs-ecosystem/feathers-objection/issues/54)
 - Extending feathers-objectionjs Service class [\#53](https://github.com/feathersjs-ecosystem/feathers-objection/issues/53)
 - How to insert related entity and return it with every get request? [\#52](https://github.com/feathersjs-ecosystem/feathers-objection/issues/52)
-- Patching record with query, causes NotFound error to be thrown [\#49](https://github.com/feathersjs-ecosystem/feathers-objection/issues/49)
 
 ## [v4.0.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.0.0) (2019-07-08)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v3.2.1...v4.0.0)
