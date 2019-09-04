@@ -36,7 +36,8 @@
   "main": "lib/",
   "types": "types",
   "files": [
-    "lib"
+    "lib",
+    "types"
   ],
   "scripts": {
     "prepare": "npm run compile",
