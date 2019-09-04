@@ -105,8 +105,9 @@ class Service extends AdapterService {
    * Create a new query that re-queries all ids that were originally changed
    * @param id
    * @param idList
+   * @param addTableName
    */
-  getIdsQuery (id, idList) {
+  getIdsQuery (id, idList, addTableName = true) {
     const query = {};
 
     if (Array.isArray(this.id)) {
@@ -132,7 +133,7 @@ class Service extends AdapterService {
         }
       });
     } else {
-      query[`${this.Model.tableName}.${this.id}`] = idList ? (idList.length === 1 ? idList[0] : { $in: idList }) : id;
+      query[addTableName ? `${this.Model.tableName}.${this.id}` : this.id] = idList ? (idList.length === 1 ? idList[0] : { $in: idList }) : id;
     }
 
     return query;
@@ -150,6 +151,7 @@ class Service extends AdapterService {
     if (params.$joinEager) { delete params.$joinEager; }
     if (params.$joinRelation) { delete params.$joinRelation; }
     if (params.$pick) { delete params.$pick; }
+    if (params.$noSelect) { delete params.$noSelect; }
 
     Object.keys(params || {}).forEach(key => {
       let value = params[key];
@@ -396,6 +398,8 @@ class Service extends AdapterService {
       }
       return q
         .then(row => {
+          if (params.query && params.query.$noSelect) { return data; }
+
           let id = null;
 
           if (Array.isArray(this.id)) {
@@ -481,7 +485,16 @@ class Service extends AdapterService {
    */
   _patch (id, data, params) {
     let { filters, query } = this.filterQuery(params);
-    const dataCopy = Object.assign({}, data);
+
+    if (this.allowedUpsert && id !== null) {
+      let dataCopy = Object.assign({}, data, this.getIdsQuery(id, null, false));
+
+      return this._createQuery(params)
+        .allowUpsert(this.allowedUpsert)
+        .upsertGraphAndFetch(dataCopy, this.upsertGraphOptions);
+    }
+
+    let dataCopy = Object.assign({}, data);
 
     const mapIds = page => Array.isArray(this.id)
       ? this.id.map(idKey => [...new Set((page.data || page).map(current => current[idKey]))])
@@ -521,7 +534,7 @@ class Service extends AdapterService {
         const findParams = Object.assign({}, params, { query: Object.assign({}, params.query, this.getIdsQuery(id, idList), selectParam) });
 
         return q.patch(dataCopy).then(() => {
-          return this._find(findParams).then(page => {
+          return params.query && params.query.$noSelect ? {} : this._find(findParams).then(page => {
             const items = page.data || page;
 
             if (id !== null) {
@@ -559,29 +572,37 @@ class Service extends AdapterService {
       }
     }
 
-    return this._find(params)
-      .then(page => {
-        const items = page.data || page;
-        const { query: queryParams } = this.filterQuery(params);
-        const query = this._createQuery(params);
+    const { query: queryParams } = this.filterQuery(params);
+    const query = this._createQuery(params);
 
-        this.objectify(query, queryParams);
+    this.objectify(query, queryParams);
 
-        return query.delete().then(() => {
-          if (id !== null) {
-            if (items.length === 1) {
-              return items[0];
-            } else {
+    if (params.query && params.query.$noSelect) {
+      return query.delete().then(() => {
+        return {};
+      })
+        .catch(errorHandler);
+    } else {
+      return this._find(params)
+        .then(page => {
+          const items = page.data || page;
+
+          return query.delete().then(() => {
+            if (id !== null) {
+              if (items.length === 1) {
+                return items[0];
+              } else {
+                throw new errors.NotFound(`No record found for id '${id}'`);
+              }
+            } else if (!items.length) {
               throw new errors.NotFound(`No record found for id '${id}'`);
             }
-          } else if (!items.length) {
-            throw new errors.NotFound(`No record found for id '${id}'`);
-          }
 
-          return items;
-        });
-      })
-      .catch(errorHandler);
+            return items;
+          });
+        })
+        .catch(errorHandler);
+    }
   }
 }
 
