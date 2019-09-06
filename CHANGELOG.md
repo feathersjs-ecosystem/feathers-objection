@@ -1,5 +1,23 @@
 # Change Log
 
+## [Unreleased](https://github.com/feathersjs-ecosystem/feathers-objection/tree/HEAD)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.2.3...HEAD)
+
+**Closed issues:**
+
+- Typescript types not found [\#56](https://github.com/feathersjs-ecosystem/feathers-objection/issues/56)
+
+## [v4.2.3](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.2.3) (2019-09-06)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.2.2...v4.2.3)
+
+**Merged pull requests:**
+
+- Fix types typos [\#59](https://github.com/feathersjs-ecosystem/feathers-objection/pull/59) ([vonagam](https://github.com/vonagam))
+
+## [v4.2.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.2.2) (2019-09-04)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.2.1...v4.2.2)
+
 ## [v4.2.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.2.1) (2019-09-04)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.2.0...v4.2.1)
 
