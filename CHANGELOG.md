@@ -1,12 +1,17 @@
 # Change Log
 
-## [Unreleased](https://github.com/feathersjs-ecosystem/feathers-objection/tree/HEAD)
-
-[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.2.3...HEAD)
+## [v4.2.4](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.2.4) (2019-09-23)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.2.3...v4.2.4)
 
 **Closed issues:**
 
+- Typescript compile error [\#60](https://github.com/feathersjs-ecosystem/feathers-objection/issues/60)
+- using $noSelect throws an error [\#57](https://github.com/feathersjs-ecosystem/feathers-objection/issues/57)
 - Typescript types not found [\#56](https://github.com/feathersjs-ecosystem/feathers-objection/issues/56)
+
+**Merged pull requests:**
+
+- Fix missing AdapterService parameter [\#61](https://github.com/feathersjs-ecosystem/feathers-objection/pull/61) ([vonagam](https://github.com/vonagam))
 
 ## [v4.2.3](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.2.3) (2019-09-06)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.2.2...v4.2.3)
