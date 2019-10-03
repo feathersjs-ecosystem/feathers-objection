@@ -124,7 +124,7 @@ operators are:
 '$nin',
 '$like',
 '$notLike',
-'$iLike',
+'$ilike',
 '$notILike',
 '$or',
 '$and'
@@ -456,6 +456,19 @@ class User extends Model {
           type: 'string',
           enum: ['active', 'disabled'],
           default: 'active'
+        },
+        address: {
+          type: 'object',
+          properties: {
+            street: { type: 'string' },
+            city: { type: 'string' },
+            zipCode: { type: 'string' }
+          }
+        },
+        list: {
+          type: 'array',
+          maxItems: 3,
+          items: { type: 'string' }
         }
       }
     };
