@@ -4,7 +4,7 @@ import { AdapterService, ServiceOptions, InternalServiceMethods } from '@feather
 import { Model } from 'objection';
 
 export interface ObjectionServiceOptions extends ServiceOptions {
-  Model: any;
+  model: typeof Model;
   idSeparator: string;
   jsonSchema: any;
   allowedEager: string;
@@ -17,8 +17,8 @@ export interface ObjectionServiceOptions extends ServiceOptions {
   upsertGraphOptions: any;
 }
 
-export class Service<T = any> extends AdapterService implements InternalServiceMethods<T> {
-  Model: Model;
+export class Service<T = any> extends AdapterService<T> implements InternalServiceMethods<T> {
+  Model: typeof Model;
   options: ObjectionServiceOptions;
 
   constructor(config?: Partial<ObjectionServiceOptions>);

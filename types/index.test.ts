@@ -8,5 +8,7 @@ class Todo extends Model {
 }
 
 const myService = service({
-  Model: Todo
+  model: Todo
 });
+
+myService.Model.tableName;
