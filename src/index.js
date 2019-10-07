@@ -222,7 +222,7 @@ class Service extends AdapterService {
   }
 
   _createQuery (params = {}) {
-    let trx = params.transaction ? params.transaction.trx : null;
+    const trx = params.transaction ? params.transaction.trx : null;
     return this.Model.query(trx);
   }
 
@@ -335,7 +335,7 @@ class Service extends AdapterService {
       if (count) {
         const idColumns = Array.isArray(this.id) ? this.id.map(idKey => `${this.Model.tableName}.${idKey}`) : [`${this.Model.tableName}.${this.id}`];
 
-        let countQuery = this._createQuery(params)
+        const countQuery = this._createQuery(params)
           .skipUndefined()
           .joinRelation(query.$joinRelation)
           .countDistinct({ total: idColumns });
@@ -383,7 +383,7 @@ class Service extends AdapterService {
    */
   _create (data, params) {
     const create = (data, params) => {
-      let q = this._createQuery(params);
+      const q = this._createQuery(params);
 
       if (this.createUseUpsertGraph) {
         if (this.allowedUpsert) {
@@ -487,14 +487,14 @@ class Service extends AdapterService {
     let { filters, query } = this.filterQuery(params);
 
     if (this.allowedUpsert && id !== null) {
-      let dataCopy = Object.assign({}, data, this.getIdsQuery(id, null, false));
+      const dataCopy = Object.assign({}, data, this.getIdsQuery(id, null, false));
 
       return this._createQuery(params)
         .allowUpsert(this.allowedUpsert)
         .upsertGraphAndFetch(dataCopy, this.upsertGraphOptions);
     }
 
-    let dataCopy = Object.assign({}, data);
+    const dataCopy = Object.assign({}, data);
 
     const mapIds = page => Array.isArray(this.id)
       ? this.id.map(idKey => [...new Set((page.data || page).map(current => current[idKey]))])
@@ -514,7 +514,7 @@ class Service extends AdapterService {
       }
     }
 
-    let q = this._createQuery(params);
+    const q = this._createQuery(params);
 
     this.objectify(q, query);
 

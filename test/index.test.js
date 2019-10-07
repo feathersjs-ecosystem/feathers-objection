@@ -179,11 +179,11 @@ const app = feathers()
     })
   );
 
-let people = app.service('people');
-let peopleRooms = app.service('people-rooms');
-let peopleRoomsCustomIdSeparator = app.service('people-rooms-custom-id-separator');
-let companies = app.service('companies');
-let employees = app.service('employees');
+const people = app.service('people');
+const peopleRooms = app.service('people-rooms');
+const peopleRoomsCustomIdSeparator = app.service('people-rooms-custom-id-separator');
+const companies = app.service('companies');
+const employees = app.service('employees');
 
 function clean (done) {
   db.schema
@@ -653,7 +653,7 @@ describe('Feathers Objection Service', () => {
       }).catch(function (error) {
         expect(error).to.be.ok;
         expect(error instanceof errors.BadRequest).to.be.ok;
-        expect(error.message).to.equal(`You can not replace multiple instances. Did you mean 'patch'?`);
+        expect(error.message).to.equal('You can not replace multiple instances. Did you mean \'patch\'?');
       });
     });
 
@@ -877,7 +877,7 @@ describe('Feathers Objection Service', () => {
             jsonArray: [
               {
                 objectField: {
-                  object: `I'm string in jsonArray[0].objectField.object`
+                  object: 'I\'m string in jsonArray[0].objectField.object'
                 }
               }
             ]
@@ -923,12 +923,12 @@ describe('Feathers Objection Service', () => {
 
     it('array', () => {
       return companies.find({ query: { jsonArray: { $ne: null } } }).then(data => {
-        expect(data[0].jsonArray[0].objectField.object).to.equal(`I'm string in jsonArray[0].objectField.object`);
+        expect(data[0].jsonArray[0].objectField.object).to.equal('I\'m string in jsonArray[0].objectField.object');
       });
     });
 
     it('array nested object', () => {
-      return companies.find({ query: { jsonArray: { '[0].objectField.object': `I'm string in jsonArray[0].objectField.object` } } }).then(() => {
+      return companies.find({ query: { jsonArray: { '[0].objectField.object': 'I\'m string in jsonArray[0].objectField.object' } } }).then(() => {
         throw new Error('Should never get here');
       }).catch(function (error) {
         expect(error).to.be.ok;
