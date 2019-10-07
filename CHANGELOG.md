@@ -1,5 +1,17 @@
 # Change Log
 
+## [v4.3.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.3.0) (2019-10-07)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.2.4...v4.3.0)
+
+**Closed issues:**
+
+- error on eager loading [\#64](https://github.com/feathersjs-ecosystem/feathers-objection/issues/64)
+- "iLike" is "ilike" and it is not whitelisted.  [\#63](https://github.com/feathersjs-ecosystem/feathers-objection/issues/63)
+
+**Merged pull requests:**
+
+- Update all dependencies [\#67](https://github.com/feathersjs-ecosystem/feathers-objection/pull/67) ([daffl](https://github.com/daffl))
+
 ## [v4.2.4](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.2.4) (2019-09-23)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.2.3...v4.2.4)
 
