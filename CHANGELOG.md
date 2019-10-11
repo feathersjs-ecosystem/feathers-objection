@@ -1,5 +1,12 @@
 # Change Log
 
+## [v4.4.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.4.2) (2019-10-11)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.4.1...v4.4.2)
+
+**Closed issues:**
+
+- Error creating new record after adding type 'array' in schema [\#66](https://github.com/feathersjs-ecosystem/feathers-objection/issues/66)
+
 ## [v4.4.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.4.1) (2019-10-11)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.4.0...v4.4.1)
 
