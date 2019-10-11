@@ -15,6 +15,7 @@ export default class Company extends Model {
       jsonObject: {
         type: ['object', 'null'],
         properties: {
+          stringField: { type: 'string' },
           numberField: { type: 'number' },
           objectField: {
             type: 'object',

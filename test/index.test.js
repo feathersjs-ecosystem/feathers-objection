@@ -134,7 +134,7 @@ const app = feathers()
       model: Company,
       id: 'id',
       multi: ['create', 'remove', 'patch'],
-      whitelist: ['$eager', '$pick', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect'],
+      whitelist: ['$eager', '$pick', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like'],
       allowedEager: '[ceos, clients]',
       namedEagerFilters: {
         notSnoop (builder) {
@@ -862,82 +862,6 @@ describe('Feathers Objection Service', () => {
     });
   });
 
-  describe('JSON column', () => {
-    before(async () => {
-      await companies
-        .create([
-          {
-            name: 'Google',
-            jsonObject: {
-              numberField: 1.5,
-              objectField: {
-                object: 'string in jsonObject.objectField.object'
-              }
-            },
-            jsonArray: [
-              {
-                objectField: {
-                  object: 'I\'m string in jsonArray[0].objectField.object'
-                }
-              }
-            ]
-          }
-        ]);
-    });
-
-    it('object', () => {
-      return companies.find({ query: { jsonObject: { $ne: null } } }).then(data => {
-        expect(data[0].jsonObject.numberField).to.equal(1.5);
-      });
-    });
-
-    it('object numberField', () => {
-      return companies.find({ query: { jsonObject: { numberField: 1.5 } } }).then(() => {
-        throw new Error('Should never get here');
-      }).catch(function (error) {
-        expect(error).to.be.ok;
-        expect(error instanceof errors.BadRequest).to.be.ok;
-        expect(error.message).to.equal('select `companies`.* from `companies` where `companies`.`jsonObject`#>\'{numberField}\' = 1.5 - SQLITE_ERROR: unrecognized token: "#"');
-      });
-    });
-
-    it('object numberField $gt', () => {
-      return companies.find({ query: { jsonObject: { numberField: { $gt: 1.5 } } } }).then(() => {
-        throw new Error('Should never get here');
-      }).catch(function (error) {
-        expect(error).to.be.ok;
-        expect(error instanceof errors.BadRequest).to.be.ok;
-        expect(error.message).to.equal('select `companies`.* from `companies` where `companies`.`jsonObject`#>\'{numberField}\' > 1.5 - SQLITE_ERROR: unrecognized token: "#"');
-      });
-    });
-
-    it('object nested object', () => {
-      return companies.find({ query: { jsonObject: { 'objectField.object': 'string in jsonObject.objectField.object' } } }).then(() => {
-        throw new Error('Should never get here');
-      }).catch(function (error) {
-        expect(error).to.be.ok;
-        expect(error instanceof errors.BadRequest).to.be.ok;
-        expect(error.message).to.equal('select `companies`.* from `companies` where `companies`.`jsonObject`#>\'{objectField,object}\' = \'string in jsonObject.objectField.object\' - SQLITE_ERROR: unrecognized token: "#"');
-      });
-    });
-
-    it('array', () => {
-      return companies.find({ query: { jsonArray: { $ne: null } } }).then(data => {
-        expect(data[0].jsonArray[0].objectField.object).to.equal('I\'m string in jsonArray[0].objectField.object');
-      });
-    });
-
-    it('array nested object', () => {
-      return companies.find({ query: { jsonArray: { '[0].objectField.object': 'I\'m string in jsonArray[0].objectField.object' } } }).then(() => {
-        throw new Error('Should never get here');
-      }).catch(function (error) {
-        expect(error).to.be.ok;
-        expect(error instanceof errors.BadRequest).to.be.ok;
-        expect(error.message).to.equal('select `companies`.* from `companies` where `companies`.`jsonArray`#>\'{0,objectField,object}\' = \'I\'\'m string in jsonArray[0].objectField.object\' - SQLITE_ERROR: unrecognized token: "#"');
-      });
-    });
-  });
-
   describe('Graph Insert Queries', () => {
     before(async () => {
       await companies.remove(null);
@@ -1172,6 +1096,161 @@ describe('Feathers Objection Service', () => {
     });
   });
 
+  describe('JSON column (SQLite)', () => {
+    before(async () => {
+      await companies
+        .create([
+          {
+            name: 'Google',
+            jsonObject: {
+              numberField: 1.5,
+              objectField: {
+                object: 'string in jsonObject.objectField.object'
+              }
+            },
+            jsonArray: [
+              {
+                objectField: {
+                  object: 'I\'m string in jsonArray[0].objectField.object'
+                }
+              }
+            ]
+          }
+        ]);
+    });
+
+    it('object', () => {
+      return companies.find({ query: { jsonObject: { $ne: null } } }).then(data => {
+        expect(data[0].jsonObject.numberField).to.equal(1.5);
+      });
+    });
+
+    it('object numberField', () => {
+      return companies.find({ query: { jsonObject: { numberField: 1.5 } } }).then(() => {
+        throw new Error('Should never get here');
+      }).catch(function (error) {
+        expect(error).to.be.ok;
+        expect(error instanceof errors.BadRequest).to.be.ok;
+        expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{numberField}\' AS text) = 1.5 - SQLITE_ERROR: unrecognized token: "#"');
+      });
+    });
+
+    it('object numberField $gt', () => {
+      return companies.find({ query: { jsonObject: { numberField: { $gt: 1.5 } } } }).then(() => {
+        throw new Error('Should never get here');
+      }).catch(function (error) {
+        expect(error).to.be.ok;
+        expect(error instanceof errors.BadRequest).to.be.ok;
+        expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{numberField}\' AS text) > 1.5 - SQLITE_ERROR: unrecognized token: "#"');
+      });
+    });
+
+    it('object nested object', () => {
+      return companies.find({ query: { jsonObject: { 'objectField.object': 'string in jsonObject.objectField.object' } } }).then(() => {
+        throw new Error('Should never get here');
+      }).catch(function (error) {
+        expect(error).to.be.ok;
+        expect(error instanceof errors.BadRequest).to.be.ok;
+        expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{objectField,object}\' AS text) = \'string in jsonObject.objectField.object\' - SQLITE_ERROR: unrecognized token: "#"');
+      });
+    });
+
+    it('array', () => {
+      return companies.find({ query: { jsonArray: { $ne: null } } }).then(data => {
+        expect(data[0].jsonArray[0].objectField.object).to.equal('I\'m string in jsonArray[0].objectField.object');
+      });
+    });
+
+    it('array nested object', () => {
+      return companies.find({ query: { jsonArray: { '[0].objectField.object': 'I\'m string in jsonArray[0].objectField.object' } } }).then(() => {
+        throw new Error('Should never get here');
+      }).catch(function (error) {
+        expect(error).to.be.ok;
+        expect(error instanceof errors.BadRequest).to.be.ok;
+        expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonArray`#>>\'{0,objectField,object}\' AS text) = \'I\'\'m string in jsonArray[0].objectField.object\' - SQLITE_ERROR: unrecognized token: "#"');
+      });
+    });
+  });
+
+  describe.skip('JSON column (Postgres)', () => {
+    before(async () => {
+      await companies
+        .create([
+          {
+            name: 'Google',
+            jsonObject: {
+              stringField: 'string',
+              numberField: 1.5,
+              objectField: {
+                object: 'string in jsonObject.objectField.object'
+              }
+            },
+            jsonArray: [
+              {
+                objectField: {
+                  object: 'I\'m string in jsonArray[0].objectField.object'
+                }
+              }
+            ]
+          }
+        ]);
+    });
+
+    it('object', () => {
+      return companies.find({ query: { jsonObject: { $ne: null } } }).then(data => {
+        expect(data[0].jsonObject.stringField).to.equal('string');
+      });
+    });
+
+    it('object stringField', () => {
+      return companies.find({ query: { jsonObject: { stringField: 'string' } } }).then(data => {
+        expect(data[0].jsonObject.stringField).to.equal('string');
+      });
+    });
+
+    it('object stringField $like', () => {
+      return companies.find({ query: { jsonObject: { stringField: { $like: 'str%' } } } }).then(data => {
+        expect(data[0].jsonObject.stringField).to.equal('string');
+      });
+    });
+
+    it('object numberField $between', () => {
+      return companies.find({ query: { jsonObject: { numberField: { $between: [1, 2] } } } }).then(data => {
+        expect(data[0].jsonObject.stringField).to.equal('string');
+      });
+    });
+
+    it('object numberField', () => {
+      return companies.find({ query: { jsonObject: { numberField: 1.5 } } }).then(data => {
+        expect(data[0].jsonObject.numberField).to.equal(1.5);
+      });
+    });
+
+    it('object numberField $gt', () => {
+      return companies.find({ query: { jsonObject: { numberField: { $gt: 1.4 } } } }).then(data => {
+        expect(data[0].jsonArray[0].objectField.object).to.equal('I\'m string in jsonArray[0].objectField.object');
+      });
+    });
+
+    it('object nested object', () => {
+      return companies.find({ query: { jsonObject: { 'objectField.object': 'string in jsonObject.objectField.object' } } }).then(data => {
+        expect(data[0].jsonArray[0].objectField.object).to.equal('I\'m string in jsonArray[0].objectField.object');
+      });
+    });
+
+    it('array', () => {
+      return companies.find({ query: { jsonArray: { $ne: null } } }).then(data => {
+        expect(data[0].jsonArray[0].objectField.object).to.equal('I\'m string in jsonArray[0].objectField.object');
+      });
+    });
+
+    it('array nested object', () => {
+      return companies.find({ query: { jsonArray: { '[0].objectField.object': 'I\'m string in jsonArray[0].objectField.object' } } }).then(data => {
+        expect(data[0].jsonArray[0].objectField.object).to.equal('I\'m string in jsonArray[0].objectField.object');
+      });
+    });
+  });
+
   describe.skip('JSON operators (Postgres)', () => {
     before(async () => {
       await companies
@@ -1201,12 +1280,6 @@ describe('Feathers Objection Service', () => {
 
     it('$containsKey - nested', () => {
       return companies.find({ query: { jsonbObject: { c: { $containsKey: 'd' } } } }).then(data => {
-        expect(data[0].name).to.be.equal('Google');
-      });
-    });
-
-    it('$contains', () => {
-      return companies.find({ query: { jsonbArray: { $contains: 1 } } }).then(data => {
         expect(data[0].name).to.be.equal('Google');
       });
     });

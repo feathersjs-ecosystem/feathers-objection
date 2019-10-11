@@ -58,6 +58,14 @@ const RANGE_OPERATORS = [
   '?&'
 ];
 
+const JSON_OPERATORS = [
+  '@>',
+  '?',
+  '<@',
+  '?|',
+  '?&'
+];
+
 /**
  * Class representing an feathers adapter for Objection.js ORM.
  * @param {object} options
@@ -200,7 +208,7 @@ class Service extends AdapterService {
           let refColumn = null;
 
           if (!methodKey && key[0] === '$') {
-            refColumn = ref(`${this.Model.tableName}.${methodKey || column}`);
+            refColumn = ref(`${this.Model.tableName}.${column}`);
           } else {
             refColumn = ref(`${this.Model.tableName}.${methodKey || column}:${(methodKey ? column : key).replace(/\(/g, '[').replace(/\)/g, ']')}`);
           }
@@ -209,7 +217,11 @@ class Service extends AdapterService {
             value = JSON.parse(value);
           }
 
-          return query.where(refColumn, operator, value);
+          return query.where(
+            JSON_OPERATORS.includes(operator) ? refColumn : refColumn.castText(),
+            operator,
+            value
+          );
         }
       }
 
