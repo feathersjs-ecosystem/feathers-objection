@@ -1,5 +1,12 @@
 # Change Log
 
+## [v4.4.3](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.4.3) (2019-10-11)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.4.2...v4.4.3)
+
+**Closed issues:**
+
+- don't use countDistinct by default for count queries [\#65](https://github.com/feathersjs-ecosystem/feathers-objection/issues/65)
+
 ## [v4.4.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.4.2) (2019-10-11)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.4.1...v4.4.2)
 
