@@ -349,10 +349,15 @@ class Service extends AdapterService {
       if (count) {
         const idColumns = Array.isArray(this.id) ? this.id.map(idKey => `${this.Model.tableName}.${idKey}`) : [`${this.Model.tableName}.${this.id}`];
 
-        const countQuery = this._createQuery(params)
-          .skipUndefined()
-          .joinRelation(query.$joinRelation)
-          .countDistinct({ total: idColumns });
+        const countQuery = this._createQuery(params);
+
+        if (query.$joinRelation) {
+          countQuery
+            .joinRelation(query.$joinRelation)
+            .countDistinct({ total: idColumns });
+        } else {
+          countQuery.count({ total: idColumns });
+        }
 
         this.objectify(countQuery, query);
 

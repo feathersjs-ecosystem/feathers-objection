@@ -1,7 +1,7 @@
 {
   "name": "feathers-objection",
   "description": "A service plugin for ObjectionJS an ORM based on KnexJS",
-  "version": "4.4.2",
+  "version": "4.4.3",
   "homepage": "https://github.com/feathersjs-ecosystem/feathers-objection",
   "keywords": [
     "feathers",
