@@ -246,23 +246,41 @@ app.service('/user-todos').get({ userId: 1, todoId: 2 })
 ### JSON column
 
 JSON column will be automatically converted from and to JS object/array and will
-be saved as text in unsupported databases.
+be saved as text in unsupported databases. it must be defined in the model class.
 
 Query against a JSON column in PostgresSQL:
 
 ```js
-app.service('companies').find({ query: { obj: { numberField: 1.5 } } });
-app
-  .service('companies')
-  .find({ query: { obj: { numberField: { $gt: 1.5 } } } });
 app.service('companies').find({
-  query: { obj: { 'objectField.object': 'string in obj.objectField.object' } }
+  query: {
+    obj: { stringField: 'string' }
+  }
 });
+
+app.service('companies').find({
+  query: {
+    obj: { numberField: 1.5 }
+  }
+});
+
+app.service('companies').find({ 
+  query: {
+    obj: { numberField: { $gt: 1.5 } }
+  }
+});
+
+app.service('companies').find({
+  query: {
+    obj: { 'objectField.object': 'string in obj.objectField.object' }
+  }
+});
+
 app.service('companies').find({
   query: {
     obj: { 'arrayField(0).object': 'string in obj.arrayField[0].object' }
   }
 });
+
 app.service('companies').find({
   query: {
     arr: { '(0).objectField.object': 'string in arr[0].objectField.object' }
@@ -431,7 +449,7 @@ for more information.
 ### Models
 
 Objection requires you to define
-[Models](https://vincit.github.io/objection.js/api/model/#models) for your tables:
+[Models](https://vincit.github.io/objection.js/api/model/#models) with [JSON Schema](https://json-schema.org/understanding-json-schema/) format for your tables:
 
 users.model.js
 

@@ -1,5 +1,8 @@
 # Change Log
 
+## [v4.4.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.4.0) (2019-10-11)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.3.0...v4.4.0)
+
 ## [v4.3.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.3.0) (2019-10-07)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.2.4...v4.3.0)
 
