@@ -1,5 +1,12 @@
 # Change Log
 
+## [v4.4.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.4.1) (2019-10-11)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.4.0...v4.4.1)
+
+**Closed issues:**
+
+- Can not filter by jsonb property [\#62](https://github.com/feathersjs-ecosystem/feathers-objection/issues/62)
+
 ## [v4.4.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.4.0) (2019-10-11)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.3.0...v4.4.0)
 
