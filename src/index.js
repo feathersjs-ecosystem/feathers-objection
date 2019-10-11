@@ -51,14 +51,14 @@ const OPERATORS_MAP = {
   $all: '?&'
 };
 
-const RANGE_OPERATORS = [
+const DESERIALIZED_ARRAY_OPERATORS = [
   'between',
   'not between',
   '?|',
   '?&'
 ];
 
-const JSON_OPERATORS = [
+const NON_COMPARISON_OPERATORS = [
   '@>',
   '?',
   '<@',
@@ -213,19 +213,21 @@ class Service extends AdapterService {
             refColumn = ref(`${this.Model.tableName}.${methodKey || column}:${(methodKey ? column : key).replace(/\(/g, '[').replace(/\)/g, ']')}`);
           }
 
-          if (RANGE_OPERATORS.includes(operator) && typeof value === 'string' && value[0] === '[' && value[value.length - 1] === ']') {
-            value = JSON.parse(value);
+          if (operator === '@>') {
+            if (Array.isArray(value)) { value = JSON.stringify(value); }
+          } else if (DESERIALIZED_ARRAY_OPERATORS.includes(operator)) {
+            if (typeof value === 'string' && value[0] === '[' && value[value.length - 1] === ']') { value = JSON.parse(value); }
           }
 
           return query.where(
-            JSON_OPERATORS.includes(operator) ? refColumn : refColumn.castText(),
+            NON_COMPARISON_OPERATORS.includes(operator) ? refColumn : refColumn.castText(),
             operator,
             value
           );
         }
       }
 
-      if (RANGE_OPERATORS.includes(operator) && typeof value === 'string' && value[0] === '[' && value[value.length - 1] === ']') {
+      if (DESERIALIZED_ARRAY_OPERATORS.includes(operator) && typeof value === 'string' && value[0] === '[' && value[value.length - 1] === ']') {
         value = JSON.parse(value);
       }
 

@@ -1263,7 +1263,7 @@ describe('Feathers Objection Service', () => {
           {
             name: 'Apple',
             jsonbObject: { z: 0 },
-            jsonbArray: [0]
+            jsonbArray: ['a', 'b']
           }
         ]);
     });
@@ -1284,9 +1284,21 @@ describe('Feathers Objection Service', () => {
       });
     });
 
-    it('$contains', () => {
+    it('$contains number', () => {
       return companies.find({ query: { jsonbArray: { $contains: 1 } } }).then(data => {
         expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('$contains array of numbers', () => {
+      return companies.find({ query: { jsonbArray: { $contains: [2, 1] } } }).then(data => {
+        expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('$contains array of string', () => {
+      return companies.find({ query: { jsonbArray: { $contains: ['b', 'a'] } } }).then(data => {
+        expect(data[0].name).to.be.equal('Apple');
       });
     });
 

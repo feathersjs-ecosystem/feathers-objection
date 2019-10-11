@@ -198,9 +198,9 @@ Note that all this eager related options are optional.
 
 - **`$all`** (Postgres) - filter based on if a column contains all keys from array of strings
 
-- **`$contains`** (Postgres) - filter based on if a column contains a value
+- **`$contains`** (Postgres) - filter based on if a column contains all values from array of values
 
-- **`$contained`** (Postgres) - filter based on if a column is contained in a value
+- **`$contained`** (Postgres) - filter based on if a column is contained within a serialized object
 
 #### Params Operators
 
