@@ -1,6 +1,6 @@
 import { AdapterService } from '@feathersjs/adapter-commons';
 import errors from '@feathersjs/errors';
-import { ref } from 'objection';
+import { ref, RelationExpression } from 'objection';
 import utils from './utils';
 import errorHandler from './error-handler';
 
@@ -91,13 +91,13 @@ class Service extends AdapterService {
 
     this.idSeparator = options.idSeparator || ',';
     this.jsonSchema = options.model.jsonSchema;
-    this.allowedEager = options.allowedEager || '[]';
+    this.allowedEager = RelationExpression.create(options.allowedEager || '[]');
     this.namedEagerFilters = options.namedEagerFilters;
     this.eagerFilters = options.eagerFilters;
-    this.allowedInsert = options.allowedInsert;
+    this.allowedInsert = options.allowedInsert && RelationExpression.create(options.allowedInsert);
     this.insertGraphOptions = options.insertGraphOptions;
     this.createUseUpsertGraph = options.createUseUpsertGraph;
-    this.allowedUpsert = options.allowedUpsert;
+    this.allowedUpsert = options.allowedUpsert && RelationExpression.create(options.allowedUpsert);
     this.upsertGraphOptions = options.upsertGraphOptions;
   }
 

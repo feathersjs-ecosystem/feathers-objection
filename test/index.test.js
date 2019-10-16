@@ -15,7 +15,7 @@ import PeopleRoomsCustomIdSeparator from './people-rooms-custom-id-separator';
 import Company from './company';
 import Employee from './employee';
 import Client from './client';
-import { Model } from 'objection';
+import { Model, RelationExpression } from 'objection';
 
 const testSuite = adapterTests([
   '.options',
@@ -295,7 +295,7 @@ describe('Feathers Objection Service', () => {
 
     describe('when missing allowedEager', () => {
       it('sets the default to be empty string', () => {
-        expect(people.allowedEager).to.equal('[]');
+        expect(people.allowedEager).to.deep.equal(RelationExpression.create('[]'));
       });
     });
 
