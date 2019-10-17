@@ -15,7 +15,7 @@ import PeopleRoomsCustomIdSeparator from './people-rooms-custom-id-separator';
 import Company from './company';
 import Employee from './employee';
 import Client from './client';
-import { Model, RelationExpression } from 'objection';
+import { Model } from 'objection';
 
 const testSuite = adapterTests([
   '.options',
@@ -288,14 +288,14 @@ describe('Feathers Objection Service', () => {
     });
 
     describe('when missing the paginate option', () => {
-      it('sets the default to be {}', () => {
+      it('sets the default to be undefined', () => {
         expect(people.paginate).to.equal(undefined);
       });
     });
 
     describe('when missing allowedEager', () => {
-      it('sets the default to be empty string', () => {
-        expect(people.allowedEager).to.deep.equal(RelationExpression.create('[]'));
+      it('sets the default to be undefined', () => {
+        expect(people.allowedEager).to.equal(undefined);
       });
     });
 
@@ -891,6 +891,15 @@ describe('Feathers Objection Service', () => {
       });
     });
 
+    it('allows mergeAllowInsert queries', () => {
+      return companies.create({ name: 'Compaq', ceos: { name: 'Rod Canion', age: 24 } }, { mergeAllowInsert: 'ceos' }).then(() => {
+        return companies.find({ query: { name: 'Compaq', $eager: 'ceos' } }).then(data => {
+          expect(data[0].ceos).to.be.ok;
+          expect(data[0].ceos.name).to.equal('Rod Canion');
+        });
+      });
+    });
+
     it('allows createUseUpsertGraph queries', () => {
       companies.createUseUpsertGraph = true;
 
@@ -922,15 +931,23 @@ describe('Feathers Objection Service', () => {
   });
 
   describe('Graph Upsert Queries', () => {
+    let ceo;
     let google;
 
     beforeEach(async () => {
       await companies.remove(null);
+
+      ceo = await people
+        .create({
+          name: 'Snoop',
+          age: 20
+        });
+
       [google] = await companies
         .create([
           {
             name: 'Google',
-            ceo: 1,
+            ceo: ceo.id,
             clients: [
               {
                 name: 'Dan Davis'
@@ -941,6 +958,10 @@ describe('Feathers Objection Service', () => {
             name: 'Apple'
           }
         ], { query: { $eager: 'clients' } });
+    });
+
+    afterEach(async () => {
+      await people.remove(ceo.id);
     });
 
     it('allows upsertGraph queries on update', () => {
@@ -973,7 +994,7 @@ describe('Feathers Objection Service', () => {
           clients: newClients
         }).then(data => {
           expect(data.name).equal('Google Alphabet');
-          expect(data.ceo).equal(1);
+          expect(data.ceo).equal(ceo.id);
 
           return companies.find({ query: { $eager: 'clients' } }).then(data => {
             expect(data[0].name).equal('Google Alphabet');
@@ -981,6 +1002,16 @@ describe('Feathers Objection Service', () => {
             expect(data[0].clients).to.have.lengthOf(2);
           });
         });
+    });
+
+    it('allows mergeAllowUpsert queries', () => {
+      return companies.patch(google.id, { ceos: { id: ceo.id, name: 'Dog' } }, { mergeAllowUpsert: 'ceos' }).then(data => {
+        expect(data.ceos.name).to.equal('Dog');
+
+        return companies.get(google.id, { query: { $eager: 'ceos' } }).then(data => {
+          expect(data.ceos.name).to.equal('Dog');
+        });
+      });
     });
   });
 

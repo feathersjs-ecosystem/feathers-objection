@@ -335,6 +335,10 @@ with adding a new client which is a relationship for companies. The client
 without the ID would be inserted and related. The client with the ID will just
 be updated (if there are any changes at all).
 
+#### Params Operators
+
+- **`mergeAllowUpsert`** - Merges give expression into `allowedUpsert`.
+
 ### Graph insert
 
 Arbitrary relation graphs can be inserted using the insertGraph method. Provides
@@ -354,6 +358,10 @@ included in `$eager` query._
 - **`insertGraphOptions`** - See
   [`insertGraphOptions`](https://vincit.github.io/objection.js/api/types/#type-insertgraphoptions)
   documentation.
+
+#### Params Operators
+
+- **`mergeAllowInsert`** - Merges give expression into `allowedInsert`.
 
 ### Service
 
