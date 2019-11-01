@@ -7,13 +7,13 @@ export interface ObjectionServiceOptions extends ServiceOptions {
   model: typeof Model;
   idSeparator: string;
   jsonSchema: any;
-  allowedEager: string;
+  allowedEager: string | object;
   namedEagerFilters: any;
   eagerFilters: any;
-  allowedInsert: any;
+  allowedInsert: string | object;
   insertGraphOptions: any;
   createUseUpsertGraph: any;
-  allowedUpsert: any;
+  allowedUpsert: string | object;
   upsertGraphOptions: any;
 }
 

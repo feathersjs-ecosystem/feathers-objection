@@ -1,6 +1,6 @@
 import { AdapterService } from '@feathersjs/adapter-commons';
 import errors from '@feathersjs/errors';
-import { ref } from 'objection';
+import { ref, RelationExpression } from 'objection';
 import utils from './utils';
 import errorHandler from './error-handler';
 
@@ -66,6 +66,8 @@ const NON_COMPARISON_OPERATORS = [
   '?&'
 ];
 
+const NO_RELATIONS = RelationExpression.create('[]');
+
 /**
  * Class representing an feathers adapter for Objection.js ORM.
  * @param {object} options
@@ -91,13 +93,13 @@ class Service extends AdapterService {
 
     this.idSeparator = options.idSeparator || ',';
     this.jsonSchema = options.model.jsonSchema;
-    this.allowedEager = options.allowedEager || '[]';
+    this.allowedEager = options.allowedEager && RelationExpression.create(options.allowedEager);
     this.namedEagerFilters = options.namedEagerFilters;
     this.eagerFilters = options.eagerFilters;
-    this.allowedInsert = options.allowedInsert;
+    this.allowedInsert = options.allowedInsert && RelationExpression.create(options.allowedInsert);
     this.insertGraphOptions = options.insertGraphOptions;
     this.createUseUpsertGraph = options.createUseUpsertGraph;
-    this.allowedUpsert = options.allowedUpsert;
+    this.allowedUpsert = options.allowedUpsert && RelationExpression.create(options.allowedUpsert);
     this.upsertGraphOptions = options.upsertGraphOptions;
   }
 
@@ -235,6 +237,18 @@ class Service extends AdapterService {
     });
   }
 
+  mergeRelations (optionRelations, paramRelations) {
+    if (!paramRelations) {
+      return optionRelations;
+    }
+
+    if (!optionRelations) {
+      return RelationExpression.create(paramRelations);
+    }
+
+    return optionRelations.merge(paramRelations);
+  }
+
   _createQuery (params = {}) {
     const trx = params.transaction ? params.transaction.trx : null;
     return this.Model.query(trx);
@@ -242,17 +256,14 @@ class Service extends AdapterService {
 
   createQuery (params = {}) {
     const { filters, query } = this.filterQuery(params);
-    let q = this._createQuery(params)
-      .skipUndefined()
-      .allowEager(this.allowedEager);
+    const q = this._createQuery(params).skipUndefined();
 
-    if (params.mergeAllowEager) {
-      q.mergeAllowEager(params.mergeAllowEager);
-    }
+    const allowEager = this.mergeRelations(this.allowedEager, params.mergeAllowEager);
+    q.allowEager(allowEager || NO_RELATIONS);
 
     // $select uses a specific find syntax, so it has to come first.
     if (filters.$select) {
-      q = q.select(...filters.$select.concat(`${this.Model.tableName}.${this.id}`));
+      q.select(...filters.$select.concat(`${this.Model.tableName}.${this.id}`));
     }
 
     // $eager for Objection eager queries
@@ -290,7 +301,7 @@ class Service extends AdapterService {
     }
 
     if (query && query.$pick) {
-      q = q.pick(query.$pick);
+      q.pick(query.$pick);
       delete query.$pick;
     }
 
@@ -299,7 +310,7 @@ class Service extends AdapterService {
 
     if (filters.$sort) {
       Object.keys(filters.$sort).forEach(key => {
-        q = q.orderBy(key, filters.$sort[key] === 1 ? 'asc' : 'desc');
+        q.orderBy(key, filters.$sort[key] === 1 ? 'asc' : 'desc');
       });
     }
 
@@ -403,14 +414,16 @@ class Service extends AdapterService {
   _create (data, params) {
     const create = (data, params) => {
       const q = this._createQuery(params);
+      const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
+      const allowedInsert = this.mergeRelations(this.allowedInsert, params.mergeAllowInsert);
 
       if (this.createUseUpsertGraph) {
-        if (this.allowedUpsert) {
-          q.allowUpsert(this.allowedUpsert);
+        if (allowedUpsert) {
+          q.allowUpsert(allowedUpsert);
         }
         q.upsertGraphAndFetch(data, this.upsertGraphOptions);
-      } else if (this.allowedInsert) {
-        q.allowInsert(this.allowedInsert);
+      } else if (allowedInsert) {
+        q.allowInsert(allowedInsert);
         q.insertGraph(data, this.insertGraphOptions);
       } else {
         q.insert(data, this.id);
@@ -465,9 +478,10 @@ class Service extends AdapterService {
           }
         }
 
-        if (this.allowedUpsert) {
+        const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
+        if (allowedUpsert) {
           return this._createQuery(params)
-            .allowUpsert(this.allowedUpsert)
+            .allowUpsert(allowedUpsert)
             .upsertGraphAndFetch(newObject, this.upsertGraphOptions);
         }
 
@@ -505,11 +519,12 @@ class Service extends AdapterService {
   _patch (id, data, params) {
     let { filters, query } = this.filterQuery(params);
 
-    if (this.allowedUpsert && id !== null) {
+    const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
+    if (allowedUpsert && id !== null) {
       const dataCopy = Object.assign({}, data, this.getIdsQuery(id, null, false));
 
       return this._createQuery(params)
-        .allowUpsert(this.allowedUpsert)
+        .allowUpsert(allowedUpsert)
         .upsertGraphAndFetch(dataCopy, this.upsertGraphOptions);
     }
 
