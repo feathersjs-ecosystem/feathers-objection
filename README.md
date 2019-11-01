@@ -207,6 +207,7 @@ Note that all this eager related options are optional.
 - **`transaction`** - A transaction object. See
   [`transaction`](https://vincit.github.io/objection.js/api/objection/#transaction)
   documentation.
+
 - **`mergeAllowEager`** - Just like allowEager but instead of replacing query
   builder’s allowEager expression this method merges the given expression to the
   existing expression. See
@@ -337,7 +338,7 @@ be updated (if there are any changes at all).
 
 #### Params Operators
 
-- **`mergeAllowUpsert`** - Merges give expression into `allowedUpsert`.
+- **`mergeAllowUpsert`** - Merge given expression into `allowedUpsert`.
 
 ### Graph insert
 
@@ -361,7 +362,7 @@ included in `$eager` query._
 
 #### Params Operators
 
-- **`mergeAllowInsert`** - Merges give expression into `allowedInsert`.
+- **`mergeAllowInsert`** - Merge given expression into `allowedInsert`.
 
 ### Service
 
