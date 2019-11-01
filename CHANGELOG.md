@@ -1,25 +1,32 @@
 # Change Log
 
+## [v4.5.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.5.0) (2019-11-01)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.4.3...v4.5.0)
+
+**Closed issues:**
+
+- don't use countDistinct by default for count queries [\#65](https://github.com/feathersjs-ecosystem/feathers-objection/issues/65)
+
+**Merged pull requests:**
+
+- Parse relation expressions at service creation time [\#69](https://github.com/feathersjs-ecosystem/feathers-objection/pull/69) ([vonagam](https://github.com/vonagam))
+
 ## [v4.4.3](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.4.3) (2019-10-11)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.4.2...v4.4.3)
 
 **Closed issues:**
 
-- don't use countDistinct by default for count queries [\#65](https://github.com/feathersjs-ecosystem/feathers-objection/issues/65)
+- Error creating new record after adding type 'array' in schema [\#66](https://github.com/feathersjs-ecosystem/feathers-objection/issues/66)
 
 ## [v4.4.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.4.2) (2019-10-11)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.4.1...v4.4.2)
 
 **Closed issues:**
 
-- Error creating new record after adding type 'array' in schema [\#66](https://github.com/feathersjs-ecosystem/feathers-objection/issues/66)
+- Can not filter by jsonb property [\#62](https://github.com/feathersjs-ecosystem/feathers-objection/issues/62)
 
 ## [v4.4.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.4.1) (2019-10-11)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.4.0...v4.4.1)
-
-**Closed issues:**
-
-- Can not filter by jsonb property [\#62](https://github.com/feathersjs-ecosystem/feathers-objection/issues/62)
 
 ## [v4.4.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.4.0) (2019-10-11)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.3.0...v4.4.0)
