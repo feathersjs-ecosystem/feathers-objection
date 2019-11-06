@@ -17,7 +17,7 @@ export interface ObjectionServiceOptions extends ServiceOptions {
   upsertGraphOptions: any;
 }
 
-export class Service<T = any> extends AdapterService<T> implements InternalServiceMethods<T> {
+export class Service<T> extends AdapterService<T> implements InternalServiceMethods<T> {
   Model: typeof Model;
   options: ObjectionServiceOptions;
 
@@ -31,5 +31,6 @@ export class Service<T = any> extends AdapterService<T> implements InternalServi
   _remove(id: NullableId, params?: Params): Promise<T>;
 }
 
-declare const objection: ((config?: Partial<ObjectionServiceOptions>) => Service);
+// tslint:disable-next-line:no-unnecessary-generics
+declare const objection: (<T>(config?: Partial<ObjectionServiceOptions>) => Service<T>);
 export default objection;
