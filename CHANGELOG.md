@@ -1,5 +1,13 @@
 # Change Log
 
+## [v4.5.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.5.1) (2019-11-12)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.5.0...v4.5.1)
+
+**Closed issues:**
+
+- Is it possible to perform left joins? [\#70](https://github.com/feathersjs-ecosystem/feathers-objection/issues/70)
+- $joinRelation doesn't work within $or queries [\#68](https://github.com/feathersjs-ecosystem/feathers-objection/issues/68)
+
 ## [v4.5.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.5.0) (2019-11-01)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.4.3...v4.5.0)
 
@@ -131,10 +139,6 @@
 **Closed issues:**
 
 - Moving to feathers ecosystem organization? [\#43](https://github.com/feathersjs-ecosystem/feathers-objection/issues/43)
-
-**Merged pull requests:**
-
-- Migrate to feathersjs ecosystem [\#44](https://github.com/feathersjs-ecosystem/feathers-objection/pull/44) ([mcchrish](https://github.com/mcchrish))
 
 ## [v3.0.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v3.0.1) (2019-01-12)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v3.0.0...v3.0.1)

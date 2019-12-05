@@ -366,6 +366,8 @@ class Service extends AdapterService {
           countQuery
             .joinRelation(query.$joinRelation)
             .countDistinct({ total: idColumns });
+        } else if (idColumns.length > 1) {
+          countQuery.countDistinct({ total: idColumns });
         } else {
           countQuery.count({ total: idColumns });
         }
