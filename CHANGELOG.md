@@ -1,5 +1,12 @@
 # Change Log
 
+## [v4.5.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.5.2) (2019-12-05)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.5.1...v4.5.2)
+
+**Merged pull requests:**
+
+- Add generic type parameter to objection function [\#71](https://github.com/feathersjs-ecosystem/feathers-objection/pull/71) ([alex-all3dp](https://github.com/alex-all3dp))
+
 ## [v4.5.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.5.1) (2019-11-12)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.5.0...v4.5.1)
 
@@ -139,6 +146,10 @@
 **Closed issues:**
 
 - Moving to feathers ecosystem organization? [\#43](https://github.com/feathersjs-ecosystem/feathers-objection/issues/43)
+
+**Merged pull requests:**
+
+- Migrate to feathersjs ecosystem [\#44](https://github.com/feathersjs-ecosystem/feathers-objection/pull/44) ([mcchrish](https://github.com/mcchrish))
 
 ## [v3.0.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v3.0.1) (2019-01-12)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v3.0.0...v3.0.1)
