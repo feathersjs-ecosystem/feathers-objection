@@ -1,11 +1,18 @@
-# Changelog
+# Change Log
 
-## [v4.6.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.6.0) (2019-12-06)
-[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.5.2...v4.6.0)
+## [v4.6.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.6.1) (2019-12-06)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.6.0...v4.6.1)
 
 **Closed issues:**
 
 - Allow creation of dynamic eager filters [\#72](https://github.com/feathersjs-ecosystem/feathers-objection/issues/72)
+
+**Merged pull requests:**
+
+- Add any as default type parameter [\#73](https://github.com/feathersjs-ecosystem/feathers-objection/pull/73) ([daffl](https://github.com/daffl))
+
+## [v4.6.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.6.0) (2019-12-06)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.5.2...v4.6.0)
 
 ## [v4.5.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.5.2) (2019-12-05)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.5.1...v4.5.2)
