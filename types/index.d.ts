@@ -17,7 +17,7 @@ export interface ObjectionServiceOptions extends ServiceOptions {
   upsertGraphOptions: any;
 }
 
-export class Service<T> extends AdapterService<T> implements InternalServiceMethods<T> {
+export class Service<T = any> extends AdapterService<T> implements InternalServiceMethods<T> {
   Model: typeof Model;
   options: ObjectionServiceOptions;
 
