@@ -167,7 +167,7 @@ Note that all this eager related options are optional.
 - **`$modifyEager`** - filter relation based on a relation's field,
   e.g. `companies.find({ query: { $eager: 'employees', $modifyEager: { employees: { name: 'John' } } } })`
 - **`$mergeEager`** - merge an eager expression to `$eager`,
-  e.g. `ccompanies.find({ query: { $eager: 'employees', $mergeEager: 'ceos' } })`
+  e.g. `companies.find({ query: { $eager: 'employees', $mergeEager: 'ceos' } })`
 - **`$pick`** - pick properties from result models. See
   [`pick`](https://vincit.github.io/objection.js/api/query-builder/other-methods.html#pick) documentation.
   
