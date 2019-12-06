@@ -161,6 +161,7 @@ class Service extends AdapterService {
     if (params.$joinEager) { delete params.$joinEager; }
     if (params.$joinRelation) { delete params.$joinRelation; }
     if (params.$modifyEager) { delete params.$modifyEager; }
+    if (params.$mergeEager) { delete params.$mergeEager; }
     if (params.$pick) { delete params.$pick; }
     if (params.$noSelect) { delete params.$noSelect; }
 
@@ -286,6 +287,12 @@ class Service extends AdapterService {
         .joinRelation(query.$joinRelation);
 
       delete query.$joinRelation;
+    }
+
+    if (query && query.$mergeEager) {
+      q.mergeEager(query.$mergeEager);
+
+      delete query.$mergeEager;
     }
 
     // apply eager filters if specified

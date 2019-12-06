@@ -134,7 +134,7 @@ const app = feathers()
       model: Company,
       id: 'id',
       multi: ['create', 'remove', 'patch'],
-      whitelist: ['$eager', '$modifyEager', '$pick', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like'],
+      whitelist: ['$eager', '$modifyEager', '$mergeEager', '$pick', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like'],
       allowedEager: '[ceos, clients]',
       namedEagerFilters: {
         notSnoop (builder) {
@@ -776,6 +776,13 @@ describe('Feathers Objection Service', () => {
     it('allows mergeAllowEager queries', () => {
       return companies.find({ query: { $eager: 'employees' }, mergeAllowEager: 'employees' }).then(data => {
         expect(data[0].employees).to.be.ok;
+      });
+    });
+
+    it('allows mergeEager queries', () => {
+      return companies.find({ query: { $eager: 'employees', $mergeEager: 'ceos' }, mergeAllowEager: '[employees, ceos]' }).then(data => {
+        expect(data[0].employees).to.be.ok;
+        expect(data[0].ceos).to.be.ok;
       });
     });
 

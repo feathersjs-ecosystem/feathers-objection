@@ -1,7 +1,7 @@
 {
   "name": "feathers-objection",
   "description": "A service plugin for ObjectionJS an ORM based on KnexJS",
-  "version": "4.6.1",
+  "version": "4.6.2",
   "homepage": "https://github.com/feathersjs-ecosystem/feathers-objection",
   "keywords": [
     "feathers",
@@ -49,7 +49,7 @@
     "compile": "rimraf lib/ && babel -d lib/ src/",
     "watch": "babel --watch -d lib/ src/",
     "lint": "semistandard --fix src/**/*.js test/**/*.js --config",
-    "dtslint": "dtslint types",
+    "dtslint": "dtslint --localTs node_modules/typescript/lib types",
     "mocha": "nyc mocha --opts mocha.opts",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "test": "npm run compile && npm run lint && npm run dtslint && npm run mocha",
