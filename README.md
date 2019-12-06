@@ -147,7 +147,7 @@ Note that all this eager related options are optional.
   object or array of objects with the following properties:
   - `expression` - the relation expression that the filter will be applied.
   - `filter` - the filter function. It uses
-    [`filterEager`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#filtereager)
+    [`modifyEager`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#modifyeager)
     internally.
 - **`namedEagerFilters`** - object containing named eager filter functions.
   Filter is opt-in via `$eager` parameter.
@@ -164,6 +164,8 @@ Note that all this eager related options are optional.
   `JoinEagerAlgorithm`. See
   [`$joinEager`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#joineager)
   documentation.
+- **`$modifyEager`** - filter relation based on a relation's field.
+  e.g. `companies.find({ query: { $eager: 'employees', $modifyEager: { employees: { name: 'John' } } } })`
 - **`$pick`** - pick properties from result models. See
   [`pick`](https://vincit.github.io/objection.js/api/query-builder/other-methods.html#pick) documentation.
   

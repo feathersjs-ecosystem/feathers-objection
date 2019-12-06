@@ -134,7 +134,7 @@ const app = feathers()
       model: Company,
       id: 'id',
       multi: ['create', 'remove', 'patch'],
-      whitelist: ['$eager', '$pick', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like'],
+      whitelist: ['$eager', '$modifyEager', '$pick', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like'],
       allowedEager: '[ceos, clients]',
       namedEagerFilters: {
         notSnoop (builder) {
@@ -721,24 +721,50 @@ describe('Feathers Objection Service', () => {
   });
 
   describe('Eager queries', () => {
-    beforeEach(async () => {
-      const data = await people
+    const ids = {};
+
+    before(async () => {
+      ids.ceo = await people
         .create({
           name: 'Snoop',
           age: 20
         });
 
-      await companies
+      ids.companies = await companies
         .create([
           {
             name: 'Google',
-            ceo: data.id
+            ceo: ids.ceo.id
           },
           {
             name: 'Apple',
-            ceo: data.id
+            ceo: ids.ceo.id
           }
         ]);
+
+      ids.employees = await employees
+        .create([
+          {
+            name: 'John',
+            companyId: 1
+          },
+          {
+            name: 'John',
+            companyId: 1
+          },
+          {
+            name: 'Dan',
+            companyId: 1
+          }
+        ]);
+    });
+
+    after(async () => {
+      await people.remove(ids.ceo.id);
+
+      for (const company of ids.companies) { await companies.remove(company.id); }
+
+      for (const employee of ids.employees) { await employees.remove(employee.id); }
     });
 
     it('allows eager queries', () => {
@@ -750,6 +776,13 @@ describe('Feathers Objection Service', () => {
     it('allows mergeAllowEager queries', () => {
       return companies.find({ query: { $eager: 'employees' }, mergeAllowEager: 'employees' }).then(data => {
         expect(data[0].employees).to.be.ok;
+      });
+    });
+
+    it('allows modifyEager queries', () => {
+      return companies.find({ query: { $eager: 'employees', $modifyEager: { employees: { name: 'John' } } }, mergeAllowEager: 'employees' }).then(data => {
+        expect(data[0].employees.length).to.equal(2);
+        expect(data[1].employees.length).to.equal(0);
       });
     });
 

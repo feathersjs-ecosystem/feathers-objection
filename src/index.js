@@ -160,6 +160,7 @@ class Service extends AdapterService {
     if (params.$eager) { delete params.$eager; }
     if (params.$joinEager) { delete params.$joinEager; }
     if (params.$joinRelation) { delete params.$joinRelation; }
+    if (params.$modifyEager) { delete params.$modifyEager; }
     if (params.$pick) { delete params.$pick; }
     if (params.$noSelect) { delete params.$noSelect; }
 
@@ -267,7 +268,6 @@ class Service extends AdapterService {
     }
 
     // $eager for Objection eager queries
-
     if (query && query.$eager) {
       q.eager(query.$eager, this.namedEagerFilters);
       delete query.$eager;
@@ -290,14 +290,23 @@ class Service extends AdapterService {
 
     // apply eager filters if specified
     if (this.eagerFilters) {
-      const eagerFilters = this.eagerFilters;
-      if (Array.isArray(eagerFilters)) {
-        for (const eagerFilter of eagerFilters) {
-          q.filterEager(eagerFilter.expression, eagerFilter.filter);
-        }
-      } else {
-        q.filterEager(eagerFilters.expression, eagerFilters.filter);
+      const eagerFilters = Array.isArray(this.eagerFilters) ? this.eagerFilters : [this.eagerFilters];
+
+      for (const eagerFilter of eagerFilters) {
+        q.modifyEager(eagerFilter.expression, eagerFilter.filter);
       }
+    }
+
+    if (query && query.$modifyEager) {
+      for (const eagerFilterExpression of Object.keys(query.$modifyEager)) {
+        const eagerFilterQuery = query.$modifyEager[eagerFilterExpression];
+
+        q.modifyEager(eagerFilterExpression, builder => {
+          this.objectify(builder, eagerFilterQuery);
+        });
+      }
+
+      delete query.$modifyEager;
     }
 
     if (query && query.$pick) {
