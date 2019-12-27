@@ -1,5 +1,20 @@
 # Changelog
 
+## [v4.6.5](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.6.5) (2019-12-27)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.6.4...v4.6.5)
+
+**Closed issues:**
+
+- Can't query jsonb column keys containing periods via http querystring [\#76](https://github.com/feathersjs-ecosystem/feathers-objection/issues/76)
+
+## [v4.6.4](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.6.4) (2019-12-27)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.6.3...v4.6.4)
+
+**Closed issues:**
+
+- Error in filtering with JSON columns [\#74](https://github.com/feathersjs-ecosystem/feathers-objection/issues/74)
+- Dependencies in ecosystem packages [\#75](https://github.com/feathersjs-ecosystem/feathers-objection/issues/75)
+
 ## [v4.6.3](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.6.3) (2019-12-06)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.6.2...v4.6.3)
 
