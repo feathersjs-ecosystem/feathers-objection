@@ -291,6 +291,12 @@ app.service('companies').find({
     arr: { '(0).objectField.object': 'string in arr[0].objectField.object' }
   }
 });
+
+app.service('companies').find({
+  query: {
+    obj: { "(field.WithDot)": 'string' }
+  }
+});
 ```
 
 ### Graph upsert

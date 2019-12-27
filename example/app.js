@@ -1,7 +1,7 @@
 import feathers from '@feathersjs/feathers'
 import express from '@feathersjs/express'
 import rest from '@feathersjs/express/rest'
-import errorHandler from '@feathersjs/express/errors'
+import { errorHandler } from '@feathersjs/express'
 import bodyParser from 'body-parser'
 import { Model } from 'objection'
 import createService from '../src'

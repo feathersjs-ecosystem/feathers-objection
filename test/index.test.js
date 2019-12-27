@@ -1254,7 +1254,8 @@ describe('Feathers Objection Service', () => {
               numberField: 1.5,
               objectField: {
                 object: 'string in jsonObject.objectField.object'
-              }
+              },
+              'first.founder': 'John'
             },
             jsonArray: [
               {
@@ -1265,6 +1266,10 @@ describe('Feathers Objection Service', () => {
             ]
           }
         ]);
+    });
+
+    after(async () => {
+      await companies.remove(null);
     });
 
     it('object', () => {
@@ -1318,6 +1323,18 @@ describe('Feathers Objection Service', () => {
     it('array nested object', () => {
       return companies.find({ query: { jsonArray: { '[0].objectField.object': 'I\'m string in jsonArray[0].objectField.object' } } }).then(data => {
         expect(data[0].jsonArray[0].objectField.object).to.equal('I\'m string in jsonArray[0].objectField.object');
+      });
+    });
+
+    it('dot in property name', () => {
+      return companies.find({ query: { jsonObject: { '(first.founder)': 'John' } } }).then(data => {
+        expect(data[0].jsonObject['first.founder']).to.equal('John');
+      });
+    });
+
+    it('dot in property name with brackets', () => {
+      return companies.find({ query: { jsonObject: { '[first.founder]': 'John' } } }).then(data => {
+        expect(data[0].jsonObject['first.founder']).to.equal('John');
       });
     });
   });
@@ -1462,6 +1479,12 @@ describe('Feathers Objection Service', () => {
             ceo: 1
           }
         ]);
+    });
+
+    afterEach(async () => {
+      try {
+        await companies.remove(null);
+      } catch (err) {}
     });
 
     it('create with $noSelect', () => {

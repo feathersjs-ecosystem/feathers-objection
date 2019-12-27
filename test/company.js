@@ -22,7 +22,8 @@ export default class Company extends Model {
             properties: {
               object: { type: 'string' }
             }
-          }
+          },
+          'first.founder': { type: ['string', 'null'] }
         }
       },
       jsonArray: { type: ['array', 'null'] },

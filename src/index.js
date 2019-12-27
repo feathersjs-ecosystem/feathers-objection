@@ -214,7 +214,11 @@ class Service extends AdapterService {
           if (!methodKey && key[0] === '$') {
             refColumn = ref(`${this.Model.tableName}.${column}`);
           } else {
-            refColumn = ref(`${this.Model.tableName}.${methodKey || column}:${(methodKey ? column : key).replace(/\(/g, '[').replace(/\)/g, ']')}`);
+            const prop = (methodKey ? column : key)
+              .replace(/\(/g, '[')
+              .replace(/\)/g, ']');
+
+            refColumn = ref(`${this.Model.tableName}.${methodKey || column}:${prop}`);
           }
 
           if (operator === '@>') {

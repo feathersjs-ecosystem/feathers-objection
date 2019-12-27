@@ -12,7 +12,13 @@ class Todo extends Model {
     properties: {
       id: { type: 'integer' },
       text: { type: 'string' },
-      complete: { type: 'boolean', default: false }
+      complete: { type: 'boolean', default: false },
+      metadata: {
+        type: ['object', 'null'],
+        properties: {
+          'written.by': { type: ['string', 'null'] }
+        }
+      }
     },
     options: {
       timestamps: true
@@ -43,6 +49,7 @@ module.exports = function (app) {
         table.increments('id')
         table.string('text')
         table.boolean('complete')
+        table.json('metadata')
         table.timestamp('createdAt')
         table.timestamp('updatedAt')
       })
