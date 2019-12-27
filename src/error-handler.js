@@ -1,6 +1,8 @@
 import errors from '@feathersjs/errors';
 
 export default function errorHandler (error) {
+  error = error.nativeError || error;
+
   let feathersError = error;
 
   if (error.code === 'SQLITE_ERROR') {
