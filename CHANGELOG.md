@@ -1,5 +1,8 @@
 # Changelog
 
+## [v4.7.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.7.0) (2019-12-27)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.6.5...v4.7.0)
+
 ## [v4.6.5](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.6.5) (2019-12-27)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.6.4...v4.6.5)
 
