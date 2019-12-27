@@ -31,7 +31,7 @@
     "url": "https://github.com/feathersjs-ecosystem/feathers-objection/issues"
   },
   "engines": {
-    "node": ">= 6"
+    "node": ">= 8"
   },
   "main": "lib/",
   "types": "types",
