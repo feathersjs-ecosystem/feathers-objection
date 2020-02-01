@@ -374,6 +374,13 @@ included in `$eager` query._
 
 - **`mergeAllowInsert`** - Merge given expression into `allowedInsert`.
 
+### Transaction
+
+[Create a transaction](https://vincit.github.io/objection.js/guide/transactions.html#creating-a-transaction) 
+object and pass it to series of service calls using the `transaction` params operator.  
+Commit the transaction by calling `await transaction.trx.commit()`.  
+Rollback by calling `await transaction.trx.rollback()`.
+
 ### Service
 
 users.service.js
