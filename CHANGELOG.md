@@ -1,5 +1,14 @@
 # Changelog
 
+## [v4.8.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.8.0) (2020-02-01)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.7.0...v4.8.0)
+
+**Closed issues:**
+
+- Add error handling API [\#80](https://github.com/feathersjs-ecosystem/feathers-objection/issues/80)
+- Please add an example of how to use transaction [\#81](https://github.com/feathersjs-ecosystem/feathers-objection/issues/81)
+- Support for Objection v3 and deprecation of eager and joinEager [\#77](https://github.com/feathersjs-ecosystem/feathers-objection/issues/77)
+
 ## [v4.7.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.7.0) (2019-12-27)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.6.5...v4.7.0)
 
