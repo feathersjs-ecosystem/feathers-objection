@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/feathersjs-ecosystem/feathers-objection.svg?branch=master)](https://travis-ci.org/feathersjs-ecosystem/feathers-objection)
 [![Coverage Status](https://coveralls.io/repos/github/feathersjs-ecosystem/feathers-objection/badge.svg?branch=master)](https://coveralls.io/github/feathersjs-ecosystem/feathers-objection?branch=master)
-[![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](https://standardjs.com/)
+[![js-semistandard-style](https://img.shields.io/badge/code%20style-semistandard-brightgreen.svg?style=flat-square)](https://github.com/standard/semistandard)
 [![Dependency Status](https://img.shields.io/david/feathersjs-ecosystem/feathers-objection.svg)](https://david-dm.org/feathersjs-ecosystem/feathers-objection)
 [![npm](https://img.shields.io/npm/v/feathers-objection.svg?maxAge=3600)](https://www.npmjs.com/package/feathers-objection)
 
