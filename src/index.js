@@ -667,3 +667,4 @@ export default function init (options) {
 }
 
 init.Service = Service;
+init.ERROR = errorHandler.ERROR;

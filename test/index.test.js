@@ -6,7 +6,7 @@ import feathers from '@feathersjs/feathers';
 import knex from 'knex';
 import adapterTests from '@feathersjs/adapter-tests';
 import errors from '@feathersjs/errors';
-import service from '../src';
+import service, { ERROR } from '../src';
 import errorHandler from '../src/error-handler';
 import People from './people';
 import PeopleCustomid from './people-customid';
@@ -316,7 +316,19 @@ describe('Feathers Objection Service', () => {
     it('no error code', () => {
       const error = new Error('Unknown Error');
       expect(errorHandler.bind(null, error)).to.throw('Unknown Error');
-      expect(errorHandler.bind(null, error)).to.not.throw(errors.GeneralError);
+      expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError);
+    });
+
+    it('Get original error', () => {
+      const error = new Error();
+      error.code = 'SQLITE_ERROR';
+      error.errno = 999;
+
+      try {
+        errorHandler(error);
+      } catch (err) {
+        expect(err[ERROR]).to.deep.equal(error);
+      }
     });
 
     describe('SQLite', () => {
@@ -816,7 +828,6 @@ describe('Feathers Objection Service', () => {
         })
         .catch(error => {
           expect(error.code).to.equal(400);
-          expect(error.data).to.deep.equal({});
         });
     });
   });
@@ -1201,7 +1212,7 @@ describe('Feathers Objection Service', () => {
         throw new Error('Should never get here');
       }).catch(function (error) {
         expect(error).to.be.ok;
-        expect(error instanceof errors.BadRequest).to.be.ok;
+        expect(error instanceof errors.GeneralError).to.be.ok;
         expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{numberField}\' AS text) = 1.5 - SQLITE_ERROR: unrecognized token: "#"');
       });
     });
@@ -1211,7 +1222,7 @@ describe('Feathers Objection Service', () => {
         throw new Error('Should never get here');
       }).catch(function (error) {
         expect(error).to.be.ok;
-        expect(error instanceof errors.BadRequest).to.be.ok;
+        expect(error instanceof errors.GeneralError).to.be.ok;
         expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{numberField}\' AS text) > 1.5 - SQLITE_ERROR: unrecognized token: "#"');
       });
     });
@@ -1221,7 +1232,7 @@ describe('Feathers Objection Service', () => {
         throw new Error('Should never get here');
       }).catch(function (error) {
         expect(error).to.be.ok;
-        expect(error instanceof errors.BadRequest).to.be.ok;
+        expect(error instanceof errors.GeneralError).to.be.ok;
         expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{objectField,object}\' AS text) = \'string in jsonObject.objectField.object\' - SQLITE_ERROR: unrecognized token: "#"');
       });
     });
@@ -1237,7 +1248,7 @@ describe('Feathers Objection Service', () => {
         throw new Error('Should never get here');
       }).catch(function (error) {
         expect(error).to.be.ok;
-        expect(error instanceof errors.BadRequest).to.be.ok;
+        expect(error instanceof errors.GeneralError).to.be.ok;
         expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonArray`#>>\'{0,objectField,object}\' AS text) = \'I\'\'m string in jsonArray[0].objectField.object\' - SQLITE_ERROR: unrecognized token: "#"');
       });
     });

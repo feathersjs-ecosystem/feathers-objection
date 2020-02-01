@@ -786,7 +786,30 @@ Run the example with `node app` and go to
 You should see an empty array. That's because you don't have any Todos yet, but
 you now have full CRUD for your new todos service!
 
-## Migrating
+## DB migrations
+
+[Knex Migration CLI](http://knexjs.org/#Migrations) can be used to manage DB migrations 
+and to [seed](http://knexjs.org/#Seeds) a table with mock data.
+  
+## Error handling
+
+As of version 4.8.0, `feathers-objection` only throws [Feathers Errors](https://docs.feathersjs.com/api/errors.html) 
+with the message.  
+On the server, the original error can be retrieved through a secure symbol via  `error[require('feathers-objection').ERROR]`.
+
+```js
+const { ERROR } = require('feathers-objection');
+
+try {
+  await objectionService.doSomething();
+} catch (error) {
+  // error is a FeathersError with just the message
+  // Safely retrieve the original error
+  const originalError = error[ERROR];
+}
+```
+
+## Migrating to `feathers-objection` v2
 
 `feathers-objection` 2.0.0 comes with important security and usability updates.
 
