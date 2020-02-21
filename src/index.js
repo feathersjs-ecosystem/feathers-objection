@@ -257,7 +257,12 @@ class Service extends AdapterService {
 
   _createQuery (params = {}) {
     const trx = params.transaction ? params.transaction.trx : null;
-    return this.Model.query(trx);
+    const joinOnSameTable = params.query.$joinEager && params.query.$joinEager.split(",").some(field => field.includes(this.Model.tableName));
+    const q = this.Model.query(trx);
+    if (joinOnSameTable) {
+      q.alias(`_${this.Model.tableName}`);
+    }
+    return q;
   }
 
   createQuery (params = {}) {
