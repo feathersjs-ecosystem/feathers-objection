@@ -9,7 +9,8 @@ const METHODS = {
   $and: 'andWhere',
   $ne: 'whereNot',
   $in: 'whereIn',
-  $nin: 'whereNotIn'
+  $nin: 'whereNotIn',
+  $null: 'whereNull'
 };
 
 const OPERATORS = {
@@ -199,6 +200,15 @@ class Service extends AdapterService {
               });
             });
           });
+        }
+
+        if (key === '$null') {
+          if (value === 'true') {
+            return query.whereNull(column);
+          }
+          if (value === 'false') {
+            return query.whereNotNull(column);
+          }
         }
 
         return query[method].call(query, column, value); // eslint-disable-line no-useless-call
