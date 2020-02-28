@@ -143,6 +143,11 @@ Note that all this eager related options are optional.
   the service. Defaults to `'[]'`, meaning no eager queries allowed. See
   [`allowGraph`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#allowgraph)
   documentation.
+  
+- **`eagerOptions`** - Options object to use with `$eager` and `$joinEager` query operators. 
+  See [`GraphOptions`](https://vincit.github.io/objection.js/api/types/#type-graphoptions)
+  documentation.
+
 - **`eagerFilters`** - option to impose compulsory eager filter. It takes an
   object or array of objects with the following properties:
   - `expression` - the relation expression that the filter will be applied.
@@ -214,7 +219,8 @@ Note that all this eager related options are optional.
   See [`allowGraph`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#allowgraph)
   documentation.
   
-- **`eagerOptions`** - Options object to use with `$eager` and `$joinEager` query operators. 
+- **`eagerOptions`** - Options object to use with `$eager` and `$joinEager` query operators.
+  merges on top of the `eagerOptions` service option.
   See [`GraphOptions`](https://vincit.github.io/objection.js/api/types/#type-graphoptions)
   documentation.
 

@@ -92,6 +92,7 @@ class Service extends AdapterService {
     this.idSeparator = options.idSeparator || ',';
     this.jsonSchema = options.model.jsonSchema;
     this.allowedEager = options.allowedEager;
+    this.eagerOptions = options.eagerOptions;
     this.eagerFilters = options.eagerFilters;
     this.allowedInsert = options.allowedInsert && RelationExpression.create(options.allowedInsert);
     this.insertGraphOptions = options.insertGraphOptions;
@@ -259,7 +260,7 @@ class Service extends AdapterService {
   createQuery (params = {}) {
     const { filters, query } = this.filterQuery(params);
     const q = this._createQuery(params).skipUndefined();
-    const eagerOptions = params.eagerOptions || {};
+    const eagerOptions = { ...this.eagerOptions, ...params.eagerOptions };
 
     if (this.allowedEager) { q.allowGraph(this.allowedEager); }
 
