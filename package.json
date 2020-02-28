@@ -50,7 +50,7 @@
     "watch": "babel --watch -d lib/ src/",
     "lint": "semistandard --fix src/**/*.js test/**/*.js --config",
     "dtslint": "dtslint --localTs node_modules/typescript/lib types",
-    "mocha": "nyc mocha --opts mocha.opts",
+    "mocha": "nyc mocha",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "test": "npm run compile && npm run lint && npm run dtslint && npm run mocha",
     "example": "babel-node example/app"
