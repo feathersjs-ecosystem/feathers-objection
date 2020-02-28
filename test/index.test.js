@@ -1539,7 +1539,7 @@ describe('Feathers Objection Service', () => {
     });
   });
 
-  describe.only('$null', () => {
+  describe('$null', () => {
     before(async () => {
       await people
         .create([
