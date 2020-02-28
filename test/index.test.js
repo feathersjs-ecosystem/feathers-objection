@@ -97,7 +97,7 @@ const app = feathers()
       model: People,
       id: 'id',
       multi: ['create'],
-      whitelist: ['$and', '$like', '$between', '$notBetween'],
+      whitelist: ['$and', '$like', '$between', '$notBetween', '$null'],
       events: ['testing']
     })
   )
@@ -1535,6 +1535,50 @@ describe('Feathers Objection Service', () => {
       }).then(data => {
         expect(data).to.be.ok;
         expect(data).to.be.empty;
+      });
+    });
+  });
+
+  describe.only('$null', () => {
+    before(async () => {
+      await people
+        .create([
+          {
+            name: 'John',
+            age: 23
+          },
+          {
+            name: 'Dave',
+            age: null
+          }
+        ]);
+    });
+
+    it('$null - true', () => {
+      return people.find({ query: { age: { $null: true } } }).then(data => {
+        expect(data.length).to.be.equal(1);
+        expect(data[0].name).to.be.equal('Dave');
+      });
+    });
+
+    it('$null - true string', () => {
+      return people.find({ query: { age: { $null: 'true' } } }).then(data => {
+        expect(data.length).to.be.equal(1);
+        expect(data[0].name).to.be.equal('Dave');
+      });
+    });
+
+    it('$null - false', () => {
+      return people.find({ query: { age: { $null: false } } }).then(data => {
+        expect(data.length).to.be.equal(1);
+        expect(data[0].name).to.be.equal('John');
+      });
+    });
+
+    it('$null - false string', () => {
+      return people.find({ query: { age: { $null: 'false' } } }).then(data => {
+        expect(data.length).to.be.equal(1);
+        expect(data[0].name).to.be.equal('John');
       });
     });
   });

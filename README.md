@@ -179,6 +179,8 @@ Note that all this eager related options are optional.
 
 - **`$noSelect`** - skips SELECT queries in create, patch & remove requests. response data will be based on the input data.
 
+- **`$null`** - filter based on if a column is NULL with REST support, e.g. `companies.find({ query: { ceo: { $null: false } } })`, `companies.find({ query: { ceo: { $null: 'false' } } })` 
+
 - **`$between`** - filter based on if a column value is between range of values
 
 - **`$notBetween`** - filter based on if a column value is not between range of values  
