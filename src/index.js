@@ -259,6 +259,7 @@ class Service extends AdapterService {
   createQuery (params = {}) {
     const { filters, query } = this.filterQuery(params);
     const q = this._createQuery(params).skipUndefined();
+    const eagerOptions = params.eagerOptions || {};
 
     if (this.allowedEager) { q.allowGraph(this.allowedEager); }
 
@@ -271,13 +272,13 @@ class Service extends AdapterService {
 
     // $eager for Objection eager queries
     if (query && query.$eager) {
-      q.withGraphFetched(query.$eager);
+      q.withGraphFetched(query.$eager, eagerOptions);
 
       delete query.$eager;
     }
 
     if (query && query.$joinEager) {
-      q.withGraphJoined(query.$joinEager);
+      q.withGraphJoined(query.$joinEager, eagerOptions);
 
       delete query.$joinEager;
     }
@@ -291,7 +292,7 @@ class Service extends AdapterService {
     }
 
     if (query && query.$mergeEager) {
-      q[query.$joinEager ? 'withGraphJoined' : 'withGraphFetched'](query.$mergeEager);
+      q[query.$joinEager ? 'withGraphJoined' : 'withGraphFetched'](query.$mergeEager, eagerOptions);
 
       delete query.$mergeEager;
     }

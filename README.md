@@ -213,6 +213,10 @@ Note that all this eager related options are optional.
 - **`mergeAllowEager`** - Will merge the given expression to the existing expression from the `allowEager` service option. 
   See [`allowGraph`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#allowgraph)
   documentation.
+  
+- **`eagerOptions`** - Options object to use with `$eager` and `$joinEager` query operators. 
+  See [`GraphOptions`](https://vincit.github.io/objection.js/api/types/#type-graphoptions)
+  documentation.
 
 ### Composite primary keys
 
