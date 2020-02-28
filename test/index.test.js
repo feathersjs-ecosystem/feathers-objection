@@ -97,7 +97,7 @@ const app = feathers()
       model: People,
       id: 'id',
       multi: ['create'],
-      whitelist: ['$and', '$like', '$between', '$notBetween', '$null'],
+      whitelist: ['$and', '$like', '$between', '$notBetween'],
       events: ['testing']
     })
   )
@@ -134,7 +134,7 @@ const app = feathers()
       model: Company,
       id: 'id',
       multi: ['create', 'remove', 'patch'],
-      whitelist: ['$eager', '$modifyEager', '$mergeEager', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like'],
+      whitelist: ['$eager', '$modifyEager', '$mergeEager', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like', '$null'],
       allowedEager: '[ceos, clients]',
       eagerFilters: [
         {
@@ -1541,44 +1541,48 @@ describe('Feathers Objection Service', () => {
 
   describe('$null', () => {
     before(async () => {
-      await people
+      await companies
         .create([
           {
-            name: 'John',
-            age: 23
+            name: 'Google',
+            ceo: 1
           },
           {
-            name: 'Dave',
-            age: null
+            name: 'Apple',
+            ceo: null
           }
         ]);
     });
 
+    after(async () => {
+      await companies.remove(null);
+    });
+
     it('$null - true', () => {
-      return people.find({ query: { age: { $null: true } } }).then(data => {
+      return companies.find({ query: { ceo: { $null: true } } }).then(data => {
         expect(data.length).to.be.equal(1);
-        expect(data[0].name).to.be.equal('Dave');
+        expect(data[0].name).to.be.equal('Apple');
       });
     });
 
     it('$null - true string', () => {
-      return people.find({ query: { age: { $null: 'true' } } }).then(data => {
+      return companies.find({ query: { ceo: { $null: 'true' } } }).then(data => {
         expect(data.length).to.be.equal(1);
-        expect(data[0].name).to.be.equal('Dave');
+        expect(data[0].name).to.be.equal('Apple');
       });
     });
 
     it('$null - false', () => {
-      return people.find({ query: { age: { $null: false } } }).then(data => {
+      return companies.find({ query: { ceo: { $null: false } } }).then(data => {
         expect(data.length).to.be.equal(1);
-        expect(data[0].name).to.be.equal('John');
+        expect(data[0].name).to.be.equal('Google');
       });
     });
 
     it('$null - false string', () => {
-      return people.find({ query: { age: { $null: 'false' } } }).then(data => {
+      return companies.find({ query: { ceo: { $null: 'false' } } }).then(data => {
         expect(data.length).to.be.equal(1);
-        expect(data[0].name).to.be.equal('John');
+        expect(data[0].name).to.be.equal('Google');
       });
     });
   });
