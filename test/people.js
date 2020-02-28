@@ -15,4 +15,10 @@ export default class People extends Model {
       created: { type: ['boolean', 'null'] }
     }
   }
+
+  static modifiers = {
+    notSnoop: builder => {
+      builder.whereNot('name', 'Snoop');
+    }
+  }
 }
