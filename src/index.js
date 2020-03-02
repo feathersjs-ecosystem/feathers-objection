@@ -445,7 +445,7 @@ class Service extends AdapterService {
    */
   _create (data, params) {
     const create = (data, params) => {
-      const q = this._createQuery(params);
+      const q = this.createQuery(params);
       const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
       const allowedInsert = this.mergeRelations(this.allowedInsert, params.mergeAllowInsert);
 
@@ -512,7 +512,7 @@ class Service extends AdapterService {
 
         const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
         if (allowedUpsert) {
-          return this._createQuery(params)
+          return this.createQuery(params)
             .allowUpsert(allowedUpsert)
             .upsertGraphAndFetch(newObject, this.upsertGraphOptions);
         }
@@ -525,7 +525,7 @@ class Service extends AdapterService {
         } else {
           delete newObject[this.id];
         }
-        return this._createQuery(params)
+        return this.createQuery(params)
           .where(this.getIdsQuery(id))
           .update(newObject)
           .then(() => {
@@ -555,7 +555,7 @@ class Service extends AdapterService {
     if (allowedUpsert && id !== null) {
       const dataCopy = Object.assign({}, data, this.getIdsQuery(id, null, false));
 
-      return this._createQuery(params)
+      return this.createQuery(params)
         .allowUpsert(allowedUpsert)
         .upsertGraphAndFetch(dataCopy, this.upsertGraphOptions);
     }
@@ -580,7 +580,7 @@ class Service extends AdapterService {
       }
     }
 
-    const q = this._createQuery(params);
+    const q = this.createQuery(params);
 
     this.objectify(q, query);
 
@@ -639,7 +639,7 @@ class Service extends AdapterService {
     }
 
     const { query: queryParams } = this.filterQuery(params);
-    const query = this._createQuery(params);
+    const query = this.createQuery(params);
 
     this.objectify(query, queryParams);
 
