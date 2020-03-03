@@ -141,40 +141,45 @@ Note that all this eager related options are optional.
 
 - **`allowedEager`** - relation expression to limit the allowed eager queries in
   the service. Defaults to `'[]'`, meaning no eager queries allowed. See
-  [`allowEager`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#alloweager)
+  [`allowGraph`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#allowgraph)
   documentation.
+  
+- **`eagerOptions`** - Options object to use with `$eager` and `$joinEager` query operators. 
+  See [`GraphOptions`](https://vincit.github.io/objection.js/api/types/#type-graphoptions)
+  documentation.
+
 - **`eagerFilters`** - option to impose compulsory eager filter. It takes an
   object or array of objects with the following properties:
   - `expression` - the relation expression that the filter will be applied.
   - `filter` - the filter function. It uses
-    [`modifyEager`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#modifyeager)
+    [`modifyGraph`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#modifygraph)
     internally.
-- **`namedEagerFilters`** - object containing named eager filter functions.
-  Filter is opt-in via `$eager` parameter.
 
 #### Query Operators
 
-- **`$eager`** - eager load relations defined in models'
-  `relationMappings` getter methods or in the `namedEagerFilters` option. See
-  [`eager`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#eager) documentation.
-- **`$joinRelation`** - filter based on a relation's field. See
-  [`joinRelation`](https://vincit.github.io/objection.js/api/query-builder/join-methods.html#joinrelation)
+- **`$eager`** - eager load relations defined in models' `relationMappings` getter methods. See
+  [`withGraphFetched`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#withgraphfetched) documentation.
+  
+- **`$joinRelation`** - filter based on a relation's field. use with `$eager` to also fetch the relation. See
+  [`joinRelated`](https://vincit.github.io/objection.js/api/query-builder/join-methods.html#joinrelated)
   documentation.
-- **`$joinEager`** - filter based on a relation's field using
-  `JoinEagerAlgorithm`. See
-  [`$joinEager`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#joineager)
+  
+- **`$joinEager`** - filter based on a relation's field. See
+  [`withGraphJoined`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#withgraphjoined)
   documentation.
+  
 - **`$modifyEager`** - filter relation based on a relation's field,
   e.g. `companies.find({ query: { $eager: 'employees', $modifyEager: { employees: { name: 'John' } } } })`
+  
 - **`$mergeEager`** - merge an eager expression to `$eager`,
   e.g. `companies.find({ query: { $eager: 'employees', $mergeEager: 'ceos' } })`
-- **`$pick`** - pick properties from result models. See
-  [`pick`](https://vincit.github.io/objection.js/api/query-builder/other-methods.html#pick) documentation.
   
 - **`$select`** - add SELECT statement with given array of column names. See
     [`$select`](https://vincit.github.io/objection.js/api/query-builder/find-methods.html#select) documentation.
 
 - **`$noSelect`** - skips SELECT queries in create, patch & remove requests. response data will be based on the input data.
+
+- **`$null`** - filter based on if a column is NULL with REST support, e.g. `companies.find({ query: { ceo: { $null: false } } })`, `companies.find({ query: { ceo: { $null: 'false' } } })` 
 
 - **`$between`** - filter based on if a column value is between range of values
 
@@ -212,10 +217,13 @@ Note that all this eager related options are optional.
   [`transaction`](https://vincit.github.io/objection.js/api/objection/#transaction)
   documentation.
 
-- **`mergeAllowEager`** - Just like allowEager but instead of replacing query
-  builder’s allowEager expression this method merges the given expression to the
-  existing expression. See
-  [`mergeAllowEager`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#mergealloweager)
+- **`mergeAllowEager`** - Will merge the given expression to the existing expression from the `allowEager` service option. 
+  See [`allowGraph`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#allowgraph)
+  documentation.
+  
+- **`eagerOptions`** - Options object to use with `$eager` and `$joinEager` query operators.
+  merges on top of the `eagerOptions` service option.
+  See [`GraphOptions`](https://vincit.github.io/objection.js/api/types/#type-graphoptions)
   documentation.
 
 ### Composite primary keys
@@ -315,7 +323,7 @@ included in `$eager` query when using the `update` service method._
 - **`allowedUpsert`** - relation expression to allow relations to be upserted
   along with update. Defaults to `null`, meaning relations will not be
   automatically upserted unless specified here. See
-  [`allowUpsert`](https://vincit.github.io/objection.js/api/query-builder/mutate-methods.html#allowupsert)
+  [`allowGraph`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#allowgraph)
   documentation.
 - **`upsertGraphOptions`** - See
   [`upsertGraphOptions`](https://vincit.github.io/objection.js/api/types/#type-upsertgraphoptions)
@@ -364,7 +372,7 @@ included in `$eager` query._
 - **`allowedInsert`** - relation expression to allow relations to be created
   along with insert. Defaults to `null`, meaning relations will not be
   automatically created unless specified here. See
-  [`allowInsert`](https://vincit.github.io/objection.js/api/query-builder/mutate-methods.html#allowinsert)
+  [`allowGraph`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#allowgraph)
   documentation.
 - **`insertGraphOptions`** - See
   [`insertGraphOptions`](https://vincit.github.io/objection.js/api/types/#type-insertgraphoptions)
@@ -425,11 +433,6 @@ module.exports = function(app) {
     paginate,
     whitelist: ['$eager', '$joinRelation'],
     allowedEager: '[user, subtask]',
-    namedEagerFilters: {
-      unDone: function(builder) {
-        builder.where('done', false);
-      }
-    },
     eagerFilters: [
       {
         expression: 'subtask',
@@ -533,7 +536,7 @@ class User extends Model {
     };
   }
 
-  static get namedFilters() {
+  static get modifiers() {
     return {
       active: builder => {
         builder.where('status', 'active');
@@ -624,13 +627,16 @@ class Todo extends Model {
     };
   }
 
-  static get namedFilters() {
+  static get modifiers() {
     const knex = this.app.get('knex');
 
     return {
+      unDone: function(builder) {
+        builder.where('complete', false);
+      },
       overdue: builder => {
         builder
-          .where('complete', '=', false)
+          .where('complete', false)
           .where('dueDate', '<', knex.fn.now());
       }
     };
@@ -811,11 +817,10 @@ try {
 
 ## Migrating to `feathers-objection` v2
 
-`feathers-objection` 2.0.0 comes with important security and usability updates.
+`feathers-objection` 2.0.0 comes with important security and usability updates
 
-> **Important:** For general migration information to the new database adapter
-> functionality see
-> [crow.docs.feathersjs.com/migrating.html#database-adapters](https://crow.docs.feathersjs.com/migrating.html#database-adapters).
+> **Important:** For general migration information to the new database adapter functionality see    
+> [crow.docs.feathersjs.com/migrating.html#database-adapters](https://crow.docs.feathersjs.com/migrating.html#database-adapters)
 
 The following breaking changes have been introduced:
 
@@ -823,6 +828,19 @@ The following breaking changes have been introduced:
 - Multiple updates are disabled by default (see the `multi` option)
 - Objection related operators are disabled by default (see the `whitelist`
   option)
+  
+## Migrating to `feathers-objection` v5
+
+`feathers-objection` 5.0.0 comes with usability updates and was migrated to use Objection v2
+
+> **Important:** For general migration information to Objection v2 see  
+> [https://vincit.github.io/objection.js/release-notes/migration.html](https://vincit.github.io/objection.js/release-notes/migration.html)
+
+The following breaking changes have been introduced:
+
+- `$pick` query operator was removed
+- `namedEagerFilters` service option was removed. use Model's [`modifiers`](https://vincit.github.io/objection.js/recipes/modifiers.html#modifiers) instead
+- Model's `namedFilters` property was renamed to `modifiers`
 
 ## License
 

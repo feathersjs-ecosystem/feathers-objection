@@ -134,13 +134,8 @@ const app = feathers()
       model: Company,
       id: 'id',
       multi: ['create', 'remove', 'patch'],
-      whitelist: ['$eager', '$modifyEager', '$mergeEager', '$pick', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like'],
+      whitelist: ['$eager', '$modifyEager', '$mergeEager', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like', '$null'],
       allowedEager: '[ceos, clients]',
-      namedEagerFilters: {
-        notSnoop (builder) {
-          return builder.whereNot('name', 'Snoop');
-        }
-      },
       eagerFilters: [
         {
           expression: 'ceos',
@@ -296,12 +291,6 @@ describe('Feathers Objection Service', () => {
     describe('when missing allowedEager', () => {
       it('sets the default to be undefined', () => {
         expect(people.allowedEager).to.equal(undefined);
-      });
-    });
-
-    describe('when missing namedEagerFilters', () => {
-      it('sets the default to be undefined', () => {
-        expect(people.namedEagerFilters).to.equal(undefined);
       });
     });
 
@@ -805,13 +794,6 @@ describe('Feathers Objection Service', () => {
       });
     });
 
-    it('allows eager queries with pick', () => {
-      return companies.find({ query: { $eager: 'ceos', $pick: ['ceos'] } }).then(data => {
-        expect(data[0].ceos).to.be.ok;
-        expect(data[0].ceo).to.be.undefined;
-      });
-    });
-
     it('allows eager queries with named filters', () => {
       return companies
         .find({ query: { $eager: 'ceos(notSnoop)' } })
@@ -881,7 +863,7 @@ describe('Feathers Objection Service', () => {
         });
     });
 
-    it('allows joinRelation queries', () => {
+    it('allows joinRelation queries and eager', () => {
       return employees
         .find({
           query: {
@@ -896,6 +878,22 @@ describe('Feathers Objection Service', () => {
     });
 
     it('allows filtering by relation field with joinRelation queries', () => {
+      return employees
+        .find({
+          query: {
+            $joinRelation: 'company',
+            'company.name': {
+              $like: 'google'
+            }
+          }
+        })
+        .then(data => {
+          expect(data.length).to.equal(1);
+          expect(data[0].name).to.equal('Luke');
+        });
+    });
+
+    it('allows filtering by relation field with joinRelation queries and eager', () => {
       return employees
         .find({
           query: {
@@ -1537,6 +1535,54 @@ describe('Feathers Objection Service', () => {
       }).then(data => {
         expect(data).to.be.ok;
         expect(data).to.be.empty;
+      });
+    });
+  });
+
+  describe('$null', () => {
+    before(async () => {
+      await companies
+        .create([
+          {
+            name: 'Google',
+            ceo: 1
+          },
+          {
+            name: 'Apple',
+            ceo: null
+          }
+        ]);
+    });
+
+    after(async () => {
+      await companies.remove(null);
+    });
+
+    it('$null - true', () => {
+      return companies.find({ query: { ceo: { $null: true } } }).then(data => {
+        expect(data.length).to.be.equal(1);
+        expect(data[0].name).to.be.equal('Apple');
+      });
+    });
+
+    it('$null - true string', () => {
+      return companies.find({ query: { ceo: { $null: 'true' } } }).then(data => {
+        expect(data.length).to.be.equal(1);
+        expect(data[0].name).to.be.equal('Apple');
+      });
+    });
+
+    it('$null - false', () => {
+      return companies.find({ query: { ceo: { $null: false } } }).then(data => {
+        expect(data.length).to.be.equal(1);
+        expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('$null - false string', () => {
+      return companies.find({ query: { ceo: { $null: 'false' } } }).then(data => {
+        expect(data.length).to.be.equal(1);
+        expect(data[0].name).to.be.equal('Google');
       });
     });
   });

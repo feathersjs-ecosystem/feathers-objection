@@ -9,7 +9,8 @@ const METHODS = {
   $and: 'andWhere',
   $ne: 'whereNot',
   $in: 'whereIn',
-  $nin: 'whereNotIn'
+  $nin: 'whereNotIn',
+  $null: 'whereNull'
 };
 
 const OPERATORS = {
@@ -104,8 +105,8 @@ class Service extends AdapterService {
 
     this.idSeparator = options.idSeparator || ',';
     this.jsonSchema = options.model.jsonSchema;
-    this.allowedEager = options.allowedEager && RelationExpression.create(options.allowedEager);
-    this.namedEagerFilters = options.namedEagerFilters;
+    this.allowedEager = options.allowedEager;
+    this.eagerOptions = options.eagerOptions;
     this.eagerFilters = options.eagerFilters;
     this.allowedInsert = options.allowedInsert && RelationExpression.create(options.allowedInsert);
     this.insertGraphOptions = options.insertGraphOptions;
@@ -173,7 +174,6 @@ class Service extends AdapterService {
     if (params.$joinRelation) { delete params.$joinRelation; }
     if (params.$modifyEager) { delete params.$modifyEager; }
     if (params.$mergeEager) { delete params.$mergeEager; }
-    if (params.$pick) { delete params.$pick; }
     if (params.$noSelect) { delete params.$noSelect; }
 
     Object.keys(params || {}).forEach(key => {
@@ -210,6 +210,10 @@ class Service extends AdapterService {
               });
             });
           });
+        }
+
+        if (key === '$null') {
+          return query[value.toString() === 'true' ? method : 'whereNotNull'](column);
         }
 
         return query[method].call(query, column, value); // eslint-disable-line no-useless-call
@@ -279,9 +283,11 @@ class Service extends AdapterService {
   createQuery (params = {}) {
     const { filters, query } = this.filterQuery(params);
     const q = this._createQuery(params).skipUndefined();
+    const eagerOptions = { ...this.eagerOptions, ...params.eagerOptions };
 
-    const allowEager = this.mergeRelations(this.allowedEager, params.mergeAllowEager);
-    q.allowEager(allowEager || NO_RELATIONS);
+    if (this.allowedEager) { q.allowGraph(this.allowedEager); }
+
+    if (params.mergeAllowEager) { q.allowGraph(params.mergeAllowEager); }
 
     // $select uses a specific find syntax, so it has to come first.
     if (filters.$select) {
@@ -290,27 +296,27 @@ class Service extends AdapterService {
 
     // $eager for Objection eager queries
     if (query && query.$eager) {
-      q.eager(query.$eager, this.namedEagerFilters);
+      q.withGraphFetched(query.$eager, eagerOptions);
+
       delete query.$eager;
     }
 
     if (query && query.$joinEager) {
-      q
-        .eagerAlgorithm(this.Model.JoinEagerAlgorithm)
-        .eager(query.$joinEager, this.namedEagerFilters);
+      q.withGraphJoined(query.$joinEager, eagerOptions);
+
       delete query.$joinEager;
     }
 
     if (query && query.$joinRelation) {
       q
         .distinct(`${this.Model.tableName}.*`)
-        .joinRelation(query.$joinRelation);
+        .joinRelated(query.$joinRelation);
 
       delete query.$joinRelation;
     }
 
     if (query && query.$mergeEager) {
-      q.mergeEager(query.$mergeEager);
+      q[query.$joinEager ? 'withGraphJoined' : 'withGraphFetched'](query.$mergeEager, eagerOptions);
 
       delete query.$mergeEager;
     }
@@ -320,7 +326,7 @@ class Service extends AdapterService {
       const eagerFilters = Array.isArray(this.eagerFilters) ? this.eagerFilters : [this.eagerFilters];
 
       for (const eagerFilter of eagerFilters) {
-        q.modifyEager(eagerFilter.expression, eagerFilter.filter);
+        q.modifyGraph(eagerFilter.expression, eagerFilter.filter);
       }
     }
 
@@ -328,17 +334,12 @@ class Service extends AdapterService {
       for (const eagerFilterExpression of Object.keys(query.$modifyEager)) {
         const eagerFilterQuery = query.$modifyEager[eagerFilterExpression];
 
-        q.modifyEager(eagerFilterExpression, builder => {
+        q.modifyGraph(eagerFilterExpression, builder => {
           this.objectify(builder, eagerFilterQuery);
         });
       }
 
       delete query.$modifyEager;
-    }
-
-    if (query && query.$pick) {
-      q.pick(query.$pick);
-      delete query.$pick;
     }
 
     // build up the knex query out of the query params
@@ -400,7 +401,7 @@ class Service extends AdapterService {
 
         if (query.$joinRelation) {
           countQuery
-            .joinRelation(query.$joinRelation)
+            .joinRelated(query.$joinRelation)
             .countDistinct({ total: idColumns });
         }
         else if (query.$joinEager) {
@@ -462,11 +463,11 @@ class Service extends AdapterService {
 
       if (this.createUseUpsertGraph) {
         if (allowedUpsert) {
-          q.allowUpsert(allowedUpsert);
+          q.allowGraph(allowedUpsert);
         }
         q.upsertGraphAndFetch(data, this.upsertGraphOptions);
       } else if (allowedInsert) {
-        q.allowInsert(allowedInsert);
+        q.allowGraph(allowedInsert);
         q.insertGraph(data, this.insertGraphOptions);
       } else {
         q.insert(data, this.id);

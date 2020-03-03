@@ -8,7 +8,6 @@ export interface ObjectionServiceOptions extends ServiceOptions {
   idSeparator: string;
   jsonSchema: any;
   allowedEager: string | object;
-  namedEagerFilters: any;
   eagerFilters: any;
   allowedInsert: string | object;
   insertGraphOptions: any;
