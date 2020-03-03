@@ -525,7 +525,7 @@ class Service extends AdapterService {
         const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
         if (allowedUpsert) {
           return this.createQuery(params)
-            .allowUpsert(allowedUpsert)
+            .allowGraph(allowedUpsert)
             .upsertGraphAndFetch(newObject, this.upsertGraphOptions);
         }
 
@@ -568,7 +568,7 @@ class Service extends AdapterService {
       const dataCopy = Object.assign({}, data, this.getIdsQuery(id, null, false));
 
       return this.createQuery(params)
-        .allowUpsert(allowedUpsert)
+        .allowGraph(allowedUpsert)
         .upsertGraphAndFetch(dataCopy, this.upsertGraphOptions);
     }
 
