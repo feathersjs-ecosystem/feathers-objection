@@ -66,6 +66,17 @@ const NON_COMPARISON_OPERATORS = [
   '?&'
 ];
 
+const CAST_TO_TEXT = [
+  OPERATORS_MAP.$like,
+  OPERATORS_MAP.$ilike,
+  OPERATORS_MAP.$notlike,
+  OPERATORS_MAP.$notILike,
+  OPERATORS_MAP.$regexp,
+  OPERATORS_MAP.$iRegexp,
+  OPERATORS_MAP.$notIRegexp,
+  OPERATORS_MAP.$notRegexp,
+];
+
 const NO_RELATIONS = RelationExpression.create('[]');
 
 /**
@@ -239,7 +250,7 @@ class Service extends AdapterService {
         value = JSON.parse(value);
       }
 
-      return operator === '=' ? query.where(column, value) : query.where(column, operator, value);
+      return operator === '=' ? query.where(column, value) : query.where(CAST_TO_TEXT.includes(operator) ? this.Model.raw('??::text', [column]) : column, operator, value);
     });
   }
 
