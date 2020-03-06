@@ -939,10 +939,11 @@ describe('Feathers Objection Service', () => {
         });
     });
 
-    it('allows joinRelation queries, eager & sort by relation', () => {
+    it('allows joinRelation queries, eager with sort by relation', () => {
       return companies
         .find({
           query: {
+            $select: ['employees.name as employees.name'],
             $eager: '[employees, ceos]',
             $joinRelation: 'employees',
             $sort: {
@@ -951,15 +952,16 @@ describe('Feathers Objection Service', () => {
           }
         })
         .then(data => {
-          expect(data.length).to.equal(2);
+          expect(data.length).to.equal(4);
           expect(data[0].name).to.equal('Apple');
           expect(data[0].ceos.name).to.equal('Snoop');
+          expect(data[0]['employees.name']).to.equal('A');
           expect(data[0].employees.length).to.equal(2);
           expect(data[0].employees[0].name).to.equal('B');
         });
     });
 
-    it('allows joinRelation queries, eager & sort by sorted relation', () => {
+    it('allows joinRelation queries, eager with sort by sorted relation', () => {
       return companies
         .find({
           query: {
