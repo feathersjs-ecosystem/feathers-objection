@@ -1,4 +1,5 @@
 import { Model } from 'objection';
+import path from 'path';
 
 export default class People extends Model {
   static tableName = 'people'
@@ -19,6 +20,17 @@ export default class People extends Model {
   static modifiers = {
     notSnoop: builder => {
       builder.whereNot('name', 'Snoop');
+    }
+  }
+
+  static relationMappings = {
+    company: {
+      relation: Model.BelongsToOneRelation,
+      modelClass: path.join(__dirname, '/company'),
+      join: {
+        from: 'people.id',
+        to: 'companies.ceo'
+      }
     }
   }
 }

@@ -14,6 +14,14 @@ export default class Employee extends Model {
     }
   }
 
+  static get modifiers () {
+    return {
+      orderByName: builder => {
+        builder.orderBy('name');
+      }
+    };
+  }
+
   static get relationMappings () {
     return {
       company: {

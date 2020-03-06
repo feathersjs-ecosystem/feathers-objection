@@ -134,8 +134,8 @@ const app = feathers()
       model: Company,
       id: 'id',
       multi: ['create', 'remove', 'patch'],
-      whitelist: ['$eager', '$modifyEager', '$mergeEager', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like', '$null'],
-      allowedEager: '[ceos, clients]',
+      whitelist: ['$eager', '$joinRelation', '$modifyEager', '$mergeEager', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like', '$null'],
+      allowedEager: '[ceos, clients, employees]',
       eagerFilters: [
         {
           expression: 'ceos',
@@ -803,8 +803,8 @@ describe('Feathers Objection Service', () => {
     });
 
     it('disallow eager queries', () => {
-      return companies
-        .find({ query: { $eager: 'employees' } })
+      return people
+        .find({ query: { $eager: 'company' } })
         .then(data => {
           throw new Error('Should not reach here');
         })
@@ -816,13 +816,21 @@ describe('Feathers Objection Service', () => {
 
   describe('Join Eager/Relation queries', () => {
     before(async () => {
+      const ceo = await people
+        .create({
+          name: 'Snoop',
+          age: 20
+        });
+
       const data = await companies
         .create([
           {
-            name: 'Google'
+            name: 'Google',
+            ceo: ceo.id
           },
           {
-            name: 'Apple'
+            name: 'Apple',
+            ceo: ceo.id
           }
         ]);
 
@@ -830,11 +838,19 @@ describe('Feathers Objection Service', () => {
       await employees
         .create([
           {
-            name: 'Luke',
+            name: 'D',
             companyId: google.id
           },
           {
-            name: 'Yoda',
+            name: 'C',
+            companyId: google.id
+          },
+          {
+            name: 'B',
+            companyId: apple.id
+          },
+          {
+            name: 'A',
             companyId: apple.id
           }
         ]);
@@ -858,7 +874,7 @@ describe('Feathers Objection Service', () => {
           }
         })
         .then(data => {
-          expect(data.length).to.equal(1);
+          expect(data.length).to.equal(2);
           expect(data[0].company.name).to.equal('Google');
         });
     });
@@ -888,8 +904,8 @@ describe('Feathers Objection Service', () => {
           }
         })
         .then(data => {
-          expect(data.length).to.equal(1);
-          expect(data[0].name).to.equal('Luke');
+          expect(data.length).to.equal(2);
+          expect(data[0].name).to.equal('D');
         });
     });
 
@@ -905,8 +921,48 @@ describe('Feathers Objection Service', () => {
           }
         })
         .then(data => {
-          expect(data.length).to.equal(1);
+          expect(data.length).to.equal(2);
           expect(data[0].company.name).to.equal('Google');
+        });
+    });
+
+    it('allows joinRelation queries, eager & sort by relation', () => {
+      return companies
+        .find({
+          query: {
+            $eager: '[employees, ceos]',
+            $joinRelation: 'employees',
+            $sort: {
+              'employees.name': 1
+            }
+          }
+        })
+        .then(data => {
+          expect(data.length).to.equal(2);
+          expect(data[0].name).to.equal('Apple');
+          expect(data[0].ceos.name).to.equal('Snoop');
+          expect(data[0].employees.length).to.equal(2);
+          expect(data[0].employees[0].name).to.equal('B');
+        });
+    });
+
+    it('allows joinRelation queries, eager & sort by sorted relation', () => {
+      return companies
+        .find({
+          query: {
+            $eager: '[employees(orderByName), ceos]',
+            $joinRelation: 'employees',
+            $sort: {
+              'employees.name': 1
+            }
+          }
+        })
+        .then(data => {
+          expect(data.length).to.equal(2);
+          expect(data[0].name).to.equal('Apple');
+          expect(data[0].ceos.name).to.equal('Snoop');
+          expect(data[0].employees.length).to.equal(2);
+          expect(data[0].employees[0].name).to.equal('A');
         });
     });
   });
