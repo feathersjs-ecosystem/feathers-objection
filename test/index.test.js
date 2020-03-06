@@ -169,6 +169,7 @@ const app = feathers()
     '/clients',
     service({
       model: Client,
+      multi: ['remove'],
       allowedEager: 'company',
       events: ['testing']
     })
@@ -179,6 +180,7 @@ const peopleRooms = app.service('people-rooms');
 const peopleRoomsCustomIdSeparator = app.service('people-rooms-custom-id-separator');
 const companies = app.service('companies');
 const employees = app.service('employees');
+const clients = app.service('clients');
 
 function clean (done) {
   db.schema
@@ -763,9 +765,9 @@ describe('Feathers Objection Service', () => {
     after(async () => {
       await people.remove(ids.ceo.id);
 
-      for (const company of ids.companies) { await companies.remove(company.id); }
-
       for (const employee of ids.employees) { await employees.remove(employee.id); }
+
+      for (const company of ids.companies) { await companies.remove(company.id); }
     });
 
     it('allows eager queries', () => {
@@ -815,27 +817,30 @@ describe('Feathers Objection Service', () => {
   });
 
   describe('Join Eager/Relation queries', () => {
+    const ids = {};
+
     before(async () => {
-      const ceo = await people
+      ids.ceo = await people
         .create({
           name: 'Snoop',
           age: 20
         });
 
-      const data = await companies
+      ids.companies = await companies
         .create([
           {
             name: 'Google',
-            ceo: ceo.id
+            ceo: ids.ceo.id
           },
           {
             name: 'Apple',
-            ceo: ceo.id
+            ceo: ids.ceo.id
           }
         ]);
 
-      const [google, apple] = data;
-      await employees
+      const [google, apple] = ids.companies;
+
+      ids.employees = await employees
         .create([
           {
             name: 'D',
@@ -856,6 +861,14 @@ describe('Feathers Objection Service', () => {
         ]);
     });
 
+    after(async () => {
+      await people.remove(ids.ceo.id);
+
+      for (const employee of ids.employees) { await employees.remove(employee.id); }
+
+      for (const company of ids.companies) { await companies.remove(company.id); }
+    });
+
     it('allows joinEager queries', () => {
       return employees.find({ query: { $joinEager: 'company' } }).then(data => {
         expect(data[0].company).to.be.ok;
@@ -869,7 +882,7 @@ describe('Feathers Objection Service', () => {
           query: {
             $joinEager: 'company',
             'company.name': {
-              $like: 'google'
+              $like: 'Google'
             }
           }
         })
@@ -899,7 +912,7 @@ describe('Feathers Objection Service', () => {
           query: {
             $joinRelation: 'company',
             'company.name': {
-              $like: 'google'
+              $like: 'Google'
             }
           }
         })
@@ -916,7 +929,7 @@ describe('Feathers Objection Service', () => {
             $eager: 'company',
             $joinRelation: 'company',
             'company.name': {
-              $like: 'google'
+              $like: 'Google'
             }
           }
         })
@@ -969,7 +982,6 @@ describe('Feathers Objection Service', () => {
 
   describe('Graph Insert Queries', () => {
     before(async () => {
-      await companies.remove(null);
       await companies
         .create([
           {
@@ -987,6 +999,11 @@ describe('Feathers Objection Service', () => {
             name: 'Apple'
           }
         ]);
+    });
+
+    after(async () => {
+      await clients.remove(null);
+      await companies.remove(null);
     });
 
     it('allows insertGraph queries', () => {
@@ -1040,8 +1057,6 @@ describe('Feathers Objection Service', () => {
     let google;
 
     beforeEach(async () => {
-      await companies.remove(null);
-
       ceo = await people
         .create({
           name: 'Snoop',
@@ -1066,7 +1081,11 @@ describe('Feathers Objection Service', () => {
     });
 
     afterEach(async () => {
-      await people.remove(ceo.id);
+      const persons = await people.find();
+
+      for (const person of persons) { await people.remove(person.id); }
+
+      await companies.remove(null);
     });
 
     it('allows upsertGraph queries on update', () => {
@@ -1538,12 +1557,10 @@ describe('Feathers Objection Service', () => {
   describe('$noSelect', () => {
     beforeEach(async () => {
       await companies
-        .create([
-          {
-            name: 'Google',
-            ceo: 1
-          }
-        ]);
+        .create({
+          name: 'Google',
+          ceo: 1
+        });
     });
 
     afterEach(async () => {
