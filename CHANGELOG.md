@@ -1,5 +1,13 @@
 # Changelog
 
+## [v5.1.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.1.1) (2020-02-28)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.1.0...v5.1.1)
+
+**Closed issues:**
+
+- $sort a parent by a child field with $eager $joinRelation [\#85](https://github.com/feathersjs-ecosystem/feathers-objection/issues/85)
+- $joinEager does not using join at total data [\#78](https://github.com/feathersjs-ecosystem/feathers-objection/issues/78)
+
 ## [v5.1.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.1.0) (2020-02-28)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.0.2...v5.1.0)
 
