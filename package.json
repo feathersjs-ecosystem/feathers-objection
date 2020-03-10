@@ -89,7 +89,7 @@
     "sqlite3": "^4.1.1"
   },
   "peerDependencies": {
-    "objection": ">=1.0.0"
+    "objection": ">=2.0.0"
   },
   "babel": {
     "plugins": [
