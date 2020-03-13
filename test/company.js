@@ -12,6 +12,7 @@ export default class Company extends Model {
       id: { type: 'integer' },
       name: { type: 'string' },
       ceo: { type: ['integer', 'null'] },
+      size: { type: ['string', 'null'], enum: ['small', 'medium', 'large', null] },
       jsonObject: {
         type: ['object', 'null'],
         properties: {
@@ -29,6 +30,24 @@ export default class Company extends Model {
       jsonArray: { type: ['array', 'null'] },
       jsonbObject: { type: ['object', 'null'] },
       jsonbArray: { type: ['array', 'null'] }
+    }
+  }
+
+  static modifiers = {
+    google: (builder, hasCeo) => {
+      builder.where('name', 'Google');
+
+      if (hasCeo) { builder.whereNot('ceo', null); }
+    },
+    apple: (builder, hasCeo) => {
+      builder.where('name', 'Apple');
+
+      if (hasCeo) { builder.whereNot('ceo', null); }
+    },
+    large: (builder, hasCeo) => {
+      builder.where('size', 'large');
+
+      if (hasCeo) { builder.whereNot('ceo', null); }
     }
   }
 

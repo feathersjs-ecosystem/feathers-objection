@@ -144,7 +144,7 @@ Note that all this eager related options are optional.
   [`allowGraph`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#allowgraph)
   documentation.
   
-- **`eagerOptions`** - Options object to use with `$eager` and `$joinEager` query operators. 
+- **`eagerOptions`** - options object to use with `$eager` and `$joinEager` query operators. 
   See [`GraphOptions`](https://vincit.github.io/objection.js/api/types/#type-graphoptions)
   documentation.
 
@@ -156,6 +156,9 @@ Note that all this eager related options are optional.
     internally.
 
 #### Query Operators
+
+- **`$modify`** - modifiers allow you to easily reuse snippets of query logic. See
+  [`modify`](https://vincit.github.io/objection.js/api/query-builder/other-methods.html#modify) documentation.
 
 - **`$eager`** - eager load relations defined in models' `relationMappings` getter methods. See
   [`withGraphFetched`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#withgraphfetched) documentation.

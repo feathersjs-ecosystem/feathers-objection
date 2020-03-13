@@ -134,7 +134,7 @@ const app = feathers()
       model: Company,
       id: 'id',
       multi: ['create', 'remove', 'patch'],
-      whitelist: ['$eager', '$joinRelation', '$modifyEager', '$mergeEager', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like', '$null'],
+      whitelist: ['$eager', '$joinRelation', '$modifyEager', '$mergeEager', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like', '$null', '$modify'],
       allowedEager: '[ceos, clients, employees]',
       eagerFilters: [
         {
@@ -233,6 +233,7 @@ function clean (done) {
               table.increments('id');
               table.string('name');
               table.integer('ceo');
+              table.enum('size', ['small', 'medium', 'large']);
               table.json('jsonObject');
               table.json('jsonArray');
               table.jsonb('jsonbObject');
@@ -1658,6 +1659,54 @@ describe('Feathers Objection Service', () => {
       return companies.find({ query: { ceo: { $null: 'false' } } }).then(data => {
         expect(data.length).to.be.equal(1);
         expect(data[0].name).to.be.equal('Google');
+      });
+    });
+  });
+
+  describe('$modify', () => {
+    before(async () => {
+      await companies
+        .create([
+          {
+            name: 'Google',
+            ceo: 1
+          },
+          {
+            name: 'Apple',
+            ceo: null,
+            size: 'large'
+          }
+        ]);
+    });
+
+    after(async () => {
+      await companies.remove(null);
+    });
+
+    it('allow $modify query', () => {
+      return companies.find({ query: { $modify: ['google'] } }).then(data => {
+        expect(data.length).to.be.equal(1);
+        expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('allow $modify query with args', () => {
+      return companies.find({ query: { $modify: ['large', false] } }).then(data => {
+        expect(data.length).to.be.equal(1);
+        expect(data[0].name).to.be.equal('Apple');
+      });
+    });
+
+    it('allow $modify query with multiple modifiers', () => {
+      return companies.find({ query: { $modify: [['apple', 'large']] } }).then(data => {
+        expect(data.length).to.be.equal(1);
+        expect(data[0].name).to.be.equal('Apple');
+      });
+    });
+
+    it('allow $modify query with multiple modifiers and args', () => {
+      return companies.find({ query: { $modify: [['apple', 'large'], true] } }).then(data => {
+        expect(data.length).to.be.equal(0);
       });
     });
   });

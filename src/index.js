@@ -162,6 +162,7 @@ class Service extends AdapterService {
     if (params.$modifyEager) { delete params.$modifyEager; }
     if (params.$mergeEager) { delete params.$mergeEager; }
     if (params.$noSelect) { delete params.$noSelect; }
+    if (params.$modify) { delete params.$modify; }
 
     Object.keys(params || {}).forEach(key => {
       let value = params[key];
@@ -301,6 +302,12 @@ class Service extends AdapterService {
       q[query.$joinEager ? 'withGraphJoined' : 'withGraphFetched'](query.$mergeEager, eagerOptions);
 
       delete query.$mergeEager;
+    }
+
+    if (query && query.$modify) {
+      q.modify(...query.$modify);
+
+      delete query.$modify;
     }
 
     // apply eager filters if specified
