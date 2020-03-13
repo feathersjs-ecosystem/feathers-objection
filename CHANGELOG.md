@@ -1,6 +1,13 @@
 # Changelog
 
-## [v5.1.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.1.1) (2020-02-28)
+## [v5.2.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.2.0) (2020-03-13)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.1.1...v5.2.0)
+
+**Closed issues:**
+
+- filters without eager queries [\#86](https://github.com/feathersjs-ecosystem/feathers-objection/issues/86)
+
+## [v5.1.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.1.1) (2020-03-06)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.1.0...v5.1.1)
 
 **Closed issues:**
