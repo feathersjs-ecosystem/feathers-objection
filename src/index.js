@@ -305,7 +305,11 @@ class Service extends AdapterService {
     }
 
     if (query && query.$modify) {
-      q.modify(...query.$modify);
+      if (typeof query.$modify === 'string') {
+        if (query.$modify[0] === '[' && query.$modify[query.$modify.length - 1] === ']') { q.modify(...JSON.parse(query.$modify)); } else { q.modify(query.$modify.split(',')); }
+      } else {
+        q.modify(...query.$modify);
+      }
 
       delete query.$modify;
     }

@@ -157,7 +157,8 @@ Note that all this eager related options are optional.
 
 #### Query Operators
 
-- **`$modify`** - modifiers allow you to easily reuse snippets of query logic. See
+- **`$modify`** - modifiers allow you to easily reuse snippets of query logic. you can pass arguments and use 
+  multiple modifiers. value can be array, a serialized JSON array or a string with modifiers separated by `,`. See
   [`modify`](https://vincit.github.io/objection.js/api/query-builder/other-methods.html#modify) documentation.
 
 - **`$eager`** - eager load relations defined in models' `relationMappings` getter methods. See
