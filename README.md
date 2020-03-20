@@ -127,7 +127,8 @@ operators are:
 '$ilike',
 '$notILike',
 '$or',
-'$and'
+'$and',
+'$sort'
 ```
 
 ### Eager Queries
@@ -178,8 +179,12 @@ Note that all this eager related options are optional.
 - **`$mergeEager`** - merge an eager expression to `$eager`,
   e.g. `companies.find({ query: { $eager: 'employees', $mergeEager: 'ceos' } })`
   
-- **`$select`** - add SELECT statement with given array of column names. See
-    [`$select`](https://vincit.github.io/objection.js/api/query-builder/find-methods.html#select) documentation.
+- **`$select`** - add SELECT statement with given array of column names, e.g. `['name', 'ref(jsonb:a)', 'ref(jsonb:a) as a']`. See
+  [`select`](https://vincit.github.io/objection.js/api/query-builder/find-methods.html#select) 
+  and [`FieldExpression`](https://vincit.github.io/objection.js/api/types/#type-fieldexpression) documentation.
+    
+- **`$sort`** - add an order by clause to the query, e.g. `query: { $sort: { a: 1, 'b.c': -1, 'ref(jsonb:a)': 1 } }`. See
+  [`FieldExpression`](https://vincit.github.io/objection.js/api/types/#type-fieldexpression) documentation.    
 
 - **`$noSelect`** - skips SELECT queries in create, patch & remove requests. response data will be based on the input data.
 
