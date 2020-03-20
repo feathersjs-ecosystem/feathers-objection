@@ -1341,7 +1341,7 @@ describe('Feathers Objection Service', () => {
         .create([
           {
             name: 'Google',
-            jsonObject: {
+            jsonbObject: {
               stringField: 'string',
               numberField: 1.5,
               objectField: {
@@ -1356,6 +1356,24 @@ describe('Feathers Objection Service', () => {
                 }
               }
             ]
+          },
+          {
+            name: 'Apple',
+            jsonbObject: {
+              stringField: 'string2',
+              numberField: 1,
+              objectField: {
+                object: 'string in jsonObject.objectField.object2'
+              },
+              'first.founder': 'Dave'
+            },
+            jsonArray: [
+              {
+                objectField: {
+                  object: 'I\'m string in jsonArray[0].objectField.object2'
+                }
+              }
+            ]
           }
         ]);
     });
@@ -1365,43 +1383,43 @@ describe('Feathers Objection Service', () => {
     });
 
     it('object', () => {
-      return companies.find({ query: { jsonObject: { $ne: null } } }).then(data => {
-        expect(data[0].jsonObject.stringField).to.equal('string');
+      return companies.find({ query: { jsonbObject: { $ne: null } } }).then(data => {
+        expect(data[0].jsonbObject.stringField).to.equal('string');
       });
     });
 
     it('object stringField', () => {
-      return companies.find({ query: { jsonObject: { stringField: 'string' } } }).then(data => {
-        expect(data[0].jsonObject.stringField).to.equal('string');
+      return companies.find({ query: { jsonbObject: { stringField: 'string' } } }).then(data => {
+        expect(data[0].jsonbObject.stringField).to.equal('string');
       });
     });
 
     it('object stringField $like', () => {
-      return companies.find({ query: { jsonObject: { stringField: { $like: 'str%' } } } }).then(data => {
-        expect(data[0].jsonObject.stringField).to.equal('string');
+      return companies.find({ query: { jsonbObject: { stringField: { $like: 'str%' } } } }).then(data => {
+        expect(data[0].jsonbObject.stringField).to.equal('string');
       });
     });
 
     it('object numberField $between', () => {
-      return companies.find({ query: { jsonObject: { numberField: { $between: [1, 2] } } } }).then(data => {
-        expect(data[0].jsonObject.stringField).to.equal('string');
+      return companies.find({ query: { jsonbObject: { numberField: { $between: [1, 2] } } } }).then(data => {
+        expect(data[0].jsonbObject.stringField).to.equal('string');
       });
     });
 
     it('object numberField', () => {
-      return companies.find({ query: { jsonObject: { numberField: 1.5 } } }).then(data => {
-        expect(data[0].jsonObject.numberField).to.equal(1.5);
+      return companies.find({ query: { jsonbObject: { numberField: 1.5 } } }).then(data => {
+        expect(data[0].jsonbObject.numberField).to.equal(1.5);
       });
     });
 
     it('object numberField $gt', () => {
-      return companies.find({ query: { jsonObject: { numberField: { $gt: 1.4 } } } }).then(data => {
+      return companies.find({ query: { jsonbObject: { numberField: { $gt: 1.4 } } } }).then(data => {
         expect(data[0].jsonArray[0].objectField.object).to.equal('I\'m string in jsonArray[0].objectField.object');
       });
     });
 
     it('object nested object', () => {
-      return companies.find({ query: { jsonObject: { 'objectField.object': 'string in jsonObject.objectField.object' } } }).then(data => {
+      return companies.find({ query: { jsonbObject: { 'objectField.object': 'string in jsonObject.objectField.object' } } }).then(data => {
         expect(data[0].jsonArray[0].objectField.object).to.equal('I\'m string in jsonArray[0].objectField.object');
       });
     });
@@ -1419,14 +1437,28 @@ describe('Feathers Objection Service', () => {
     });
 
     it('dot in property name', () => {
-      return companies.find({ query: { jsonObject: { '(first.founder)': 'John' } } }).then(data => {
-        expect(data[0].jsonObject['first.founder']).to.equal('John');
+      return companies.find({ query: { jsonbObject: { '(first.founder)': 'John' } } }).then(data => {
+        expect(data[0].jsonbObject['first.founder']).to.equal('John');
       });
     });
 
     it('dot in property name with brackets', () => {
-      return companies.find({ query: { jsonObject: { '[first.founder]': 'John' } } }).then(data => {
-        expect(data[0].jsonObject['first.founder']).to.equal('John');
+      return companies.find({ query: { jsonbObject: { '[first.founder]': 'John' } } }).then(data => {
+        expect(data[0].jsonbObject['first.founder']).to.equal('John');
+      });
+    });
+
+    it('select & sort with ref', () => {
+      return companies.find({
+        query: {
+          $select: ['name', 'ref(jsonbObject:numberField)', 'ref(jsonbObject:objectField.object) as object'],
+          $sort: { 'ref(jsonbObject:numberField)': 1 }
+        }
+      }).then(data => {
+        expect(data.length).to.equal(2);
+        expect(data[0].name).to.equal('Apple');
+        expect(data[0]['jsonbObject:numberField']).to.equal(1);
+        expect(data[0].object).to.equal('string in jsonObject.objectField.object2');
       });
     });
   });

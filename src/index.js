@@ -274,7 +274,16 @@ class Service extends AdapterService {
 
     // $select uses a specific find syntax, so it has to come first.
     if (filters.$select) {
-      q.select(...filters.$select.concat(`${this.Model.tableName}.${this.id}`));
+      const items = filters.$select.concat(`${this.Model.tableName}.${this.id}`);
+
+      for (const [key, item] of Object.entries(items)) {
+        const matches = item.match(/^ref\((.+)\)( as (.+))?$/);
+        if (matches) {
+          items[key] = ref(matches[1]).as(matches[3] || matches[1]);
+        }
+      }
+
+      q.select(...items);
     }
 
     // $eager for Objection eager queries
@@ -339,8 +348,11 @@ class Service extends AdapterService {
     this.objectify(q, query);
 
     if (filters.$sort) {
-      Object.keys(filters.$sort).forEach(key => {
-        q.orderBy(key, filters.$sort[key] === 1 ? 'asc' : 'desc');
+      Object.keys(filters.$sort).forEach(item => {
+        const matches = item.match(/^ref\((.+)\)$/);
+        const key = matches ? ref(matches[1]) : item;
+
+        q.orderBy(key, filters.$sort[item] === 1 ? 'asc' : 'desc');
       });
     }
 
