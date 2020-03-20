@@ -34,6 +34,9 @@ export default class Company extends Model {
   }
 
   static modifiers = {
+    orderByName: builder => {
+      builder.orderBy('name');
+    },
     google: (builder, hasCeo) => {
       builder.where('name', 'Google');
 
