@@ -482,10 +482,10 @@ class Service extends AdapterService {
             id = [];
 
             for (const idKey of this.id) {
-              id.push(row[idKey]);
+              id.push(typeof data[idKey] !== 'undefined' ? data[idKey] : row[idKey]);
             }
           } else {
-            id = row[this.id];
+            id = typeof data[this.id] !== 'undefined' ? data[this.id] : row[this.id];
           }
 
           return this._get(id, params);
