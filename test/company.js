@@ -81,4 +81,8 @@ export default class Company extends Model {
       }
     }
   }
+
+  $beforeInsert () {
+    if (this.id) { this.id = 99; }
+  }
 }

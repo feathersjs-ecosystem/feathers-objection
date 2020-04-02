@@ -1768,4 +1768,21 @@ describe('Feathers Objection Service', () => {
       });
     });
   });
+
+  describe('Create with ID', () => {
+    beforeEach(async () => {
+      await companies.create({ name: 'Apple' });
+    });
+
+    afterEach(async () => {
+      await companies.remove(null);
+    });
+
+    it('create with id when id is overridden in model', () => {
+      return companies.create({ id: 1, name: 'Google' }).then(data => {
+        expect(data).to.be.ok;
+        expect(data.name).to.be.equal('Google');
+      });
+    });
+  });
 });
