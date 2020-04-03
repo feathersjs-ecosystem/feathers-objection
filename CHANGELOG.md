@@ -1,12 +1,24 @@
 # Changelog
 
-## [Unreleased](https://github.com/feathersjs-ecosystem/feathers-objection/tree/HEAD)
+## [v5.3.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.3.2) (2020-04-03)
 
-[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.3.0...HEAD)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.3.1...v5.3.2)
+
+## [v5.3.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.3.1) (2020-04-03)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.3.0...v5.3.1)
 
 **Implemented enhancements:**
 
 - Support sorting on jsonb columns [\#58](https://github.com/feathersjs-ecosystem/feathers-objection/issues/58)
+
+**Closed issues:**
+
+- When patching object A that has many Bs, instead of inserting new B, B is overwritten with new id [\#84](https://github.com/feathersjs-ecosystem/feathers-objection/issues/84)
+
+**Merged pull requests:**
+
+- Changed create to insert & get by returned row fields by default [\#90](https://github.com/feathersjs-ecosystem/feathers-objection/pull/90) ([dekelev](https://github.com/dekelev))
 
 ## [v5.3.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.3.0) (2020-03-20)
 
