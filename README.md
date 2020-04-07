@@ -404,15 +404,15 @@ users.service.js
 
 ```js
 const createService = require('feathers-objection');
-const createModal = require('../../models/users.model');
+const createModel = require('../../models/users.model');
 const hooks = require('./users.hooks');
 
 module.exports = function(app) {
-  const Modal = createModal(app);
+  const Model = createModel(app);
   const paginate = app.get('paginate');
 
   const options = {
-    model: Modal,
+    model: Model,
     paginate,
     whitelist: ['$eager', '$joinRelation'],
     allowedEager: 'todos'
@@ -430,15 +430,15 @@ todos.service.js
 
 ```js
 const createService = require('feathers-objection');
-const createModal = require('../../models/todos.model');
+const createModel = require('../../models/todos.model');
 const hooks = require('./todos.hooks');
 
 module.exports = function(app) {
-  const Modal = createModal(app);
+  const Model = createModel(app);
   const paginate = app.get('paginate');
 
   const options = {
-    model: Modal,
+    model: Model,
     paginate,
     whitelist: ['$eager', '$joinRelation'],
     allowedEager: '[user, subtask]',
