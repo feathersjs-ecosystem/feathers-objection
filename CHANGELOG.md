@@ -1,5 +1,19 @@
 # Changelog
 
+## [v5.3.3](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.3.3) (2020-04-24)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.3.2...v5.3.3)
+
+**Closed issues:**
+
+- Patch multi throws `NotFound` error if new data doesn't match original query [\#92](https://github.com/feathersjs-ecosystem/feathers-objection/issues/92)
+- I got 'Cannot read property 'get' of undefined' error on a simple join [\#89](https://github.com/feathersjs-ecosystem/feathers-objection/issues/89)
+- Passing "id" parameter on create service method allows for unrestricted "get" access to feathers-objection service [\#88](https://github.com/feathersjs-ecosystem/feathers-objection/issues/88)
+
+**Merged pull requests:**
+
+- Update README.md [\#91](https://github.com/feathersjs-ecosystem/feathers-objection/pull/91) ([outluch](https://github.com/outluch))
+
 ## [v5.3.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.3.2) (2020-04-03)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.3.1...v5.3.2)
