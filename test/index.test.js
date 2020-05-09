@@ -1785,4 +1785,42 @@ describe('Feathers Objection Service', () => {
       });
     });
   });
+
+  describe('Patch with same field in data & query', () => {
+    let company;
+
+    beforeEach(async () => {
+      company = await companies.create({ name: 'Apple' });
+    });
+
+    afterEach(async () => {
+      await companies.remove(null);
+    });
+
+    it('Patch with id', () => {
+      return companies.patch(company.id, {
+        name: 'Google'
+      }, {
+        query: {
+          name: 'Apple'
+        }
+      }).then(data => {
+        expect(data).to.be.ok;
+        expect(data.name).to.be.equal('Google');
+      });
+    });
+
+    it('Patch without id', () => {
+      return companies.patch(null, {
+        name: 'Google'
+      }, {
+        query: {
+          name: 'Apple'
+        }
+      }).then(data => {
+        expect(data.length).to.be.equal(1);
+        expect(data[0].name).to.be.equal('Google');
+      });
+    });
+  });
 });

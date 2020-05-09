@@ -613,6 +613,12 @@ class Service extends AdapterService {
         const selectParam = filters.$select ? { $select: filters.$select } : undefined;
         const findParams = Object.assign({}, params, { query: Object.assign({}, params.query, this.getIdsQuery(id, idList), selectParam) });
 
+        for (const key of Object.keys(dataCopy)) {
+          if (findParams.query[key]) {
+            findParams.query[key] = dataCopy[key];
+          }
+        }
+
         return q.patch(dataCopy).then(() => {
           return params.query && params.query.$noSelect ? {} : this._find(findParams).then(page => {
             const items = page.data || page;
