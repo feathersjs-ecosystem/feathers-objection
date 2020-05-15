@@ -5,8 +5,8 @@ import { Model } from 'objection';
 
 export const ERROR: symbol;
 
-export interface ObjectionServiceOptions extends Omit<ServiceOptions, 'id'> {
-  id: string|string[];
+export interface ObjectionServiceOptions extends ServiceOptions {
+  id: any;
   model: typeof Model;
   idSeparator: string;
   jsonSchema: any;
