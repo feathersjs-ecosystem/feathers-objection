@@ -1,5 +1,5 @@
 import { Model } from 'objection';
-import service from 'feathers-objection';
+import service, { ERROR } from 'feathers-objection';
 
 class Todo extends Model {
   static get tableName() {
@@ -8,7 +8,10 @@ class Todo extends Model {
 }
 
 const myService = service({
+  id: [ 'id', 'name' ],
   model: Todo
 });
 
 myService.Model.tableName;
+
+typeof ERROR === 'symbol';

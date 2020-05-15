@@ -3,7 +3,10 @@ import { Params, Paginated, Id, NullableId } from '@feathersjs/feathers';
 import { AdapterService, ServiceOptions, InternalServiceMethods } from '@feathersjs/adapter-commons';
 import { Model } from 'objection';
 
+export const ERROR: symbol;
+
 export interface ObjectionServiceOptions extends ServiceOptions {
+  id: any;
   model: typeof Model;
   idSeparator: string;
   jsonSchema: any;
