@@ -134,7 +134,7 @@ const app = feathers()
       model: Company,
       id: 'id',
       multi: ['create', 'remove', 'patch'],
-      whitelist: ['$eager', '$joinRelation', '$modifyEager', '$mergeEager', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like', '$null', '$modify'],
+      whitelist: ['$eager', '$joinRelation', '$modifyEager', '$mergeEager', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like', '$null', '$modify', '$allowRefs'],
       allowedEager: '[ceos, clients, employees]',
       eagerFilters: [
         {
@@ -154,7 +154,7 @@ const app = feathers()
     service({
       model: Employee,
       multi: ['create'],
-      whitelist: ['$eager', '$joinRelation', '$joinEager', '$like'],
+      whitelist: ['$eager', '$joinRelation', '$joinEager', '$like', '$allowRefs'],
       allowedEager: 'company',
       eagerFilters: {
         expression: 'ltd',
@@ -1820,6 +1820,99 @@ describe('Feathers Objection Service', () => {
       }).then(data => {
         expect(data.length).to.be.equal(1);
         expect(data[0].name).to.be.equal('Google');
+      });
+    });
+  });
+
+  describe('$allowRefs', () => {
+    const ids = {};
+
+    beforeEach(async () => {
+      ids.ceo = await people
+        .create({
+          name: 'Snoop',
+          age: 20
+        });
+
+      ids.companies = await companies
+        .create([
+          {
+            name: 'small',
+            ceo: ids.ceo.id,
+            size: 'small'
+          },
+          {
+            name: 'Apple',
+            ceo: ids.ceo.id,
+            size: 'large'
+          }
+        ]);
+
+      const [small, apple] = ids.companies;
+
+      ids.employees = await employees
+        .create([
+          {
+            name: 'John',
+            companyId: small.id
+          },
+          {
+            name: 'Apple',
+            companyId: apple.id
+          }
+        ]);
+    });
+
+    afterEach(async () => {
+      await people.remove(ids.ceo.id);
+
+      for (const employee of ids.employees) { await employees.remove(employee.id); }
+
+      for (const company of ids.companies) { await companies.remove(company.id); }
+    });
+
+    it('allow allowRefs queries', () => {
+      return companies.find({ query: { name: 'ref(size)', $allowRefs: true } }).then(data => {
+        expect(data.length).to.equal(1);
+        expect(data[0].name).to.equal('small');
+      });
+    });
+
+    it('query with ref when not allowed', () => {
+      return companies.find({ query: { name: 'ref(size)' } }).then(data => {
+        expect(data.length).to.equal(0);
+      });
+    });
+
+    it('patch with ref', () => {
+      return companies.patch(null, { ceo: null }, { query: { name: 'ref(size)', $allowRefs: true } }).then(data => {
+        expect(data.length).to.equal(1);
+        expect(data[0].ceo).to.be.null;
+      });
+    });
+
+    it('remove with ref', () => {
+      return companies.remove(null, { query: { name: 'ref(size)', $allowRefs: true } }).then(data => {
+        expect(data.length).to.equal(1);
+        expect(data[0].name).to.equal('small');
+      });
+    });
+
+    it('joinEager queries with ref', () => {
+      return employees.find({ query: { $joinEager: 'company', 'company.name': 'ref(employees.name)', $allowRefs: true } }).then(data => {
+        expect(data.length).to.equal(1);
+        expect(data[0].name).to.equal('Apple');
+        expect(data[0].company).to.be.ok;
+        expect(data[0].company.name).to.equal('Apple');
+      });
+    });
+
+    it('joinRelation queries with ref', () => {
+      return employees.find({ query: { $eager: 'company', $joinRelation: 'company', 'company.name': 'ref(employees.name)', $allowRefs: true } }).then(data => {
+        expect(data.length).to.equal(1);
+        expect(data[0].name).to.equal('Apple');
+        expect(data[0].company).to.be.ok;
+        expect(data[0].company.name).to.equal('Apple');
       });
     });
   });

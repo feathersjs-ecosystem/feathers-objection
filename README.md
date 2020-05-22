@@ -178,7 +178,11 @@ Note that all this eager related options are optional.
   
 - **`$mergeEager`** - merge an eager expression to `$eager`,
   e.g. `companies.find({ query: { $eager: 'employees', $mergeEager: 'ceos' } })`
-  
+
+- **`$allowRefs`** - allow the usage of `ref` keyword to reference another field. Reference a relation's field using `$joinEager` or `$joinRelation`,
+  e.g. `companies.find({ query: { name: 'ref(size)', $allowRefs: true } })`, `employees.find({ query: { $joinEager: 'company', 'company.name': 'ref(employees.name)', $allowRefs: true } })`. See
+  [`ref`](https://vincit.github.io/objection.js/api/objection/#ref) documentation.    
+
 - **`$select`** - add SELECT statement with given array of column names, e.g. `['name', 'ref(jsonb:a)', 'ref(jsonb:a) as a']`. See
   [`select`](https://vincit.github.io/objection.js/api/query-builder/find-methods.html#select) 
   and [`FieldExpression`](https://vincit.github.io/objection.js/api/types/#type-fieldexpression) documentation.

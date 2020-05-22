@@ -154,8 +154,9 @@ class Service extends AdapterService {
    * @param params
    * @param parentKey
    * @param methodKey
+   * @param allowRefs
    */
-  objectify (query, params, parentKey, methodKey) {
+  objectify (query, params, parentKey, methodKey, allowRefs) {
     if (params.$eager) { delete params.$eager; }
     if (params.$joinEager) { delete params.$joinEager; }
     if (params.$joinRelation) { delete params.$joinRelation; }
@@ -163,12 +164,13 @@ class Service extends AdapterService {
     if (params.$mergeEager) { delete params.$mergeEager; }
     if (params.$noSelect) { delete params.$noSelect; }
     if (params.$modify) { delete params.$modify; }
+    if (params.$allowRefs) { delete params.$allowRefs; }
 
     Object.keys(params || {}).forEach(key => {
       let value = params[key];
 
       if (utils.isPlainObject(value)) {
-        return this.objectify(query, value, key, parentKey);
+        return this.objectify(query, value, key, parentKey, allowRefs);
       }
 
       const column = parentKey && parentKey[0] !== '$' ? parentKey : key;
@@ -182,7 +184,7 @@ class Service extends AdapterService {
           return query.where(function () {
             return value.forEach((condition) => {
               this.orWhere(function () {
-                self.objectify(this, condition);
+                self.objectify(this, condition, null, null, allowRefs);
               });
             });
           });
@@ -194,7 +196,7 @@ class Service extends AdapterService {
           return query.where(function () {
             return value.forEach((condition) => {
               this.andWhere(function () {
-                self.objectify(this, condition);
+                self.objectify(this, condition, null, null, allowRefs);
               });
             });
           });
@@ -212,7 +214,7 @@ class Service extends AdapterService {
       if (columnType) {
         if (Array.isArray(columnType)) { columnType = columnType[0]; }
         if (columnType === 'object' || columnType === 'array') {
-          let refColumn = null;
+          let refColumn;
 
           if (!methodKey && key[0] === '$') {
             refColumn = ref(`${this.Model.tableName}.${column}`);
@@ -240,6 +242,12 @@ class Service extends AdapterService {
 
       if (DESERIALIZED_ARRAY_OPERATORS.includes(operator) && typeof value === 'string' && value[0] === '[' && value[value.length - 1] === ']') {
         value = JSON.parse(value);
+      }
+
+      if (allowRefs && typeof value === 'string') {
+        const refMatches = value.match(/^ref\((.+)\)$/);
+
+        if (refMatches) { value = ref(refMatches[1]); }
       }
 
       return operator === '=' ? query.where(column, value) : query.where(column, operator, value);
@@ -337,7 +345,7 @@ class Service extends AdapterService {
         const eagerFilterQuery = query.$modifyEager[eagerFilterExpression];
 
         q.modifyGraph(eagerFilterExpression, builder => {
-          this.objectify(builder, eagerFilterQuery);
+          this.objectify(builder, eagerFilterQuery, null, null, query.$allowRefs);
         });
       }
 
@@ -345,7 +353,7 @@ class Service extends AdapterService {
     }
 
     // build up the knex query out of the query params
-    this.objectify(q, query);
+    this.objectify(q, query, null, null, query.$allowRefs);
 
     if (filters.$sort) {
       Object.keys(filters.$sort).forEach(item => {
@@ -414,7 +422,7 @@ class Service extends AdapterService {
           countQuery.count({ total: idColumns });
         }
 
-        this.objectify(countQuery, query);
+        this.objectify(countQuery, query, null, null, query.$allowRefs);
 
         return countQuery
           .then(count => parseInt(count[0].total, 10))
@@ -596,7 +604,7 @@ class Service extends AdapterService {
 
     const q = this._createQuery(params);
 
-    this.objectify(q, query);
+    this.objectify(q, query, null, null, query.$allowRefs);
 
     if (Array.isArray(this.id)) {
       for (const idKey of this.id) {
@@ -661,7 +669,7 @@ class Service extends AdapterService {
     const { query: queryParams } = this.filterQuery(params);
     const query = this._createQuery(params);
 
-    this.objectify(query, queryParams);
+    this.objectify(query, queryParams, null, null, query.$allowRefs);
 
     if (params.query && params.query.$noSelect) {
       return query.delete().then(() => {
