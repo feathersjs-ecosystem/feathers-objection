@@ -1,5 +1,8 @@
 # Change Log
 
+## [v5.5.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.5.0) (2020-05-22)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.4.1...v5.5.0)
+
 ## [v5.4.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.4.1) (2020-05-15)
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.4.0...v5.4.1)
 
