@@ -1716,6 +1716,10 @@ describe('Feathers Objection Service', () => {
         ]);
     });
 
+    afterEach(async () => {
+      companies.options.paginate = {};
+    });
+
     after(async () => {
       await companies.remove(null);
     });
@@ -1724,6 +1728,19 @@ describe('Feathers Objection Service', () => {
       return companies.find({ query: { $modify: ['google'] } }).then(data => {
         expect(data.length).to.be.equal(1);
         expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('allow $modify query with paginate', () => {
+      companies.options.paginate = {
+        default: 1,
+        max: 2
+      };
+
+      return companies.find({ query: { $modify: ['google'] } }).then(data => {
+        expect(data.total).to.be.equal(1);
+        expect(data.data.length).to.be.equal(1);
+        expect(data.data[0].name).to.be.equal('Google');
       });
     });
 

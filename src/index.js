@@ -266,6 +266,14 @@ class Service extends AdapterService {
     return optionRelations.merge(paramRelations);
   }
 
+  modifyQuery (query, modify) {
+    if (typeof modify === 'string') {
+      if (modify[0] === '[' && modify[modify.length - 1] === ']') { query.modify(...JSON.parse(modify)); } else { query.modify(modify.split(',')); }
+    } else {
+      query.modify(...modify);
+    }
+  }
+
   _createQuery (params = {}) {
     const trx = params.transaction ? params.transaction.trx : null;
     return this.Model.query(trx);
@@ -322,11 +330,7 @@ class Service extends AdapterService {
     }
 
     if (query && query.$modify) {
-      if (typeof query.$modify === 'string') {
-        if (query.$modify[0] === '[' && query.$modify[query.$modify.length - 1] === ']') { q.modify(...JSON.parse(query.$modify)); } else { q.modify(query.$modify.split(',')); }
-      } else {
-        q.modify(...query.$modify);
-      }
+      this.modifyQuery(q, query.$modify);
 
       delete query.$modify;
     }
@@ -420,6 +424,10 @@ class Service extends AdapterService {
           countQuery.countDistinct({ total: idColumns });
         } else {
           countQuery.count({ total: idColumns });
+        }
+
+        if (query && query.$modify) {
+          this.modifyQuery(countQuery, query.$modify);
         }
 
         this.objectify(countQuery, query, null, null, query.$allowRefs);
