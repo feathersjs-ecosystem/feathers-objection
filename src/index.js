@@ -433,7 +433,7 @@ class Service extends AdapterService {
         this.objectify(countQuery, query, null, null, query.$allowRefs);
 
         return countQuery
-          .then(count => parseInt(count[0].total, 10))
+          .then(count => count && count.length ? parseInt(count[0].total, 10) : 0)
           .then(executeQuery)
           .catch(errorHandler);
       }

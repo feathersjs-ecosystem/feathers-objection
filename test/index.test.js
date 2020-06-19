@@ -1706,7 +1706,8 @@ describe('Feathers Objection Service', () => {
         .create([
           {
             name: 'Google',
-            ceo: 1
+            ceo: 1,
+            size: 'medium'
           },
           {
             name: 'Apple',
@@ -1741,6 +1742,18 @@ describe('Feathers Objection Service', () => {
         expect(data.total).to.be.equal(1);
         expect(data.data.length).to.be.equal(1);
         expect(data.data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('allow $modify query with paginate and no results', () => {
+      companies.options.paginate = {
+        default: 1,
+        max: 2
+      };
+
+      return companies.find({ query: { $modify: ['google'], size: 'small' } }).then(data => {
+        expect(data.total).to.be.equal(0);
+        expect(data.data.length).to.be.equal(0);
       });
     });
 
