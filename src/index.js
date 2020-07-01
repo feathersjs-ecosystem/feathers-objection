@@ -276,7 +276,9 @@ class Service extends AdapterService {
 
   _createQuery (params = {}) {
     const trx = params.transaction ? params.transaction.trx : null;
-    return this.Model.query(trx);
+    const schema = params.schema || this.options.schema;
+    let query = this.Model.query(trx);
+    return schema ? query.withSchema(schema) : query;
   }
 
   createQuery (params = {}) {
