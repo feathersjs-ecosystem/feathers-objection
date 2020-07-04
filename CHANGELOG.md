@@ -1,12 +1,12 @@
 # Changelog
 
-## [Unreleased](https://github.com/feathersjs-ecosystem/feathers-objection/tree/HEAD)
+## [v5.6.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.6.0) (2020-07-04)
 
-[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.5.2...HEAD)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.5.2...v5.6.0)
 
-**Fixed bugs:**
+**Merged pull requests:**
 
-- $modify queries broken in v5.5.1 [\#102](https://github.com/feathersjs-ecosystem/feathers-objection/issues/102)
+- Set schema option [\#105](https://github.com/feathersjs-ecosystem/feathers-objection/pull/105) ([EmileSpecs](https://github.com/EmileSpecs))
 
 ## [v5.5.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.5.2) (2020-06-19)
 
@@ -195,6 +195,10 @@
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.5.1...v4.5.2)
 
+**Merged pull requests:**
+
+- Add generic type parameter to objection function [\#71](https://github.com/feathersjs-ecosystem/feathers-objection/pull/71) ([alex-all3dp](https://github.com/alex-all3dp))
+
 ## [v4.5.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.5.1) (2019-11-12)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v4.5.0...v4.5.1)
@@ -285,7 +289,6 @@
 
 **Merged pull requests:**
 
-- Add generic type parameter to objection function [\#71](https://github.com/feathersjs-ecosystem/feathers-objection/pull/71) ([alex-all3dp](https://github.com/alex-all3dp))
 - Do not ignore types folder when publishing [\#48](https://github.com/feathersjs-ecosystem/feathers-objection/pull/48) ([vonagam](https://github.com/vonagam))
 
 ## [v4.2.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.2.0) (2019-08-09)
