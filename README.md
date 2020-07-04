@@ -91,24 +91,24 @@ module.exports = function(app) {
 
 ### Service Options
 
-- `model` (**required**) - The Objection model definition
+- `model` (**required**) - The Objection model definition.
 
 - `id` (_optional_, default: `model.idColumn` or `'id'`) - The name of the id field property. Use
-  array of strings for composite primary keys
+  array of strings for composite primary keys.
   
 - `events` (_optional_) - List of
   [custom service events](https://docs.feathersjs.com/api/events.html#custom-events)
-  sent by this service
+  sent by this service.
 
 - `paginate` (_optional_) - [Pagination object](https://docs.feathersjs.com/api/databases/common.html#pagination)
-  containing a `default` and `max` page size
+  containing a `default` and `max` page size.
 
 - `multi` (_optional_) - Allow `create` with arrays and `update` and `remove`
   with `id` `null` to change multiple items. Can be `true` for all methods or an
-  array of allowed methods (e.g. `[ 'remove', 'create' ]`)
+  array of allowed methods (e.g. `[ 'remove', 'create' ]`).
 
 - `whitelist` (_optional_) - List of additional query operators to allow (e.g.
-  `[ '$eager', '$joinRelation' ]`)
+  `[ '$eager', '$joinRelation' ]`).
 
 - `schema` (_optional_) - Database schema to use with all the service queries (e.g.
   `public`). See [`withSchema`](https://vincit.github.io/objection.js/api/query-builder/find-methods.html#withschema) documentation.
