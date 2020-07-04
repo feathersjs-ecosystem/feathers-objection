@@ -92,19 +92,26 @@ module.exports = function(app) {
 ### Service Options
 
 - `model` (**required**) - The Objection model definition
+
 - `id` (_optional_, default: `model.idColumn` or `'id'`) - The name of the id field property. Use
   array of strings for composite primary keys
-- `events` (_optional_) - A list of
+  
+- `events` (_optional_) - List of
   [custom service events](https://docs.feathersjs.com/api/events.html#custom-events)
   sent by this service
-- `paginate` (_optional_) - A
-  [pagination object](https://docs.feathersjs.com/api/databases/common.html#pagination)
+
+- `paginate` (_optional_) - [Pagination object](https://docs.feathersjs.com/api/databases/common.html#pagination)
   containing a `default` and `max` page size
+
 - `multi` (_optional_) - Allow `create` with arrays and `update` and `remove`
   with `id` `null` to change multiple items. Can be `true` for all methods or an
   array of allowed methods (e.g. `[ 'remove', 'create' ]`)
-- `whitelist` (_optional_) - A list of additional query operators to allow (e.g.
+
+- `whitelist` (_optional_) - List of additional query operators to allow (e.g.
   `[ '$eager', '$joinRelation' ]`)
+
+- `schema` (_optional_) - Database schema to use with all the service queries (e.g.
+  `public`). See [`withSchema`](https://vincit.github.io/objection.js/api/query-builder/find-methods.html#withschema) documentation.
 
 ### Default Query Operators
 
@@ -237,6 +244,10 @@ Note that all this eager related options are optional.
 - **`eagerOptions`** - Options object to use with `$eager` and `$joinEager` query operators.
   merges on top of the `eagerOptions` service option.
   See [`GraphOptions`](https://vincit.github.io/objection.js/api/types/#type-graphoptions)
+  documentation.
+  
+- **`schema`** - Database schema to use with the query (e.g. `public`)
+  See [`withSchema`](https://vincit.github.io/objection.js/api/query-builder/find-methods.html#withschema)
   documentation.
 
 ### Composite primary keys
