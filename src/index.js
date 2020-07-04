@@ -100,6 +100,7 @@ class Service extends AdapterService {
     this.createUseUpsertGraph = options.createUseUpsertGraph;
     this.allowedUpsert = options.allowedUpsert && RelationExpression.create(options.allowedUpsert);
     this.upsertGraphOptions = options.upsertGraphOptions;
+    this.schema = options.schema;
   }
 
   get Model () {
@@ -276,7 +277,7 @@ class Service extends AdapterService {
 
   _createQuery (params = {}) {
     const trx = params.transaction ? params.transaction.trx : null;
-    const schema = params.schema || this.options.schema;
+    const schema = params.schema || this.schema;
     let query = this.Model.query(trx);
 
     return schema ? query.withSchema(schema) : query;
