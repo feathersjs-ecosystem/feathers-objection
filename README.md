@@ -180,7 +180,7 @@ Note that all this eager related options are optional.
   [`withGraphJoined`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#withgraphjoined)
   documentation.
   
-- **`$modifyEager`** - filter relation based on a relation's field,
+- **`$modifyEager`** - filter relation based on a relation's field. does not support JSON fields.
   e.g. `companies.find({ query: { $eager: 'employees', $modifyEager: { employees: { name: 'John' } } } })`
   
 - **`$mergeEager`** - merge an eager expression to `$eager`,
