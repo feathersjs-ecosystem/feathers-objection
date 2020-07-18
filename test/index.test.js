@@ -1725,7 +1725,7 @@ describe('Feathers Objection Service', () => {
             companyId: ids.companies[0].id
           },
           {
-            name: 'Apple',
+            name: 'Dave',
             companyId: ids.companies[1].id
           }
         ]);
@@ -1771,7 +1771,22 @@ describe('Feathers Objection Service', () => {
       });
     });
 
-    it('allow $modify query with paginate and groupBy and joinRelation', () => {
+    it('allow $modify query with paginate and eager in modifier', () => {
+      companies.options.paginate = {
+        default: 1,
+        max: 2
+      };
+
+      return companies.find({ query: { $modify: ['withRelation'], $sort: { 'companies.name': -1 } } }).then(data => {
+        expect(data.total).to.be.equal(2);
+        expect(data.data.length).to.be.equal(1);
+        expect(data.data[0].name).to.be.equal('Google');
+        expect(data.data[0].employees.length).to.be.equal(1);
+        expect(data.data[0].employees[0].name).to.be.equal('John');
+      });
+    });
+
+    it('allow $modify query with paginate, groupBy and joinRelation', () => {
       companies.options.paginate = {
         default: 1,
         max: 2
@@ -1784,7 +1799,7 @@ describe('Feathers Objection Service', () => {
       });
     });
 
-    it.skip('allow $modify query with paginate and groupBy and eager', () => {
+    it.skip('allow $modify query with paginate, groupBy and eager', () => {
       companies.options.paginate = {
         default: 1,
         max: 2

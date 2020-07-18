@@ -37,29 +37,26 @@ export default class Company extends Model {
     orderByName: builder => {
       builder.orderBy('name');
     },
-    google: (builder, hasCeo) => {
+    google: builder => {
       builder.where('companies.name', 'Google')
         .select(['companies.name'])
         .groupBy(['companies.name']);
-
-      if (hasCeo) { builder.whereNot('ceo', null); }
     },
-    googleWithEager: (builder, hasCeo) => {
+    googleWithEager: builder => {
       builder.where('companies.name', 'Google')
         .select(['companies.name'])
         .groupBy(['companies.name', 'companies.id']);
-
-      if (hasCeo) { builder.whereNot('ceo', null); }
     },
     apple: (builder, hasCeo) => {
       builder.where('name', 'Apple');
-
-      if (hasCeo) { builder.whereNot('ceo', null); }
     },
     large: (builder, hasCeo) => {
       builder.where('size', 'large');
 
       if (hasCeo) { builder.whereNot('ceo', null); }
+    },
+    withRelation: builder => {
+      builder.withGraphFetched('employees');
     }
   }
 
