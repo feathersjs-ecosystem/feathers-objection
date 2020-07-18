@@ -1799,7 +1799,7 @@ describe('Feathers Objection Service', () => {
       });
     });
 
-    it.skip('allow $modify query with paginate, groupBy and eager', () => {
+    it.skip('allow $modify query with paginate, groupBy and eager (not with SQLite)', () => {
       companies.options.paginate = {
         default: 1,
         max: 2
