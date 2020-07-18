@@ -44,6 +44,13 @@ export default class Company extends Model {
 
       if (hasCeo) { builder.whereNot('ceo', null); }
     },
+    googleWithEager: (builder, hasCeo) => {
+      builder.where('companies.name', 'Google')
+        .select(['companies.name'])
+        .groupBy(['companies.name', 'companies.id']);
+
+      if (hasCeo) { builder.whereNot('ceo', null); }
+    },
     apple: (builder, hasCeo) => {
       builder.where('name', 'Apple');
 

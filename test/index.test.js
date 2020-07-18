@@ -248,7 +248,7 @@ function clean (done) {
         return db.schema
           .createTable('employees', table => {
             table.increments('id');
-            table.integer('companyId').references('companies.id');
+            table.integer('companyId');
             table.string('name');
           });
       });
@@ -258,7 +258,7 @@ function clean (done) {
         return db.schema
           .createTable('clients', table => {
             table.increments('id');
-            table.integer('companyId').references('companies.id');
+            table.integer('companyId');
             table.string('name');
           })
           .then(() => done());
@@ -1771,13 +1771,26 @@ describe('Feathers Objection Service', () => {
       });
     });
 
-    it('allow $modify query with paginate and groupBy', () => {
+    it('allow $modify query with paginate and groupBy and joinRelation', () => {
       companies.options.paginate = {
         default: 1,
         max: 2
       };
 
       return companies.find({ query: { $modify: ['google'], $joinRelation: 'employees' } }).then(data => {
+        expect(data.total).to.be.equal(1);
+        expect(data.data.length).to.be.equal(1);
+        expect(data.data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it.skip('allow $modify query with paginate and groupBy and eager', () => {
+      companies.options.paginate = {
+        default: 1,
+        max: 2
+      };
+
+      return companies.find({ query: { $modify: ['googleWithEager'], $eager: 'employees' } }).then(data => {
         expect(data.total).to.be.equal(1);
         expect(data.data.length).to.be.equal(1);
         expect(data.data[0].name).to.be.equal('Google');
