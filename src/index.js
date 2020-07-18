@@ -275,10 +275,22 @@ class Service extends AdapterService {
     }
   }
 
+  getGroupByColumns (query) {
+    for (const operation of query._operations) {
+      if (operation.name === 'groupBy') {
+        const args = operation.args;
+
+        return Array.isArray(args[0]) ? args[0] : args;
+      }
+    }
+
+    return null;
+  }
+
   _createQuery (params = {}) {
     const trx = params.transaction ? params.transaction.trx : null;
     const schema = params.schema || this.schema;
-    let query = this.Model.query(trx);
+    const query = this.Model.query(trx);
 
     return schema ? query.withSchema(schema) : query;
   }
@@ -319,10 +331,10 @@ class Service extends AdapterService {
       delete query.$joinEager;
     }
 
-    if (query && query.$joinRelation) {
-      q
-        .distinct(`${this.Model.tableName}.*`)
-        .joinRelated(query.$joinRelation);
+    const joinRelation = query && query.$joinRelation;
+
+    if (joinRelation) {
+      q.joinRelated(query.$joinRelation);
 
       delete query.$joinRelation;
     }
@@ -337,6 +349,12 @@ class Service extends AdapterService {
       this.modifyQuery(q, query.$modify);
 
       delete query.$modify;
+    }
+
+    if (joinRelation) {
+      const groupByColumns = this.getGroupByColumns(q);
+
+      if (!groupByColumns) { q.distinct(`${this.Model.tableName}.*`); }
     }
 
     // apply eager filters if specified
@@ -382,6 +400,7 @@ class Service extends AdapterService {
   _find (params) {
     const find = (params, count, filters, query) => {
       const q = params.objection || this.createQuery(params);
+      const groupByColumns = this.getGroupByColumns(q);
 
       // Handle $limit
       if (filters.$limit) {
@@ -416,18 +435,17 @@ class Service extends AdapterService {
       }
 
       if (count) {
-        const idColumns = Array.isArray(this.id) ? this.id.map(idKey => `${this.Model.tableName}.${idKey}`) : [`${this.Model.tableName}.${this.id}`];
-
+        const countColumns = groupByColumns || (Array.isArray(this.id) ? this.id.map(idKey => `${this.Model.tableName}.${idKey}`) : [`${this.Model.tableName}.${this.id}`]);
         const countQuery = this._createQuery(params);
 
         if (query.$joinRelation) {
           countQuery
             .joinRelated(query.$joinRelation)
-            .countDistinct({ total: idColumns });
-        } else if (idColumns.length > 1) {
-          countQuery.countDistinct({ total: idColumns });
+            .countDistinct({ total: countColumns });
+        } else if (countColumns.length > 1) {
+          countQuery.countDistinct({ total: countColumns });
         } else {
-          countQuery.count({ total: idColumns });
+          countQuery.count({ total: countColumns });
         }
 
         if (query && query.$modify) {

@@ -1701,8 +1701,10 @@ describe('Feathers Objection Service', () => {
   });
 
   describe('$modify', () => {
-    before(async () => {
-      await companies
+    const ids = {};
+
+    beforeEach(async () => {
+      ids.companies = await companies
         .create([
           {
             name: 'Google',
@@ -1715,13 +1717,25 @@ describe('Feathers Objection Service', () => {
             size: 'large'
           }
         ]);
+
+      ids.employees = await employees
+        .create([
+          {
+            name: 'John',
+            companyId: ids.companies[0].id
+          },
+          {
+            name: 'Apple',
+            companyId: ids.companies[1].id
+          }
+        ]);
     });
 
     afterEach(async () => {
       companies.options.paginate = {};
-    });
 
-    after(async () => {
+      for (const employee of ids.employees) { await employees.remove(employee.id); }
+
       await companies.remove(null);
     });
 
@@ -1754,6 +1768,19 @@ describe('Feathers Objection Service', () => {
       return companies.find({ query: { $modify: ['google'], size: 'small' } }).then(data => {
         expect(data.total).to.be.equal(0);
         expect(data.data.length).to.be.equal(0);
+      });
+    });
+
+    it('allow $modify query with paginate and groupBy', () => {
+      companies.options.paginate = {
+        default: 1,
+        max: 2
+      };
+
+      return companies.find({ query: { $modify: ['google'], $joinRelation: 'employees' } }).then(data => {
+        expect(data.total).to.be.equal(1);
+        expect(data.data.length).to.be.equal(1);
+        expect(data.data[0].name).to.be.equal('Google');
       });
     });
 

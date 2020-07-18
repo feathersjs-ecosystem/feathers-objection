@@ -38,8 +38,9 @@ export default class Company extends Model {
       builder.orderBy('name');
     },
     google: (builder, hasCeo) => {
-      builder.where('name', 'Google')
-        .groupBy(['name']);
+      builder.where('companies.name', 'Google')
+        .select(['companies.name'])
+        .groupBy(['companies.name']);
 
       if (hasCeo) { builder.whereNot('ceo', null); }
     },
