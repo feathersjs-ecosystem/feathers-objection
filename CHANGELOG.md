@@ -1,5 +1,25 @@
 # Changelog
 
+## [Unreleased](https://github.com/feathersjs-ecosystem/feathers-objection/tree/HEAD)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.6.0...HEAD)
+
+**Implemented enhancements:**
+
+- Set Postgres schema [\#104](https://github.com/feathersjs-ecosystem/feathers-objection/issues/104)
+
+**Fixed bugs:**
+
+- $modify queries broken in v5.5.1 [\#102](https://github.com/feathersjs-ecosystem/feathers-objection/issues/102)
+
+**Closed issues:**
+
+- Project permission issue [\#106](https://github.com/feathersjs-ecosystem/feathers-objection/issues/106)
+
+**Merged pull requests:**
+
+- Bump lodash from 4.17.15 to 4.17.19 [\#107](https://github.com/feathersjs-ecosystem/feathers-objection/pull/107) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [v5.6.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.6.0) (2020-07-04)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.5.2...v5.6.0)
@@ -531,6 +551,7 @@
 
 - Transaction support \(fix\) [\#22](https://github.com/feathersjs-ecosystem/feathers-objection/pull/22) ([vonagam](https://github.com/vonagam))
 - Added prepare script [\#15](https://github.com/feathersjs-ecosystem/feathers-objection/pull/15) ([NotAmaan](https://github.com/NotAmaan))
+- Fixed $eager and $joinEager to be treated as columns by count\(\) [\#11](https://github.com/feathersjs-ecosystem/feathers-objection/pull/11) ([NotAmaan](https://github.com/NotAmaan))
 
 ## [v0.10.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v0.10.0) (2018-07-08)
 
@@ -560,10 +581,6 @@
 **Closed issues:**
 
 - $eager is used in query when pagination is used [\#8](https://github.com/feathersjs-ecosystem/feathers-objection/issues/8)
-
-**Merged pull requests:**
-
-- Fixed $eager and $joinEager to be treated as columns by count\(\) [\#11](https://github.com/feathersjs-ecosystem/feathers-objection/pull/11) ([NotAmaan](https://github.com/NotAmaan))
 
 ## [v0.7.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v0.7.0) (2018-01-20)
 
