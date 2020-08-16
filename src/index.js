@@ -84,7 +84,7 @@ class Service extends AdapterService {
     }
 
     const whitelist = Object.values(OPERATORS).concat(options.whitelist || []);
-
+    delete options.whitelist;
     super(Object.assign({
       id: options.model.idColumn || 'id',
       whitelist
