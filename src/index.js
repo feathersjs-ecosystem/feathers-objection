@@ -168,13 +168,12 @@ class Service extends AdapterService {
     if (params.$allowRefs) { delete params.$allowRefs; }
 
     Object.keys(params || {}).forEach(key => {
-
       let value = params[key];
 
-      if (key === '$not'){
+      if (key === '$not') {
         const self = this;
-        if (Array.isArray(value)){ // Array = $and operator
-          value = { $and : value }
+        if (Array.isArray(value)) { // Array = $and operator
+          value = { $and: value };
         }
         return query.whereNot(function () {
           // continue with all queries inverted

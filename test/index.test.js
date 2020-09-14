@@ -791,7 +791,7 @@ describe('Feathers Objection Service', () => {
     });
 
     it('allows mergeEager queries with joinEager', () => {
-      return companies.find({ query: { $joinEager: 'employees', $mergeEager: 'ceos', 'employees.name': { '$like': '%'} }, mergeAllowEager: '[employees, ceos]' }).then(data => {
+      return companies.find({ query: { $joinEager: 'employees', $mergeEager: 'ceos', 'employees.name': { $like: '%' } }, mergeAllowEager: '[employees, ceos]' }).then(data => {
         expect(data[0].employees).to.be.ok;
         expect(data[0].ceos).to.be.ok;
       });
@@ -1246,7 +1246,7 @@ describe('Feathers Objection Service', () => {
   describe('$not method', () => {
     before(async () => {
       const persons = await people.find();
-  
+
       for (const person of persons) { await people.remove(person.id); }
 
       await people
@@ -1281,25 +1281,24 @@ describe('Feathers Objection Service', () => {
     });
 
     it('$not with $and in query', () => {
-      return people.find({ query: { $not: { $and :[{ name: 'John' }, { name: 'Dave' }]} } }).then(data => {
+      return people.find({ query: { $not: { $and: [{ name: 'John' }, { name: 'Dave' }] } } }).then(data => {
         expect(data.length).to.be.equal(3);
         expect(data[0].name).to.be.equal('John');
       });
     });
 
     it('$not with $or in query', () => {
-      return people.find({ query: { $not: { $or : [ { name: 'John' }, { name: 'Dave' }]}  } } ).then(data => {
+      return people.find({ query: { $not: { $or: [{ name: 'John' }, { name: 'Dave' }] } } }).then(data => {
         expect(data.length).to.be.equal(1);
         expect(data[0].name).to.be.equal('Dada');
       });
     });
 
     it('$not with $null in query', () => {
-      return people.find({ query: { $not: { name: { $null: true } }  } } ).then(data => {
+      return people.find({ query: { $not: { name: { $null: true } } } }).then(data => {
         expect(data.length).to.be.equal(3);
       });
     });
-
   });
 
   describe('between & not between operators', () => {
@@ -1340,7 +1339,7 @@ describe('Feathers Objection Service', () => {
     });
 
     it('not Between using $not', () => {
-      return people.find({ query: { age: { $not : { $between: [0, 100] } } } }).then(data => {
+      return people.find({ query: { age: { $not: { $between: [0, 100] } } } }).then(data => {
         expect(data[0].name).to.be.equal('John');
       });
     });
