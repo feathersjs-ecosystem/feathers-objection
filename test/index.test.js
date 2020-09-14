@@ -134,7 +134,7 @@ const app = feathers()
       model: Company,
       id: 'id',
       multi: ['create', 'remove', 'patch'],
-      whitelist: ['$eager', '$joinRelation', '$modifyEager', '$mergeEager', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like', '$null', '$modify', '$allowRefs'],
+      whitelist: ['$eager', '$joinEager', '$joinRelation', '$modifyEager', '$mergeEager', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like', '$null', '$modify', '$allowRefs'],
       allowedEager: '[ceos, clients, employees]',
       eagerFilters: [
         {
@@ -790,6 +790,13 @@ describe('Feathers Objection Service', () => {
       });
     });
 
+    it('allows mergeEager queries with joinEager', () => {
+      return companies.find({ query: { $joinEager: 'employees', $mergeEager: 'ceos', 'employees.name': { '$like': '%'} }, mergeAllowEager: '[employees, ceos]' }).then(data => {
+        expect(data[0].employees).to.be.ok;
+        expect(data[0].ceos).to.be.ok;
+      });
+    });
+
     it('allows modifyEager queries', () => {
       return companies.find({ query: { $eager: 'employees', $modifyEager: { employees: { name: 'John' } } }, mergeAllowEager: 'employees' }).then(data => {
         expect(data[0].employees.length).to.equal(2);
@@ -870,6 +877,10 @@ describe('Feathers Objection Service', () => {
       for (const company of ids.companies) { await companies.remove(company.id); }
     });
 
+    afterEach(async () => {
+      employees.options.paginate = {};
+    });
+
     it('allows joinEager queries', () => {
       return employees.find({ query: { $joinEager: 'company' } }).then(data => {
         expect(data[0].company).to.be.ok;
@@ -890,6 +901,27 @@ describe('Feathers Objection Service', () => {
         .then(data => {
           expect(data.length).to.equal(2);
           expect(data[0].company.name).to.equal('Google');
+        });
+    });
+
+    it('allows filtering by relation field with paginate joinEager queries', () => {
+      employees.options.paginate = {
+        default: 1,
+        max: 2
+      };
+      return employees
+        .find({
+          query: {
+            $joinEager: 'company',
+            'company.name': {
+              $like: 'Google'
+            }
+          }
+        })
+        .then(data => {
+          expect(data.total).to.be.equal(2);
+          expect(data.data.length).to.equal(1);
+          expect(data.data[0].company.name).to.equal('Google');
         });
     });
 

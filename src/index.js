@@ -323,7 +323,9 @@ class Service extends AdapterService {
       delete query.$eager;
     }
 
-    if (query && query.$joinEager) {
+    const joinEager = query && query.$joinEager;
+
+    if (joinEager) {
       q.withGraphJoined(query.$joinEager, eagerOptions);
 
       delete query.$joinEager;
@@ -338,7 +340,7 @@ class Service extends AdapterService {
     }
 
     if (query && query.$mergeEager) {
-      q[query.$joinEager ? 'withGraphJoined' : 'withGraphFetched'](query.$mergeEager, eagerOptions);
+      q[joinEager ? 'withGraphJoined' : 'withGraphFetched'](query.$mergeEager, eagerOptions);
 
       delete query.$mergeEager;
     }
@@ -439,6 +441,10 @@ class Service extends AdapterService {
         if (query.$joinRelation) {
           countQuery
             .joinRelated(query.$joinRelation)
+            .countDistinct({ total: countColumns });
+        } else if (query.$joinEager) {
+          countQuery
+            .joinRelated(query.$joinEager)
             .countDistinct({ total: countColumns });
         } else if (countColumns.length > 1) {
           countQuery.countDistinct({ total: countColumns });
