@@ -10,7 +10,8 @@ const METHODS = {
   $ne: 'whereNot',
   $in: 'whereIn',
   $nin: 'whereNotIn',
-  $null: 'whereNull'
+  $null: 'whereNull',
+  $not: 'whereNot'
 };
 
 const OPERATORS = {
@@ -27,7 +28,8 @@ const OPERATORS = {
   ilike: '$ilike',
   notILike: '$notILike',
   or: '$or',
-  and: '$and'
+  and: '$and',
+  whereNot: '$not'
 };
 
 const OPERATORS_MAP = {
@@ -166,7 +168,19 @@ class Service extends AdapterService {
     if (params.$allowRefs) { delete params.$allowRefs; }
 
     Object.keys(params || {}).forEach(key => {
+
       let value = params[key];
+
+      if (key === '$not'){
+        const self = this;
+        if (Array.isArray(value)){ // Array = $and operator
+          value = { $and : value }
+        }
+        return query.whereNot(function () {
+          // continue with all queries inverted
+          self.objectify(this, value, parentKey, methodKey, allowRefs);
+        });
+      }
 
       if (utils.isPlainObject(value)) {
         return this.objectify(query, value, key, parentKey, allowRefs);

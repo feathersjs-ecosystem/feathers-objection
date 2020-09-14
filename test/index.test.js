@@ -97,7 +97,7 @@ const app = feathers()
       model: People,
       id: 'id',
       multi: ['create'],
-      whitelist: ['$and', '$like', '$between', '$notBetween'],
+      whitelist: ['$and', '$like', '$between', '$notBetween', '$null'],
       events: ['testing']
     })
   )
@@ -1243,6 +1243,65 @@ describe('Feathers Objection Service', () => {
     });
   });
 
+  describe('$not method', () => {
+    before(async () => {
+      const persons = await people.find();
+  
+      for (const person of persons) { await people.remove(person.id); }
+
+      await people
+        .create([
+          {
+            name: 'John',
+            age: 23
+          },
+          {
+            name: 'Dave',
+            age: 32
+          },
+          {
+            name: 'Dada',
+            age: 1
+          }
+        ]);
+    });
+
+    it('$not in query', () => {
+      return people.find({ query: { $not: { name: 'John' } } }).then(data => {
+        expect(data.length).to.be.equal(2);
+        expect(data[0].name).to.be.equal('Dave');
+      });
+    });
+
+    it('$not with implicit $and in query', () => {
+      return people.find({ query: { $not: [{ name: 'John' }, { name: 'Dave' }] } }).then(data => {
+        expect(data.length).to.be.equal(3);
+        expect(data[0].name).to.be.equal('John');
+      });
+    });
+
+    it('$not with $and in query', () => {
+      return people.find({ query: { $not: { $and :[{ name: 'John' }, { name: 'Dave' }]} } }).then(data => {
+        expect(data.length).to.be.equal(3);
+        expect(data[0].name).to.be.equal('John');
+      });
+    });
+
+    it('$not with $or in query', () => {
+      return people.find({ query: { $not: { $or : [ { name: 'John' }, { name: 'Dave' }]}  } } ).then(data => {
+        expect(data.length).to.be.equal(1);
+        expect(data[0].name).to.be.equal('Dada');
+      });
+    });
+
+    it('$not with $null in query', () => {
+      return people.find({ query: { $not: { name: { $null: true } }  } } ).then(data => {
+        expect(data.length).to.be.equal(3);
+      });
+    });
+
+  });
+
   describe('between & not between operators', () => {
     before(async () => {
       await people
@@ -1276,6 +1335,12 @@ describe('Feathers Objection Service', () => {
 
     it('$notBetween', () => {
       return people.find({ query: { age: { $notBetween: [0, 100] } } }).then(data => {
+        expect(data[0].name).to.be.equal('John');
+      });
+    });
+
+    it('not Between using $not', () => {
+      return people.find({ query: { age: { $not : { $between: [0, 100] } } } }).then(data => {
         expect(data[0].name).to.be.equal('John');
       });
     });
