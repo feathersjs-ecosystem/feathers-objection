@@ -97,7 +97,7 @@ const app = feathers()
       model: People,
       id: 'id',
       multi: ['create'],
-      whitelist: ['$and', '$like', '$between', '$notBetween', '$null'],
+      whitelist: ['$and', '$like', '$between', '$notBetween', '$null', '$noSelect'],
       events: ['testing']
     })
   )
@@ -1090,6 +1090,7 @@ describe('Feathers Objection Service', () => {
   describe('Graph Upsert Queries', () => {
     let ceo;
     let google;
+    let apple;
 
     beforeEach(async () => {
       ceo = await people
@@ -1098,7 +1099,7 @@ describe('Feathers Objection Service', () => {
           age: 20
         });
 
-      [google] = await companies
+      [google, apple] = await companies
         .create([
           {
             name: 'Google',
@@ -1134,12 +1135,30 @@ describe('Feathers Objection Service', () => {
           id: google.id,
           name: 'Alphabet',
           clients: newClients
-        }, { query: { $eager: 'clients' } }).then(() => {
+        }).then(() => { // NOTE: Do not need $eager anymore
           return companies.find({ query: { $eager: 'clients' } }).then(data => {
             expect(data[0].name).equal('Alphabet');
             expect(data[0].clients).to.be.an('array');
             expect(data[0].clients).to.have.lengthOf(2);
           });
+        });
+    });
+
+    it('forbid upsertGraph if data do not match update item', () => {
+      const newClients = (google.clients) ? google.clients.concat([{
+        name: 'Ken Patrick'
+      }]) : [];
+
+      return companies
+        .update(apple.id, {
+          id: google.id,
+          name: 'Alphabet',
+          clients: newClients
+        }).then(() => {
+          throw new Error('Should never get here');
+        }).catch(function (error) {
+          expect(error).to.be.ok;
+          expect(error instanceof errors.BadRequest).to.be.ok;
         });
     });
 
@@ -1297,6 +1316,93 @@ describe('Feathers Objection Service', () => {
     it('$not with $null in query', () => {
       return people.find({ query: { $not: { name: { $null: true } } } }).then(data => {
         expect(data.length).to.be.equal(3);
+      });
+    });
+  });
+
+  describe('select with mutating methods', () => {
+    it('$select with aliases and update', async () => {
+      const p = await people
+        .create(
+          {
+            name: 'Dave',
+            age: 1
+          }
+        );
+      return people.update(p.id, { age: 3, name: 'John' }, { query: { $select: ['name as n'] } }).then(data => {
+        expect(data.n).to.be.equal('John');
+        expect(data.age).to.be.equal(undefined);
+      });
+    });
+
+    it('$select and update upsert', async () => {
+      const p = await people
+        .create(
+          {
+            name: 'Dave',
+            age: 1
+          }
+        );
+      return people.update(p.id, { id: p.id, age: 3, name: 'John' }, { query: { $select: ['name'] }, mergeAllowUpsert: 'company' }).then(data => {
+        expect(data.name).to.be.equal('John');
+        expect(data.age).to.be.equal(undefined);
+      });
+    });
+
+    it('$select and patch', async () => {
+      const p = await people
+        .create(
+          {
+            name: 'Dave',
+            age: 1
+          }
+        );
+      return people.patch(p.id, { name: 'John' }, { query: { $select: ['name as n'] } }).then(data => {
+        expect(data.n).to.be.equal('John');
+        expect(data.age).to.be.equal(undefined);
+      });
+    });
+
+    it('$select and patch upsert', async () => {
+      const p = await people
+        .create(
+          {
+            name: 'Dave',
+            age: 1
+          }
+        );
+      return people.patch(p.id, { id: p.id, name: 'John' }, { query: { $select: ['age'] }, mergeAllowUpsert: 'company' }).then(data => {
+        expect(data.name).to.be.equal(undefined);
+        expect(data.age).to.be.equal(1);
+      });
+    });
+
+    it('$noSelect and patch', async () => {
+      const p = await people
+        .create(
+          {
+            name: 'Dave',
+            age: 1
+          }
+        );
+      return people.patch(p.id, { name: 'John' }, { query: { $noSelect: true, $select: ['name as n'] } }).then(data => {
+        expect(data.name).to.be.equal('John');
+        expect(data.n).to.be.equal(undefined);
+        expect(data.age).to.be.equal(undefined);
+      });
+    });
+
+    it('$noSelect and update', async () => {
+      const p = await people
+        .create(
+          {
+            name: 'Dave',
+            age: 1
+          }
+        );
+      return people.update(p.id, { age: 3, name: 'John' }, { query: { $noSelect: true, $select: ['name as n'] } }).then(data => {
+        expect(data.n).to.be.equal(undefined);
+        expect(data.age).to.be.equal(3);
       });
     });
   });
@@ -1731,6 +1837,8 @@ describe('Feathers Objection Service', () => {
         }
       }).then(data => {
         expect(data).to.be.ok;
+        expect(data.name).to.equal('Amazon');
+        delete data.name;
         expect(data).to.be.empty;
       });
     });
