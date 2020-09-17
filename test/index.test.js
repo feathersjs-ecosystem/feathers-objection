@@ -1183,6 +1183,23 @@ describe('Feathers Objection Service', () => {
         });
     });
 
+    it('allows upsertGraph queries on patch with query param', () => {
+      const newClients = (google.clients) ? google.clients.concat([{
+        name: 'Ken Patrick'
+      }]) : [];
+
+      return companies
+        .patch(google.id, {
+          name: 'Google Alphabet',
+          clients: newClients
+        }, { query: { name: 'microsoft' } }).then(() => {
+          throw new Error('Should never get here');
+        }).catch(function (error) {
+          expect(error).to.be.ok;
+          expect(error instanceof errors.NotFound).to.be.ok;
+        });
+    });
+
     it('allows mergeAllowUpsert queries', () => {
       return companies.patch(google.id, { ceos: { id: ceo.id, name: 'Dog' } }, { mergeAllowUpsert: 'ceos' }).then(data => {
         expect(data.ceos.name).to.equal('Dog');

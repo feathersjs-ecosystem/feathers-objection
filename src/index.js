@@ -679,11 +679,13 @@ class Service extends AdapterService {
     const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
     if (allowedUpsert && id !== null) {
       const dataCopy = Object.assign({}, data, this.getIdsQuery(id, null, false));
-
-      return this._createQuery(params)
-        .allowGraph(allowedUpsert)
-        .upsertGraphAndFetch(dataCopy, this.upsertGraphOptions)
-        .then(this._selectFields(params, data));
+      // Get object first to ensure it satisfy user query
+      return this._get(id, params).then(() => {
+        return this._createQuery(params)
+          .allowGraph(allowedUpsert)
+          .upsertGraphAndFetch(dataCopy, this.upsertGraphOptions)
+          .then(this._selectFields(params, data));
+      });
     }
 
     const dataCopy = Object.assign({}, data);
