@@ -1363,7 +1363,7 @@ describe('Feathers Objection Service', () => {
             age: 1
           }
         );
-      return people.update(p.id, { age: 3, name: 'John' }, { query: { $select: ['name as n'] } }).then(data => {
+      return people.update(p.id, { age: 3, name: 'John' }, { query: { $select: ['people.name as n'] } }).then(data => {
         expect(data.n).to.be.equal('John');
         expect(data.age).to.be.equal(undefined);
       });
@@ -1377,11 +1377,13 @@ describe('Feathers Objection Service', () => {
             age: 1
           }
         );
-      return people.update(p.id, { id: p.id, age: 3, name: 'John' }, { query: { $select: ['name'] }, mergeAllowUpsert: 'company' }).then(data => {
+      return people.update(p.id, { id: p.id, age: 3, name: 'John' }, { query: { $select: ['people.age', 'people.name'] }, mergeAllowUpsert: 'company' }).then(data => {
         expect(data.name).to.be.equal('John');
-        expect(data.age).to.be.equal(undefined);
+        expect(data.age).to.be.equal(3);
       });
     });
+
+    // it.todo('$select and update upsert with relation fetching');
 
     it('$select and patch', async () => {
       const p = await people
@@ -1394,6 +1396,20 @@ describe('Feathers Objection Service', () => {
       return people.patch(p.id, { name: 'John' }, { query: { $select: ['name as n'] } }).then(data => {
         expect(data.n).to.be.equal('John');
         expect(data.age).to.be.equal(undefined);
+      });
+    });
+
+    it('$select all and patch upsert', async () => {
+      const p = await people
+        .create(
+          {
+            name: 'Dave',
+            age: 1
+          }
+        );
+      return people.patch(p.id, { name: 'John' }, { query: { $select: ['people.*'] }, mergeAllowUpsert: 'company' }).then(data => {
+        expect(data.name).to.be.equal('John');
+        expect(data.age).to.be.equal(1);
       });
     });
 

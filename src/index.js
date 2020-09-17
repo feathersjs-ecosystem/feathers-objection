@@ -332,8 +332,9 @@ class Service extends AdapterService {
       const matches = item.match(/^(?:ref\((\S+)\)|(\S+))(?: as (.+))?$/);
       if (matches) {
         const tableField = matches[1] || matches[2];
-        const alias = matches[3] || tableField;
-        result[tableField] = alias;
+        const field = tableField.startsWith(`${this.Model.tableName}.`) ? tableField.substr(this.Model.tableName.length + 1) : tableField;
+        const alias = matches[3] || field;
+        result[field] = alias;
       } else {
         // Can't parse $select !
         throw new errors.BadRequest(`${item} is not a valid select statement`);
@@ -348,7 +349,7 @@ class Service extends AdapterService {
         return originalData;
       }
       // Remove not selected fields
-      if (params.query && params.query.$select) {
+      if (params.query && params.query.$select && !params.query.$select.find(field => field === '*' || field === `${this.Model.tableName}.*`)) {
         const $fieldsOrAliases = this._selectAliases(params.query.$select);
         for (const key of Object.keys(newObject)) {
           if (!$fieldsOrAliases[key]) {
