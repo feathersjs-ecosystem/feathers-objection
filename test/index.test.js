@@ -1132,7 +1132,6 @@ describe('Feathers Objection Service', () => {
 
       return companies
         .update(google.id, {
-          id: google.id,
           name: 'Alphabet',
           clients: newClients
         }).then(() => { // NOTE: Do not need $eager anymore
@@ -1151,6 +1150,24 @@ describe('Feathers Objection Service', () => {
 
       return companies
         .update(apple.id, {
+          id: google.id,
+          name: 'Alphabet',
+          clients: newClients
+        }).then(() => {
+          throw new Error('Should never get here');
+        }).catch(function (error) {
+          expect(error).to.be.ok;
+          expect(error instanceof errors.BadRequest).to.be.ok;
+        });
+    });
+
+    it('forbid upsertGraph if data do not match patch item', () => {
+      const newClients = (google.clients) ? google.clients.concat([{
+        name: 'Ken Patrick'
+      }]) : [];
+
+      return companies
+        .patch(apple.id, {
           id: google.id,
           name: 'Alphabet',
           clients: newClients

@@ -364,6 +364,17 @@ class Service extends AdapterService {
     };
   }
 
+  _checkUpsertId (id, newObject) {
+    const updateId = this.getIdsQuery(id, undefined, false);
+    Object.keys(updateId).forEach(key => {
+      if (!Object.prototype.hasOwnProperty.call(newObject, key)) {
+        newObject[key] = updateId[key]; // id is missing in data, we had it
+      } else if (newObject[key] !== updateId[key]) {
+        throw new errors.BadRequest(`Id '${key}': values mismatch between data '${newObject[key]}' and request '${updateId[key]}'`);
+      }
+    });
+  }
+
   createQuery (params = {}) {
     const { filters, query } = this.filterQuery(params);
     const q = this._createQuery(params).skipUndefined();
@@ -538,9 +549,11 @@ class Service extends AdapterService {
   }
 
   _get (id, params) {
-    const query = Object.assign({}, params.query, this.getIdsQuery(id));
+    // merge user query with the 'id' to get
+    const findQuery = Object.assign({}, { $and: [] }, params.query);
+    findQuery.$and.push(this.getIdsQuery(id));
 
-    return this._find(Object.assign({}, params, { query }))
+    return this._find(Object.assign({}, params, { query: findQuery }))
       .then(page => {
         const data = page.data || page;
 
@@ -621,21 +634,19 @@ class Service extends AdapterService {
           .then(meta => {
             let newObject = Object.assign({}, data);
 
+            const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
+            if (allowedUpsert) {
+              // Ensure the object we fetched is the one we update
+              this._checkUpsertId(id, newObject);
+            }
+
             for (const key of meta.columns) {
-              if (data[key] === undefined) {
+              if (newObject[key] === undefined) {
                 newObject[key] = null;
               }
             }
 
-            const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
             if (allowedUpsert) {
-              // Ensure the object we fetched is the one we update
-              const updateId = this.getIdsQuery(id, undefined, false);
-              Object.keys(updateId).forEach(key => {
-                if (newObject[key] !== updateId[key]) {
-                  throw new errors.BadRequest(`Id '${key}': values mismatch between data '${newObject[key]}' and request '${updateId[key]}'`);
-                }
-              });
               return this._createQuery(params)
                 .allowGraph(allowedUpsert)
                 .upsertGraphAndFetch(newObject, this.upsertGraphOptions);
@@ -678,7 +689,9 @@ class Service extends AdapterService {
 
     const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
     if (allowedUpsert && id !== null) {
-      const dataCopy = Object.assign({}, data, this.getIdsQuery(id, null, false));
+      const dataCopy = Object.assign({}, data);
+      this._checkUpsertId(id, dataCopy);
+
       // Get object first to ensure it satisfy user query
       return this._get(id, params).then(() => {
         return this._createQuery(params)
