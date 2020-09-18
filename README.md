@@ -8,7 +8,7 @@
 
 [Feathers](https://feathersjs.com/) database adapter for
 [Objection.js](https://vincit.github.io/objection.js), an ORM based on
-[KnexJS](https://knexjs.org/) SQL query builder for Postgres, MSSQL, MySQL,
+[KnexJS](https://knexjs.org/) SQL query builder for Postgres, Redshift, MSSQL, MySQL,
 MariaDB, SQLite3, and Oracle.
 
 ## Installation
