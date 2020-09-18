@@ -9,7 +9,11 @@
     "feathersjs",
     "knex",
     "objection",
-    "orm"
+    "orm",
+    "mysql",
+    "postgres",
+    "postgresql",
+    "redshift"
   ],
   "license": [
     {
