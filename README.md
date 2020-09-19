@@ -135,7 +135,8 @@ operators are:
 '$notILike',
 '$or',
 '$and',
-'$sort'
+'$sort',
+'$not'
 ```
 
 ### Eager Queries
@@ -338,9 +339,7 @@ upsertGraph method. See
 [`examples`](https://vincit.github.io/objection.js/guide/query-examples.html#graph-upserts) for a better
 explanation.  
 Runs on `update` and `patch` service methods when `id` is set.
-
-_The relation being upserted must also be present in `allowedEager` option and
-included in `$eager` query when using the `update` service method._
+When the data object also contains `id` then both must be the same or an error is thrown.
 
 #### Service Options
 
@@ -387,9 +386,6 @@ be updated (if there are any changes at all).
 Arbitrary relation graphs can be inserted using the insertGraph method. Provides
 the ability to relate the inserted object with its associations. Runs on the
 `.create(data, params)` service method.
-
-_The relation being created must also be present in `allowedEager` option and
-included in `$eager` query._
 
 #### Service Options
 
@@ -866,8 +862,23 @@ The following breaking changes have been introduced:
 - `namedEagerFilters` service option was removed. use Model's [`modifiers`](https://vincit.github.io/objection.js/recipes/modifiers.html#modifiers) instead
 - Model's `namedFilters` property was renamed to `modifiers`
 
+## Migrating to `feathers-objection` v6
+
+`feathers-objection` 6.0.0 comes with usability and security updates
+
+- `$not` operator is now available. It can be used with object `$not: { name: { $in: ["craig", "tim"] } }` or arrays `$not: [ { $id: 1 }, { $id: 2 } ]`
+- `$eager` is no longer needed with upsert operations
+
+The following breaking changes have been introduced:
+
+- graph upsert require `data.id` and `context.id` to match if both are given. Thus removing a security weekness. 
+- `$noSelect` always return the input data (this was not always the case)
+- `$select` is now honored with upsert methods
+- `patch` method now enforce `params.query` with upsert
+- `get` and `update` methods use `id` __and__ all `params.query` including another `id` if there is one. So ids must match or query will return a NotFound error
+
 ## License
 
-Copyright © 2019
+Copyright © 2020
 
 Licensed under the [MIT license](LICENSE).
