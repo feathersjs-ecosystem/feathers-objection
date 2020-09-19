@@ -1,5 +1,13 @@
 # Changelog
 
+## [v5.8.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.8.1) (2020-09-18)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.8.0...v5.8.1)
+
+**Merged pull requests:**
+
+- Fixed issue where query data would not properly copy if variable equates to false [\#115](https://github.com/feathersjs-ecosystem/feathers-objection/pull/115) ([weswinder](https://github.com/weswinder))
+
 ## [v5.8.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.8.0) (2020-08-26)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.7.0...v5.8.0)

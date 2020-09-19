@@ -742,7 +742,7 @@ class Service extends AdapterService {
         const findParams = Object.assign({}, params, { query: Object.assign({}, params.query, this.getIdsQuery(id, idList), selectParam) });
 
         for (const key of Object.keys(dataCopy)) {
-          if (findParams.query[key]) {
+          if (key in findParams.query) {
             findParams.query[key] = dataCopy[key];
           }
         }
