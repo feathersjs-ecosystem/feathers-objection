@@ -10,7 +10,8 @@ const METHODS = {
   $ne: 'whereNot',
   $in: 'whereIn',
   $nin: 'whereNotIn',
-  $null: 'whereNull'
+  $null: 'whereNull',
+  $not: 'whereNot'
 };
 
 const OPERATORS = {
@@ -27,7 +28,8 @@ const OPERATORS = {
   ilike: '$ilike',
   notILike: '$notILike',
   or: '$or',
-  and: '$and'
+  and: '$and',
+  whereNot: '$not'
 };
 
 const OPERATORS_MAP = {
@@ -168,6 +170,17 @@ class Service extends AdapterService {
     Object.keys(params || {}).forEach(key => {
       let value = params[key];
 
+      if (key === '$not') {
+        const self = this;
+        if (Array.isArray(value)) { // Array = $and operator
+          value = { $and: value };
+        }
+        return query.whereNot(function () {
+          // continue with all queries inverted
+          self.objectify(this, value, parentKey, methodKey, allowRefs);
+        });
+      }
+
       if (utils.isPlainObject(value)) {
         return this.objectify(query, value, key, parentKey, allowRefs);
       }
@@ -293,18 +306,9 @@ class Service extends AdapterService {
     return schema ? query.withSchema(schema) : query;
   }
 
-  createQuery (params = {}) {
-    const { filters, query } = this.filterQuery(params);
-    const q = this._createQuery(params).skipUndefined();
-    const eagerOptions = { ...this.eagerOptions, ...params.eagerOptions };
-
-    if (this.allowedEager) { q.allowGraph(this.allowedEager); }
-
-    if (params.mergeAllowEager) { q.allowGraph(params.mergeAllowEager); }
-
-    // $select uses a specific find syntax, so it has to come first.
-    if (filters.$select) {
-      const items = filters.$select.concat(`${this.Model.tableName}.${this.id}`);
+  _selectQuery (q, $select) {
+    if ($select && Array.isArray($select)) {
+      const items = $select.concat(`${this.Model.tableName}.${this.id}`);
 
       for (const [key, item] of Object.entries(items)) {
         const matches = item.match(/^ref\((.+)\)( as (.+))?$/);
@@ -315,6 +319,74 @@ class Service extends AdapterService {
 
       q.select(...items);
     }
+    return q;
+  }
+
+  // Analyse $select and get an object map with fields -> alias
+  _selectAliases ($select) {
+    if (!Array.isArray($select)) {
+      return {
+      };
+    }
+    return $select.reduce((result, item) => {
+      const matches = item.match(/^(?:ref\((\S+)\)|(\S+))(?: as (.+))?$/);
+      if (matches) {
+        const tableField = matches[1] || matches[2];
+        const field = tableField.startsWith(`${this.Model.tableName}.`) ? tableField.substr(this.Model.tableName.length + 1) : tableField;
+        const alias = matches[3] || field;
+        result[field] = alias;
+      } else {
+        // Can't parse $select !
+        throw new errors.BadRequest(`${item} is not a valid select statement`);
+      }
+      return result;
+    }, {});
+  }
+
+  _selectFields (params, originalData = {}) {
+    return newObject => {
+      if (params.query && params.query.$noSelect) {
+        return originalData;
+      }
+      // Remove not selected fields
+      if (params.query && params.query.$select && !params.query.$select.find(field => field === '*' || field === `${this.Model.tableName}.*`)) {
+        const $fieldsOrAliases = this._selectAliases(params.query.$select);
+        for (const key of Object.keys(newObject)) {
+          if (!$fieldsOrAliases[key]) {
+            delete newObject[key];
+          } else if ($fieldsOrAliases[key] !== key) {
+            // Aliased field
+            newObject[$fieldsOrAliases[key]] = newObject[key];
+            delete newObject[key];
+          }
+        }
+      }
+      return newObject;
+    };
+  }
+
+  _checkUpsertId (id, newObject) {
+    const updateId = this.getIdsQuery(id, undefined, false);
+    Object.keys(updateId).forEach(key => {
+      if (!Object.prototype.hasOwnProperty.call(newObject, key)) {
+        newObject[key] = updateId[key]; // id is missing in data, we had it
+      } else if (newObject[key] !== updateId[key]) {
+        throw new errors.BadRequest(`Id '${key}': values mismatch between data '${newObject[key]}' and request '${updateId[key]}'`);
+      }
+    });
+  }
+
+  createQuery (params = {}) {
+    const { filters, query } = this.filterQuery(params);
+    const q = this._createQuery(params).skipUndefined();
+    const eagerOptions = { ...this.eagerOptions, ...params.eagerOptions };
+
+    if (this.allowedEager) { q.allowGraph(this.allowedEager); }
+
+    if (params.mergeAllowEager) { q.allowGraph(params.mergeAllowEager); }
+
+    // $select uses a specific find syntax, so it has to come first.
+    this._selectQuery(q, filters.$select);
 
     // $eager for Objection eager queries
     if (query && query.$eager) {
@@ -323,7 +395,9 @@ class Service extends AdapterService {
       delete query.$eager;
     }
 
-    if (query && query.$joinEager) {
+    const joinEager = query && query.$joinEager;
+
+    if (joinEager) {
       q.withGraphJoined(query.$joinEager, eagerOptions);
 
       delete query.$joinEager;
@@ -338,7 +412,7 @@ class Service extends AdapterService {
     }
 
     if (query && query.$mergeEager) {
-      q[query.$joinEager ? 'withGraphJoined' : 'withGraphFetched'](query.$mergeEager, eagerOptions);
+      q[joinEager ? 'withGraphJoined' : 'withGraphFetched'](query.$mergeEager, eagerOptions);
 
       delete query.$mergeEager;
     }
@@ -440,6 +514,10 @@ class Service extends AdapterService {
           countQuery
             .joinRelated(query.$joinRelation)
             .countDistinct({ total: countColumns });
+        } else if (query.$joinEager) {
+          countQuery
+            .joinRelated(query.$joinEager)
+            .countDistinct({ total: countColumns });
         } else if (countColumns.length > 1) {
           countQuery.countDistinct({ total: countColumns });
         } else {
@@ -472,9 +550,11 @@ class Service extends AdapterService {
   }
 
   _get (id, params) {
-    const query = Object.assign({}, params.query, this.getIdsQuery(id));
+    // merge user query with the 'id' to get
+    const findQuery = Object.assign({}, { $and: [] }, params.query);
+    findQuery.$and.push(this.getIdsQuery(id));
 
-    return this._find(Object.assign({}, params, { query }))
+    return this._find(Object.assign({}, params, { query: findQuery }))
       .then(page => {
         const data = page.data || page;
 
@@ -545,49 +625,56 @@ class Service extends AdapterService {
    * @param params
    */
   _update (id, data, params) {
-    // NOTE (EK): First fetch the old record so
-    // that we can fill any existing keys that the
-    // client isn't updating with null;
+    // NOTE : First fetch the item to update to account for user query
     return this._get(id, params)
-      .then(oldData => {
-        let newObject = {};
+      .then(() => {
+        // NOTE: Next, fetch table metadata so
+        // that we can fill any existing keys that the
+        // client isn't updating with null;
+        return this.Model.fetchTableMetadata()
+          .then(meta => {
+            let newObject = Object.assign({}, data);
 
-        for (const key of Object.keys(oldData)) {
-          if (data[key] === undefined) {
-            newObject[key] = null;
-          } else {
-            newObject[key] = data[key];
-          }
-        }
-
-        const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
-        if (allowedUpsert) {
-          return this._createQuery(params)
-            .allowGraph(allowedUpsert)
-            .upsertGraphAndFetch(newObject, this.upsertGraphOptions);
-        }
-
-        // NOTE (EK): Delete id field so we don't update it
-        if (Array.isArray(this.id)) {
-          for (const idKey of this.id) {
-            delete newObject[idKey];
-          }
-        } else {
-          delete newObject[this.id];
-        }
-        return this._createQuery(params)
-          .where(this.getIdsQuery(id))
-          .update(newObject)
-          .then(() => {
-            // NOTE (EK): Restore the id field so we can return it to the client
-            if (Array.isArray(this.id)) {
-              newObject = Object.assign({}, newObject, this.getIdsQuery(id));
-            } else {
-              newObject[this.id] = id;
+            const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
+            if (allowedUpsert) {
+              // Ensure the object we fetched is the one we update
+              this._checkUpsertId(id, newObject);
             }
 
-            return newObject;
-          });
+            for (const key of meta.columns) {
+              if (newObject[key] === undefined) {
+                newObject[key] = null;
+              }
+            }
+
+            if (allowedUpsert) {
+              return this._createQuery(params)
+                .allowGraph(allowedUpsert)
+                .upsertGraphAndFetch(newObject, this.upsertGraphOptions);
+            }
+
+            // NOTE (EK): Delete id field so we don't update it
+            if (Array.isArray(this.id)) {
+              for (const idKey of this.id) {
+                delete newObject[idKey];
+              }
+            } else {
+              delete newObject[this.id];
+            }
+            return this._createQuery(params)
+              .where(this.getIdsQuery(id))
+              .update(newObject)
+              .then(() => { // BUG if nothing updated, throw a NotFound
+                // NOTE (EK): Restore the id field so we can return it to the client
+                if (Array.isArray(this.id)) {
+                  newObject = Object.assign({}, newObject, this.getIdsQuery(id));
+                } else {
+                  newObject[this.id] = id;
+                }
+                return newObject;
+              });
+          })
+          .then(this._selectFields(params, data));
       })
       .catch(errorHandler);
   }
@@ -603,11 +690,16 @@ class Service extends AdapterService {
 
     const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
     if (allowedUpsert && id !== null) {
-      const dataCopy = Object.assign({}, data, this.getIdsQuery(id, null, false));
+      const dataCopy = Object.assign({}, data);
+      this._checkUpsertId(id, dataCopy);
 
-      return this._createQuery(params)
-        .allowGraph(allowedUpsert)
-        .upsertGraphAndFetch(dataCopy, this.upsertGraphOptions);
+      // Get object first to ensure it satisfy user query
+      return this._get(id, params).then(() => {
+        return this._createQuery(params)
+          .allowGraph(allowedUpsert)
+          .upsertGraphAndFetch(dataCopy, this.upsertGraphOptions)
+          .then(this._selectFields(params, data));
+      });
     }
 
     const dataCopy = Object.assign({}, data);
@@ -654,9 +746,8 @@ class Service extends AdapterService {
             findParams.query[key] = dataCopy[key];
           }
         }
-
         return q.patch(dataCopy).then(() => {
-          return params.query && params.query.$noSelect ? {} : this._find(findParams).then(page => {
+          return params.query && params.query.$noSelect ? dataCopy : this._find(findParams).then(page => {
             const items = page.data || page;
 
             if (id !== null) {

@@ -135,7 +135,8 @@ operators are:
 '$notILike',
 '$or',
 '$and',
-'$sort'
+'$sort',
+'$not'
 ```
 
 ### Eager Queries
@@ -199,7 +200,9 @@ Note that all this eager related options are optional.
 
 - **`$noSelect`** - skips SELECT queries in create, patch & remove requests. response data will be based on the input data.
 
-- **`$null`** - filter based on if a column is NULL with REST support, e.g. `companies.find({ query: { ceo: { $null: false } } })`, `companies.find({ query: { ceo: { $null: 'false' } } })` 
+- **`$null`** - filter based on if a column is NULL with REST support, e.g. `companies.find({ query: { ceo: { $null: false } } })`, `companies.find({ query: { ceo: { $null: 'false' } } })`
+
+- **`$not`** - filter based on if a query is NOT true. It can be used with an object `$not: { name: { $in: ['craig', 'tim'] } }` or array `$not: [ { $id: 1 }, { $id: 2 } ]`
 
 - **`$between`** - filter based on if a column value is between range of values
 
@@ -335,12 +338,9 @@ app.service('companies').find({
 
 Arbitrary relation graphs can be upserted (insert + update + delete) using the
 upsertGraph method. See
-[`examples`](https://vincit.github.io/objection.js/guide/query-examples.html#graph-upserts) for a better
-explanation.  
-Runs on `update` and `patch` service methods when `id` is set.
+[`examples`](https://vincit.github.io/objection.js/guide/query-examples.html#graph-upserts) for a better explanation.  
 
-_The relation being upserted must also be present in `allowedEager` option and
-included in `$eager` query when using the `update` service method._
+Runs on `update` and `patch` service methods when `id` is set. When the `data` object also contains `id`, then both must be the same or an error is thrown.
 
 #### Service Options
 
@@ -385,11 +385,9 @@ be updated (if there are any changes at all).
 ### Graph insert
 
 Arbitrary relation graphs can be inserted using the insertGraph method. Provides
-the ability to relate the inserted object with its associations. Runs on the
-`.create(data, params)` service method.
+the ability to relate the inserted object with its associations.  
 
-_The relation being created must also be present in `allowedEager` option and
-included in `$eager` query._
+Runs on the `.create(data, params)` service method.
 
 #### Service Options
 
@@ -866,8 +864,23 @@ The following breaking changes have been introduced:
 - `namedEagerFilters` service option was removed. use Model's [`modifiers`](https://vincit.github.io/objection.js/recipes/modifiers.html#modifiers) instead
 - Model's `namedFilters` property was renamed to `modifiers`
 
+## Migrating to `feathers-objection` v6
+
+`feathers-objection` 6.0.0 comes with usability and security updates
+
+- `$not` operator is now available. It can be used with an object `$not: { name: { $in: ["craig", "tim"] } }` or array `$not: [ { $id: 1 }, { $id: 2 } ]`
+- `$eager` is no longer needed with upsert operations
+
+The following breaking changes have been introduced:
+
+- Graph upsert now requires that `id` fields in the `data` object will match the `id` argument
+- `$noSelect` now always return the input data
+- `$select` is now honored with upsert methods
+- `patch` method now enforce `params.query` with upsert
+- NotFound error will be thrown when `get` & `update` methods are called with different values in `id` & `params.query.id`
+
 ## License
 
-Copyright © 2019
+Copyright © 2020
 
 Licensed under the [MIT license](LICENSE).

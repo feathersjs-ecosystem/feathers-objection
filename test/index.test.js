@@ -97,7 +97,7 @@ const app = feathers()
       model: People,
       id: 'id',
       multi: ['create'],
-      whitelist: ['$and', '$like', '$between', '$notBetween'],
+      whitelist: ['$and', '$like', '$between', '$notBetween', '$null', '$noSelect'],
       events: ['testing']
     })
   )
@@ -134,7 +134,7 @@ const app = feathers()
       model: Company,
       id: 'id',
       multi: ['create', 'remove', 'patch'],
-      whitelist: ['$eager', '$joinRelation', '$modifyEager', '$mergeEager', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like', '$null', '$modify', '$allowRefs'],
+      whitelist: ['$eager', '$joinEager', '$joinRelation', '$modifyEager', '$mergeEager', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like', '$null', '$modify', '$allowRefs'],
       allowedEager: '[ceos, clients, employees]',
       eagerFilters: [
         {
@@ -790,6 +790,13 @@ describe('Feathers Objection Service', () => {
       });
     });
 
+    it('allows mergeEager queries with joinEager', () => {
+      return companies.find({ query: { $joinEager: 'employees', $mergeEager: 'ceos', 'employees.name': { $like: '%' } }, mergeAllowEager: '[employees, ceos]' }).then(data => {
+        expect(data[0].employees).to.be.ok;
+        expect(data[0].ceos).to.be.ok;
+      });
+    });
+
     it('allows modifyEager queries', () => {
       return companies.find({ query: { $eager: 'employees', $modifyEager: { employees: { name: 'John' } } }, mergeAllowEager: 'employees' }).then(data => {
         expect(data[0].employees.length).to.equal(2);
@@ -870,6 +877,10 @@ describe('Feathers Objection Service', () => {
       for (const company of ids.companies) { await companies.remove(company.id); }
     });
 
+    afterEach(async () => {
+      employees.options.paginate = {};
+    });
+
     it('allows joinEager queries', () => {
       return employees.find({ query: { $joinEager: 'company' } }).then(data => {
         expect(data[0].company).to.be.ok;
@@ -890,6 +901,27 @@ describe('Feathers Objection Service', () => {
         .then(data => {
           expect(data.length).to.equal(2);
           expect(data[0].company.name).to.equal('Google');
+        });
+    });
+
+    it('allows filtering by relation field with paginate joinEager queries', () => {
+      employees.options.paginate = {
+        default: 1,
+        max: 2
+      };
+      return employees
+        .find({
+          query: {
+            $joinEager: 'company',
+            'company.name': {
+              $like: 'Google'
+            }
+          }
+        })
+        .then(data => {
+          expect(data.total).to.be.equal(2);
+          expect(data.data.length).to.equal(1);
+          expect(data.data[0].company.name).to.equal('Google');
         });
     });
 
@@ -1058,6 +1090,7 @@ describe('Feathers Objection Service', () => {
   describe('Graph Upsert Queries', () => {
     let ceo;
     let google;
+    let apple;
 
     beforeEach(async () => {
       ceo = await people
@@ -1066,7 +1099,7 @@ describe('Feathers Objection Service', () => {
           age: 20
         });
 
-      [google] = await companies
+      [google, apple] = await companies
         .create([
           {
             name: 'Google',
@@ -1099,15 +1132,50 @@ describe('Feathers Objection Service', () => {
 
       return companies
         .update(google.id, {
-          id: google.id,
           name: 'Alphabet',
           clients: newClients
-        }, { query: { $eager: 'clients' } }).then(() => {
+        }).then(() => { // NOTE: Do not need $eager anymore
           return companies.find({ query: { $eager: 'clients' } }).then(data => {
             expect(data[0].name).equal('Alphabet');
             expect(data[0].clients).to.be.an('array');
             expect(data[0].clients).to.have.lengthOf(2);
           });
+        });
+    });
+
+    it('forbid upsertGraph if data do not match update item', () => {
+      const newClients = (google.clients) ? google.clients.concat([{
+        name: 'Ken Patrick'
+      }]) : [];
+
+      return companies
+        .update(apple.id, {
+          id: google.id,
+          name: 'Alphabet',
+          clients: newClients
+        }).then(() => {
+          throw new Error('Should never get here');
+        }).catch(function (error) {
+          expect(error).to.be.ok;
+          expect(error instanceof errors.BadRequest).to.be.ok;
+        });
+    });
+
+    it('forbid upsertGraph if data do not match patch item', () => {
+      const newClients = (google.clients) ? google.clients.concat([{
+        name: 'Ken Patrick'
+      }]) : [];
+
+      return companies
+        .patch(apple.id, {
+          id: google.id,
+          name: 'Alphabet',
+          clients: newClients
+        }).then(() => {
+          throw new Error('Should never get here');
+        }).catch(function (error) {
+          expect(error).to.be.ok;
+          expect(error instanceof errors.BadRequest).to.be.ok;
         });
     });
 
@@ -1129,6 +1197,23 @@ describe('Feathers Objection Service', () => {
             expect(data[0].clients).to.be.an('array');
             expect(data[0].clients).to.have.lengthOf(2);
           });
+        });
+    });
+
+    it('allows upsertGraph queries on patch with query param', () => {
+      const newClients = (google.clients) ? google.clients.concat([{
+        name: 'Ken Patrick'
+      }]) : [];
+
+      return companies
+        .patch(google.id, {
+          name: 'Google Alphabet',
+          clients: newClients
+        }, { query: { name: 'microsoft' } }).then(() => {
+          throw new Error('Should never get here');
+        }).catch(function (error) {
+          expect(error).to.be.ok;
+          expect(error instanceof errors.NotFound).to.be.ok;
         });
     });
 
@@ -1211,6 +1296,167 @@ describe('Feathers Objection Service', () => {
     });
   });
 
+  describe('$not method', () => {
+    before(async () => {
+      const persons = await people.find();
+
+      for (const person of persons) { await people.remove(person.id); }
+
+      await people
+        .create([
+          {
+            name: 'John',
+            age: 23
+          },
+          {
+            name: 'Dave',
+            age: 32
+          },
+          {
+            name: 'Dada',
+            age: 1
+          }
+        ]);
+    });
+
+    it('$not in query', () => {
+      return people.find({ query: { $not: { name: 'John' } } }).then(data => {
+        expect(data.length).to.be.equal(2);
+        expect(data[0].name).to.be.equal('Dave');
+      });
+    });
+
+    it('$not with implicit $and in query', () => {
+      return people.find({ query: { $not: [{ name: 'John' }, { name: 'Dave' }] } }).then(data => {
+        expect(data.length).to.be.equal(3);
+        expect(data[0].name).to.be.equal('John');
+      });
+    });
+
+    it('$not with $and in query', () => {
+      return people.find({ query: { $not: { $and: [{ name: 'John' }, { name: 'Dave' }] } } }).then(data => {
+        expect(data.length).to.be.equal(3);
+        expect(data[0].name).to.be.equal('John');
+      });
+    });
+
+    it('$not with $or in query', () => {
+      return people.find({ query: { $not: { $or: [{ name: 'John' }, { name: 'Dave' }] } } }).then(data => {
+        expect(data.length).to.be.equal(1);
+        expect(data[0].name).to.be.equal('Dada');
+      });
+    });
+
+    it('$not with $null in query', () => {
+      return people.find({ query: { $not: { name: { $null: true } } } }).then(data => {
+        expect(data.length).to.be.equal(3);
+      });
+    });
+  });
+
+  describe('select with mutating methods', () => {
+    it('$select with aliases and update', async () => {
+      const p = await people
+        .create(
+          {
+            name: 'Dave',
+            age: 1
+          }
+        );
+      return people.update(p.id, { age: 3, name: 'John' }, { query: { $select: ['people.name as n'] } }).then(data => {
+        expect(data.n).to.be.equal('John');
+        expect(data.age).to.be.equal(undefined);
+      });
+    });
+
+    it('$select and update upsert', async () => {
+      const p = await people
+        .create(
+          {
+            name: 'Dave',
+            age: 1
+          }
+        );
+      return people.update(p.id, { id: p.id, age: 3, name: 'John' }, { query: { $select: ['people.age', 'people.name'] }, mergeAllowUpsert: 'company' }).then(data => {
+        expect(data.name).to.be.equal('John');
+        expect(data.age).to.be.equal(3);
+      });
+    });
+
+    // it.todo('$select and update upsert with relation fetching');
+
+    it('$select and patch', async () => {
+      const p = await people
+        .create(
+          {
+            name: 'Dave',
+            age: 1
+          }
+        );
+      return people.patch(p.id, { name: 'John' }, { query: { $select: ['name as n'] } }).then(data => {
+        expect(data.n).to.be.equal('John');
+        expect(data.age).to.be.equal(undefined);
+      });
+    });
+
+    it('$select all and patch upsert', async () => {
+      const p = await people
+        .create(
+          {
+            name: 'Dave',
+            age: 1
+          }
+        );
+      return people.patch(p.id, { name: 'John' }, { query: { $select: ['people.*'] }, mergeAllowUpsert: 'company' }).then(data => {
+        expect(data.name).to.be.equal('John');
+        expect(data.age).to.be.equal(1);
+      });
+    });
+
+    it('$select and patch upsert', async () => {
+      const p = await people
+        .create(
+          {
+            name: 'Dave',
+            age: 1
+          }
+        );
+      return people.patch(p.id, { id: p.id, name: 'John' }, { query: { $select: ['age'] }, mergeAllowUpsert: 'company' }).then(data => {
+        expect(data.name).to.be.equal(undefined);
+        expect(data.age).to.be.equal(1);
+      });
+    });
+
+    it('$noSelect and patch', async () => {
+      const p = await people
+        .create(
+          {
+            name: 'Dave',
+            age: 1
+          }
+        );
+      return people.patch(p.id, { name: 'John' }, { query: { $noSelect: true, $select: ['name as n'] } }).then(data => {
+        expect(data.name).to.be.equal('John');
+        expect(data.n).to.be.equal(undefined);
+        expect(data.age).to.be.equal(undefined);
+      });
+    });
+
+    it('$noSelect and update', async () => {
+      const p = await people
+        .create(
+          {
+            name: 'Dave',
+            age: 1
+          }
+        );
+      return people.update(p.id, { age: 3, name: 'John' }, { query: { $noSelect: true, $select: ['name as n'] } }).then(data => {
+        expect(data.n).to.be.equal(undefined);
+        expect(data.age).to.be.equal(3);
+      });
+    });
+  });
+
   describe('between & not between operators', () => {
     before(async () => {
       await people
@@ -1244,6 +1490,12 @@ describe('Feathers Objection Service', () => {
 
     it('$notBetween', () => {
       return people.find({ query: { age: { $notBetween: [0, 100] } } }).then(data => {
+        expect(data[0].name).to.be.equal('John');
+      });
+    });
+
+    it('not Between using $not', () => {
+      return people.find({ query: { age: { $not: { $between: [0, 100] } } } }).then(data => {
         expect(data[0].name).to.be.equal('John');
       });
     });
@@ -1635,6 +1887,8 @@ describe('Feathers Objection Service', () => {
         }
       }).then(data => {
         expect(data).to.be.ok;
+        expect(data.name).to.equal('Amazon');
+        delete data.name;
         expect(data).to.be.empty;
       });
     });
