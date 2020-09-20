@@ -1,5 +1,19 @@
 # Changelog
 
+## [v6.0.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v6.0.0) (2020-09-20)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.8.1...v6.0.0)
+
+**Closed issues:**
+
+- How can I override the default model? [\#116](https://github.com/feathersjs-ecosystem/feathers-objection/issues/116)
+- Getting 500 status codes for anything that isn't 2xx status code [\#112](https://github.com/feathersjs-ecosystem/feathers-objection/issues/112)
+- query params ignored for calls to patch for a service with allowUpsert  [\#97](https://github.com/feathersjs-ecosystem/feathers-objection/issues/97)
+
+**Merged pull requests:**
+
+- joinEager Fixes + $not Operator all with tests [\#114](https://github.com/feathersjs-ecosystem/feathers-objection/pull/114) ([Thomas-git](https://github.com/Thomas-git))
+
 ## [v5.8.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.8.1) (2020-09-18)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.8.0...v5.8.1)
