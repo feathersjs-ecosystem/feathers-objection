@@ -1,5 +1,19 @@
 # Changelog
 
+## [v6.1.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v6.1.0) (2020-10-19)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v6.0.0...v6.1.0)
+
+**Closed issues:**
+
+- Feature request: Customizing the query [\#123](https://github.com/feathersjs-ecosystem/feathers-objection/issues/123)
+- $modifyEager issue [\#122](https://github.com/feathersjs-ecosystem/feathers-objection/issues/122)
+- Missing documentation on insertGraph [\#121](https://github.com/feathersjs-ecosystem/feathers-objection/issues/121)
+- Bug: Query customization doesn't apply to the count SQL query [\#120](https://github.com/feathersjs-ecosystem/feathers-objection/issues/120)
+- Query customization: Can all where clauses be enclosed in parentheses after they have been added? [\#119](https://github.com/feathersjs-ecosystem/feathers-objection/issues/119)
+- "NotFound: No record found for id ‘null’."  when using query for remove and patch which returns no results.  [\#118](https://github.com/feathersjs-ecosystem/feathers-objection/issues/118)
+- Cannot get Virtual Attributes to show up in any api response [\#117](https://github.com/feathersjs-ecosystem/feathers-objection/issues/117)
+
 ## [v6.0.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v6.0.0) (2020-09-20)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.8.1...v6.0.0)
@@ -34,10 +48,6 @@
 
 - \[Q\] query service with property in array of objects jsonb [\#111](https://github.com/feathersjs-ecosystem/feathers-objection/issues/111)
 - Relate [\#110](https://github.com/feathersjs-ecosystem/feathers-objection/issues/110)
-
-**Merged pull requests:**
-
-- Fix for default operators getting overwritten by options.whitelist instead of concat [\#108](https://github.com/feathersjs-ecosystem/feathers-objection/pull/108) ([satyadeepk](https://github.com/satyadeepk))
 
 ## [v5.7.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.7.0) (2020-07-25)
 
@@ -240,6 +250,7 @@
 
 **Merged pull requests:**
 
+- Fix for default operators getting overwritten by options.whitelist instead of concat [\#108](https://github.com/feathersjs-ecosystem/feathers-objection/pull/108) ([satyadeepk](https://github.com/satyadeepk))
 - Add any as default type parameter [\#73](https://github.com/feathersjs-ecosystem/feathers-objection/pull/73) ([daffl](https://github.com/daffl))
 
 ## [v4.6.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.6.0) (2019-12-06)
