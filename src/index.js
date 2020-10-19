@@ -279,10 +279,26 @@ class Service extends AdapterService {
   }
 
   modifyQuery (query, modify) {
+    let modifiers = null;
+
     if (typeof modify === 'string') {
-      if (modify[0] === '[' && modify[modify.length - 1] === ']') { query.modify(...JSON.parse(modify)); } else { query.modify(modify.split(',')); }
-    } else {
+      if (modify[0] === '[' && modify[modify.length - 1] === ']') {
+        query.modify(...JSON.parse(modify));
+      } else if (modify[0] === '{' && modify[modify.length - 1] === '}') {
+        modifiers = JSON.parse(modify);
+      } else {
+        query.modify(modify.split(','));
+      }
+    } else if (Array.isArray(modify)) {
       query.modify(...modify);
+    } else {
+      modifiers = modify;
+    }
+
+    if (modifiers) {
+      for (const [modifier, args] of Object.entries(modifiers)) {
+        if (args === true) { query.modify(modifier); } else { query.modify(modifier, ...args); }
+      }
     }
   }
 

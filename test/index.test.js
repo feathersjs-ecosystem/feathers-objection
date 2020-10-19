@@ -2080,10 +2080,19 @@ describe('Feathers Objection Service', () => {
       });
     });
 
-    it('allow $modify query as string array', () => {
+    it('allow $modify query with serialized array', () => {
       return companies.find({ query: { $modify: JSON.stringify(['google']) } }).then(data => {
         expect(data.length).to.be.equal(1);
         expect(data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('allow $modify query with serialized object', () => {
+      return companies.find({
+        query: { $modify: JSON.stringify({ apple: true }) }
+      }).then(data => {
+        expect(data.length).to.be.equal(1);
+        expect(data[0].name).to.be.equal('Apple');
       });
     });
 
@@ -2104,6 +2113,23 @@ describe('Feathers Objection Service', () => {
     it('allow $modify query with multiple modifiers and args', () => {
       return companies.find({ query: { $modify: [['apple', 'large'], true] } }).then(data => {
         expect(data.length).to.be.equal(0);
+      });
+    });
+
+    it('allow $modify query with multiple modifiers and different args for each', () => {
+      return companies.find({
+        query: {
+          $modify: {
+            apple: [false],
+            large: [false],
+            withRelation: true
+          }
+        }
+      }).then(data => {
+        expect(data.length).to.be.equal(1);
+        expect(data[0].name).to.be.equal('Apple');
+        expect(data[0].employees.length).to.be.equal(1);
+        expect(data[0].employees[0].name).to.be.equal('Dave');
       });
     });
   });
