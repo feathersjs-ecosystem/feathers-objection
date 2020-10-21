@@ -15,7 +15,7 @@ import PeopleRoomsCustomIdSeparator from './people-rooms-custom-id-separator';
 import Company from './company';
 import Employee from './employee';
 import Client from './client';
-import { Model } from 'objection';
+import { Model, UniqueViolationError } from 'objection';
 
 const testSuite = adapterTests([
   '.options',
@@ -238,6 +238,7 @@ function clean (done) {
               table.json('jsonArray');
               table.jsonb('jsonbObject');
               table.jsonb('jsonbArray');
+              table.unique('name');
             });
           });
         });
@@ -260,6 +261,7 @@ function clean (done) {
             table.increments('id');
             table.integer('companyId');
             table.string('name');
+            table.unique('name');
           })
           .then(() => done());
       });
@@ -1063,18 +1065,18 @@ describe('Feathers Objection Service', () => {
       return companies
         .create([
           {
-            name: 'Google',
+            name: 'Facebook',
             clients: [
               {
-                name: 'Dan Davis'
+                name: 'Danny Lapierre'
               },
               {
-                name: 'Ken Patrick'
+                name: 'Kirck Filty'
               }
             ]
           },
           {
-            name: 'Apple'
+            name: 'Yubico'
           }
         ]).then(() => {
           companies.createUseUpsertGraph = false;
@@ -1841,6 +1843,149 @@ describe('Feathers Objection Service', () => {
           return people.find({ query: { name: 'Rollback' } }).then((data) => {
             expect(data.length).to.equal(0);
           });
+        });
+      });
+    });
+  });
+
+  describe('Auto Transactions', () => {
+    before(async () => {
+      await companies
+        .create([
+          {
+            name: 'Google',
+            clients: [
+              {
+                name: 'Dan Davis'
+              },
+              {
+                name: 'Ken Patrick'
+              }
+            ]
+          },
+          {
+            name: 'Apple'
+          },
+          {
+            name: 'GoogleA'
+          }
+        ]);
+    });
+
+    after(async () => {
+      await clients.remove(null);
+      await companies.remove(null);
+    });
+
+    it('Rollback on sub insert failure', () => {
+      // Dan Davis already exists
+      return companies.create({ name: 'Compaq', clients: [{ name: 'Dan Davis' }] }, { $startTransaction: true }).catch((error) => {
+        expect(error instanceof errors.GeneralError).to.be.ok;
+        expect(error.message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
+        return companies.find({ query: { name: 'Compaq', $eager: 'clients' } }).then(
+          (data) => {
+            expect(data.length).to.equal(0);
+          });
+      });
+    });
+
+    it('Rollback on multi insert failure', () => {
+      // Google already exists
+      return companies.create([{ name: 'Google' }, { name: 'Compaq' }], { $startTransaction: true }).catch((error) => {
+        expect(error instanceof errors.GeneralError).to.be.ok;
+        expect(error.message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
+        return companies.find({ query: { name: 'Compaq' } }).then(
+          (data) => {
+            expect(data.length).to.equal(0);
+          });
+      });
+    });
+
+    it('Rollback on update failure', () => {
+      // Dan Davis appears twice, so clients must stay as it is
+      return companies.find({ query: { name: 'Google' } }).then(data => {
+        return companies.update(data[0].id, {
+          name: 'Google',
+          clients: [
+            {
+              name: 'Dan Davis'
+            },
+            {
+              name: 'Dan Davis'
+            },
+            {
+              name: 'Kirk Maelström'
+            }
+          ]
+        }, { $startTransaction: true }).catch((error) => {
+          expect(error instanceof errors.GeneralError).to.be.ok;
+          expect(error.message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
+          return companies.find({ query: { name: 'Google', $eager: 'clients' } }).then(
+            (data) => {
+              expect(data.length).to.equal(1);
+              expect(data[0].clients.length).to.equal(2);
+              expect(data[0].clients[0].name).to.equal('Dan Davis');
+              expect(data[0].clients[1].name).to.equal('Ken Patrick');
+            });
+        });
+      });
+    });
+
+    it('Rollback on patch failure', () => {
+      // Dan Davis appears twice, so clients must stay as it is
+      return companies.find({ query: { name: 'Google' } }).then(data => {
+        return companies.patch(data[0].id, {
+          clients: [
+            {
+              name: 'Dan Davis'
+            },
+            {
+              name: 'Dan Davis'
+            },
+            {
+              name: 'Kirk Maelström'
+            }
+          ]
+        }, { $startTransaction: true }).catch((error) => {
+          expect(error instanceof UniqueViolationError).to.be.ok;
+          expect(error.message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
+          return companies.find({ query: { name: 'Google', $eager: 'clients' } }).then(
+            (data) => {
+              expect(data.length).to.equal(1);
+              expect(data[0].clients.length).to.equal(2);
+              expect(data[0].clients[0].name).to.equal('Dan Davis');
+              expect(data[0].clients[1].name).to.equal('Ken Patrick');
+            });
+        });
+      });
+    });
+
+    it('Commit on patch success', () => {
+      // Dan Davis appears twice, so clients must stay as it is
+      return companies.find({ query: { name: 'Google' } }).then(data => {
+        return companies.patch(data[0].id, {
+          clients: [
+            {
+              name: 'Dan David'
+            },
+            {
+              name: 'Dan Davis'
+            },
+            {
+              name: 'Kirk Maelström'
+            }
+          ]
+        }, { $startTransaction: true }).catch((error) => {
+          expect(error instanceof UniqueViolationError).to.be.ok;
+          expect(error.message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
+          return companies.find({ query: { name: 'Google', $eager: 'clients' } }).then(
+            (data) => {
+              expect(data.length).to.equal(1);
+              expect(data[0].clients.length).to.equal(3);
+              expect(data[0].clients[0].name).to.equal('Dan David');
+              expect(data[0].clients[0].name).to.equal('Dan Davis');
+              expect(data[0].clients[1].name).to.equal('Kirk Maelström');
+            });
         });
       });
     });
