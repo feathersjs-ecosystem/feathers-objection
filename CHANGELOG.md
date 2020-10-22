@@ -1,12 +1,19 @@
 # Changelog
 
+## [v6.1.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v6.1.1) (2020-10-22)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v6.1.0...v6.1.1)
+
+**Closed issues:**
+
+- Feature request: Customizing the query [\#123](https://github.com/feathersjs-ecosystem/feathers-objection/issues/123)
+
 ## [v6.1.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v6.1.0) (2020-10-19)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v6.0.0...v6.1.0)
 
 **Closed issues:**
 
-- Feature request: Customizing the query [\#123](https://github.com/feathersjs-ecosystem/feathers-objection/issues/123)
 - $modifyEager issue [\#122](https://github.com/feathersjs-ecosystem/feathers-objection/issues/122)
 - Missing documentation on insertGraph [\#121](https://github.com/feathersjs-ecosystem/feathers-objection/issues/121)
 - Bug: Query customization doesn't apply to the count SQL query [\#120](https://github.com/feathersjs-ecosystem/feathers-objection/issues/120)
@@ -48,6 +55,10 @@
 
 - \[Q\] query service with property in array of objects jsonb [\#111](https://github.com/feathersjs-ecosystem/feathers-objection/issues/111)
 - Relate [\#110](https://github.com/feathersjs-ecosystem/feathers-objection/issues/110)
+
+**Merged pull requests:**
+
+- Fix for default operators getting overwritten by options.whitelist instead of concat [\#108](https://github.com/feathersjs-ecosystem/feathers-objection/pull/108) ([satyadeepk](https://github.com/satyadeepk))
 
 ## [v5.7.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.7.0) (2020-07-25)
 
@@ -250,7 +261,6 @@
 
 **Merged pull requests:**
 
-- Fix for default operators getting overwritten by options.whitelist instead of concat [\#108](https://github.com/feathersjs-ecosystem/feathers-objection/pull/108) ([satyadeepk](https://github.com/satyadeepk))
 - Add any as default type parameter [\#73](https://github.com/feathersjs-ecosystem/feathers-objection/pull/73) ([daffl](https://github.com/daffl))
 
 ## [v4.6.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.6.0) (2019-12-06)
@@ -285,6 +295,7 @@
 **Merged pull requests:**
 
 - Parse relation expressions at service creation time [\#69](https://github.com/feathersjs-ecosystem/feathers-objection/pull/69) ([vonagam](https://github.com/vonagam))
+- Update all dependencies [\#67](https://github.com/feathersjs-ecosystem/feathers-objection/pull/67) ([daffl](https://github.com/daffl))
 
 ## [v4.4.3](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.4.3) (2019-10-11)
 
@@ -318,10 +329,6 @@
 
 - error on eager loading [\#64](https://github.com/feathersjs-ecosystem/feathers-objection/issues/64)
 - "iLike" is "ilike" and it is not whitelisted.  [\#63](https://github.com/feathersjs-ecosystem/feathers-objection/issues/63)
-
-**Merged pull requests:**
-
-- Update all dependencies [\#67](https://github.com/feathersjs-ecosystem/feathers-objection/pull/67) ([daffl](https://github.com/daffl))
 
 ## [v4.2.4](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.2.4) (2019-09-23)
 
@@ -527,7 +534,6 @@
 - Added ability to use Upsert Graph on create method [\#35](https://github.com/feathersjs-ecosystem/feathers-objection/pull/35) ([NotAmaan](https://github.com/NotAmaan))
 - Bumped version to 1.1.2 [\#31](https://github.com/feathersjs-ecosystem/feathers-objection/pull/31) ([NotAmaan](https://github.com/NotAmaan))
 - Bumped version to 1.1.2 [\#30](https://github.com/feathersjs-ecosystem/feathers-objection/pull/30) ([NotAmaan](https://github.com/NotAmaan))
-- Added ilike operator \(postgres only\) [\#29](https://github.com/feathersjs-ecosystem/feathers-objection/pull/29) ([NotAmaan](https://github.com/NotAmaan))
 
 ## [v1.1.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v1.1.1) (2018-08-27)
 
@@ -644,6 +650,7 @@
 
 **Merged pull requests:**
 
+- Added ilike operator \(postgres only\) [\#29](https://github.com/feathersjs-ecosystem/feathers-objection/pull/29) ([NotAmaan](https://github.com/NotAmaan))
 - Add $joinEager query param to fetch relations with JoinEagerAlgorithm [\#10](https://github.com/feathersjs-ecosystem/feathers-objection/pull/10) ([cdelaorden](https://github.com/cdelaorden))
 
 ## [v0.6.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v0.6.0) (2017-04-21)
