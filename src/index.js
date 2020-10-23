@@ -582,56 +582,118 @@ class Service extends AdapterService {
       });
   }
 
+  _getCreatedRecords (insertResults, inputData, params) {
+    if (params.query && params.query.$noSelect) {
+      return inputData;
+    }
+    if (!Array.isArray(insertResults)) {
+      insertResults = [insertResults];
+    }
+
+    const findQuery = Object.assign({ $and: [] }, params.query);
+    const idsQueries = [];
+
+    if (Array.isArray(this.id)) {
+      for (const insertResult of insertResults) {
+        const ids = [];
+
+        for (const idKey of this.id) {
+          if (idKey in insertResult) {
+            ids.push(insertResult[idKey]);
+          } else {
+            return inputData;
+          }
+        }
+        idsQueries.push(this.getIdsQuery(ids));
+      }
+    } else {
+      const ids = [];
+      for (const insertResult of insertResults) {
+        if (!(typeof insertResult === 'object' && insertResult !== null)) {
+          ids.push(insertResult);
+          continue;
+        }
+
+        if (this.id in insertResult) {
+          ids.push(insertResult[this.id]);
+        } else {
+          return inputData;
+        }
+      }
+      idsQueries.push(this.getIdsQuery(null, ids));
+    }
+
+    if (idsQueries.length > 1) {
+      findQuery.$and.push({ $or: idsQueries });
+    } else {
+      findQuery.$and = findQuery.$and.concat(idsQueries);
+    }
+
+    return this._find(Object.assign({}, params, { query: findQuery }))
+      .then(page => {
+        const records = page.data || page;
+        if (Array.isArray(inputData)) {
+          return records;
+        }
+        return records[0];
+      });
+  }
+
+  /**
+   * @param data
+   * @param params
+   * @returns {Promise<Object|(Object|string|number)[]>}
+   * @private
+   */
+  _batchInsert (data, params) {
+    const { dialect } = this.Model.knex().client;
+    const query = this._createQuery(params);
+
+    // .returning() is not supported by SQLite and MySQL
+    if (!(dialect === 'sqlite3' || dialect === 'mysql' || dialect === 'mysql2')) {
+      return query
+        .toKnexQuery()
+        .insert(data)
+        .returning(this.id);
+    }
+
+    if (params.query && params.query.$noSelect) {
+      return query.toKnexQuery().insert(data);
+    }
+    if (!Array.isArray(data)) {
+      return query.insert(data);
+    }
+    const promises = data.map(dataItem => {
+      return this._createQuery(params).insert(dataItem);
+    });
+    return Promise.all(promises);
+  }
+
   /**
    * `create` service function for Objection.
    * @param {object} data
    * @param {object} params
    */
   _create (data, params) {
-    const create = (data, params) => {
-      const q = this._createQuery(params);
-      const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
-      const allowedInsert = this.mergeRelations(this.allowedInsert, params.mergeAllowInsert);
+    const q = this._createQuery(params);
+    let promise = q;
+    const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
+    const allowedInsert = this.mergeRelations(this.allowedInsert, params.mergeAllowInsert);
 
-      if (this.createUseUpsertGraph) {
-        if (allowedUpsert) {
-          q.allowGraph(allowedUpsert);
-        }
-        q.upsertGraphAndFetch(data, this.upsertGraphOptions);
-      } else if (allowedInsert) {
-        q.allowGraph(allowedInsert);
-        q.insertGraph(data, this.insertGraphOptions);
-      } else {
-        q.insert(data, this.id);
+    if (this.createUseUpsertGraph) {
+      if (allowedUpsert) {
+        q.allowGraph(allowedUpsert);
       }
-      return q
-        .then(row => {
-          if (params.query && params.query.$noSelect) { return data; }
-
-          let id;
-
-          if (Array.isArray(this.id)) {
-            id = [];
-
-            for (const idKey of this.id) {
-              id.push(row && row[idKey] ? row[idKey] : data[idKey]);
-            }
-          } else {
-            id = row && row[this.id] ? row[this.id] : data[this.id];
-          }
-
-          if (!id || (Array.isArray(id) && !id.length)) { return data; }
-
-          return this._get(id, params);
-        })
-        .catch(errorHandler);
-    };
-
-    if (Array.isArray(data)) {
-      return Promise.all(data.map(current => create(current, params)));
+      q.upsertGraph(data, this.upsertGraphOptions);
+    } else if (allowedInsert) {
+      q.allowGraph(allowedInsert);
+      q.insertGraph(data, this.insertGraphOptions);
+    } else {
+      promise = this._batchInsert(data, params);
     }
-
-    return create(data, params);
+    return promise
+      .then(insertResults => this._getCreatedRecords(insertResults, data, params))
+      .catch(errorHandler);
   }
 
   /**
