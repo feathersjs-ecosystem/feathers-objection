@@ -315,14 +315,13 @@ class Service extends AdapterService {
   }
 
   async _createTransaction (params) {
-    const autoStartTransaction = !params.transaction && params.$startTransaction;
-    if (autoStartTransaction) {
-      delete params.$startTransaction;
+    if (!params.transaction && params.$atomic) {
+      delete params.$atomic;
       params.transaction = params.transaction || {};
       params.transaction.trx = await this.Model.startTransaction();
       return params.transaction;
     }
-    return autoStartTransaction;
+    return null;
   }
 
   _commitTransaction (transaction) {
