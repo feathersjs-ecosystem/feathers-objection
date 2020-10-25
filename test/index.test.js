@@ -1848,7 +1848,7 @@ describe('Feathers Objection Service', () => {
     });
 
     it('works with atomic', () => {
-      return people.create({ name: 'Rollback' }, { transaction, $atomic: true }).then(() => {
+      return people.create({ name: 'Rollback' }, { transaction, atomic: true }).then(() => {
         expect(transaction.trx.isCompleted()).to.equal(false); // Atomic must be ignored and transaction still running
         return transaction.trx.rollback().then(() => {
           return people.find({ query: { name: 'Rollback' } }).then((data) => {
@@ -1887,7 +1887,7 @@ describe('Feathers Objection Service', () => {
 
     it('Rollback on sub insert failure', () => {
       // Dan Davis already exists
-      return companies.create({ name: 'Compaq', clients: [{ name: 'Dan Davis' }] }, { $atomic: true }).catch((error) => {
+      return companies.create({ name: 'Compaq', clients: [{ name: 'Dan Davis' }] }, { atomic: true }).catch((error) => {
         expect(error instanceof errors.GeneralError).to.be.ok;
         expect(error.message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
         return companies.find({ query: { name: 'Compaq', $eager: 'clients' } }).then(
@@ -1899,7 +1899,7 @@ describe('Feathers Objection Service', () => {
 
     it('Rollback on multi insert failure', () => {
       // Google already exists
-      return companies.create([{ name: 'Google' }, { name: 'Compaq' }], { $atomic: true }).catch((error) => {
+      return companies.create([{ name: 'Google' }, { name: 'Compaq' }], { atomic: true }).catch((error) => {
         expect(error instanceof errors.GeneralError).to.be.ok;
         expect(error.message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
         return companies.find({ query: { name: 'Compaq' } }).then(
@@ -1925,7 +1925,7 @@ describe('Feathers Objection Service', () => {
               name: 'Kirk Maelström'
             }
           ]
-        }, { $atomic: true }).catch((error) => {
+        }, { atomic: true }).catch((error) => {
           expect(error instanceof errors.GeneralError).to.be.ok;
           expect(error.message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
           return companies.find({ query: { name: 'Google', $eager: 'clients' } }).then(
@@ -1954,7 +1954,7 @@ describe('Feathers Objection Service', () => {
               name: 'Kirk Maelström'
             }
           ]
-        }, { $atomic: true }).catch((error) => {
+        }, { atomic: true }).catch((error) => {
           expect(error instanceof UniqueViolationError).to.be.ok;
           expect(error.message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
           return companies.find({ query: { name: 'Google', $eager: 'clients' } }).then(
@@ -1983,7 +1983,7 @@ describe('Feathers Objection Service', () => {
               name: 'Kirk Maelström'
             }
           ]
-        }, { $atomic: true }).catch((error) => {
+        }, { atomic: true }).catch((error) => {
           expect(error instanceof UniqueViolationError).to.be.ok;
           expect(error.message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
           return companies.find({ query: { name: 'Google', $eager: 'clients' } }).then(
