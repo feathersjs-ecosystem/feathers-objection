@@ -315,8 +315,8 @@ class Service extends AdapterService {
   }
 
   async _createTransaction (params) {
-    if (!params.transaction && params.$atomic) {
-      delete params.$atomic;
+    if (!params.transaction && params.atomic) {
+      delete params.atomic;
       params.transaction = params.transaction || {};
       params.transaction.trx = await this.Model.startTransaction();
       return params.transaction;
