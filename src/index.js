@@ -314,12 +314,46 @@ class Service extends AdapterService {
     return null;
   }
 
+  async _createTransaction (params) {
+    if (!params.transaction && params.atomic) {
+      delete params.atomic;
+      params.transaction = params.transaction || {};
+      params.transaction.trx = await this.Model.startTransaction();
+      return params.transaction;
+    }
+    return null;
+  }
+
+  _commitTransaction (transaction) {
+    return async (data) => {
+      if (transaction) {
+        await transaction.trx.commit();
+      }
+      return data;
+    };
+  }
+
+  _rollbackTransaction (transaction) {
+    return async (err) => {
+      if (transaction) {
+        await transaction.trx.rollback();
+      }
+      throw err;
+    };
+  }
+
   _createQuery (params = {}) {
     const trx = params.transaction ? params.transaction.trx : null;
     const schema = params.schema || this.schema;
     const query = this.Model.query(trx);
-
-    return schema ? query.withSchema(schema) : query;
+    if (schema) {
+      query.context({
+        onBuild (builder) {
+          builder.withSchema(schema);
+        }
+      });
+    }
+    return query;
   }
 
   _selectQuery (q, $select) {
@@ -674,7 +708,8 @@ class Service extends AdapterService {
    * @param {object} data
    * @param {object} params
    */
-  _create (data, params) {
+  async _create (data, params) {
+    const transaction = await this._createTransaction(params);
     const q = this._createQuery(params);
     let promise = q;
     const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
@@ -693,6 +728,7 @@ class Service extends AdapterService {
     }
     return promise
       .then(insertResults => this._getCreatedRecords(insertResults, data, params))
+      .then(this._commitTransaction(transaction), this._rollbackTransaction(transaction))
       .catch(errorHandler);
   }
 
@@ -710,13 +746,17 @@ class Service extends AdapterService {
         // that we can fill any existing keys that the
         // client isn't updating with null;
         return this.Model.fetchTableMetadata()
-          .then(meta => {
+          .then(async meta => {
             let newObject = Object.assign({}, data);
+            let transaction = null;
 
             const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
+
             if (allowedUpsert) {
               // Ensure the object we fetched is the one we update
               this._checkUpsertId(id, newObject);
+              // Create transaction if needed
+              transaction = await this._createTransaction(params);
             }
 
             for (const key of meta.columns) {
@@ -728,7 +768,7 @@ class Service extends AdapterService {
             if (allowedUpsert) {
               return this._createQuery(params)
                 .allowGraph(allowedUpsert)
-                .upsertGraphAndFetch(newObject, this.upsertGraphOptions);
+                .upsertGraphAndFetch(newObject, this.upsertGraphOptions).then(this._commitTransaction(transaction), this._rollbackTransaction(transaction));
             }
 
             // NOTE (EK): Delete id field so we don't update it
@@ -772,11 +812,13 @@ class Service extends AdapterService {
       this._checkUpsertId(id, dataCopy);
 
       // Get object first to ensure it satisfy user query
-      return this._get(id, params).then(() => {
+      return this._get(id, params).then(async () => {
+        // Create transaction if needed
+        const transaction = await this._createTransaction(params);
         return this._createQuery(params)
           .allowGraph(allowedUpsert)
           .upsertGraphAndFetch(dataCopy, this.upsertGraphOptions)
-          .then(this._selectFields(params, data));
+          .then(this._selectFields(params, data)).then(this._commitTransaction(transaction), this._rollbackTransaction(transaction));
       });
     }
 

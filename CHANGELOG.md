@@ -1,5 +1,21 @@
 # Changelog
 
+## [v6.2.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v6.2.1) (2020-10-25)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v6.2.0...v6.2.1)
+
+## [v6.2.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v6.2.0) (2020-10-25)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v6.1.1...v6.2.0)
+
+**Closed issues:**
+
+- Is it possible to assign a default eagerness to the response when a user logs in? [\#126](https://github.com/feathersjs-ecosystem/feathers-objection/issues/126)
+
+**Merged pull requests:**
+
+- Atomic graph mutation [\#124](https://github.com/feathersjs-ecosystem/feathers-objection/pull/124) ([Thomas-git](https://github.com/Thomas-git))
+
 ## [v6.1.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v6.1.1) (2020-10-22)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v6.1.0...v6.1.1)
@@ -295,7 +311,6 @@
 **Merged pull requests:**
 
 - Parse relation expressions at service creation time [\#69](https://github.com/feathersjs-ecosystem/feathers-objection/pull/69) ([vonagam](https://github.com/vonagam))
-- Update all dependencies [\#67](https://github.com/feathersjs-ecosystem/feathers-objection/pull/67) ([daffl](https://github.com/daffl))
 
 ## [v4.4.3](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.4.3) (2019-10-11)
 
@@ -329,6 +344,10 @@
 
 - error on eager loading [\#64](https://github.com/feathersjs-ecosystem/feathers-objection/issues/64)
 - "iLike" is "ilike" and it is not whitelisted.  [\#63](https://github.com/feathersjs-ecosystem/feathers-objection/issues/63)
+
+**Merged pull requests:**
+
+- Update all dependencies [\#67](https://github.com/feathersjs-ecosystem/feathers-objection/pull/67) ([daffl](https://github.com/daffl))
 
 ## [v4.2.4](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.2.4) (2019-09-23)
 
@@ -534,6 +553,7 @@
 - Added ability to use Upsert Graph on create method [\#35](https://github.com/feathersjs-ecosystem/feathers-objection/pull/35) ([NotAmaan](https://github.com/NotAmaan))
 - Bumped version to 1.1.2 [\#31](https://github.com/feathersjs-ecosystem/feathers-objection/pull/31) ([NotAmaan](https://github.com/NotAmaan))
 - Bumped version to 1.1.2 [\#30](https://github.com/feathersjs-ecosystem/feathers-objection/pull/30) ([NotAmaan](https://github.com/NotAmaan))
+- Added ilike operator \(postgres only\) [\#29](https://github.com/feathersjs-ecosystem/feathers-objection/pull/29) ([NotAmaan](https://github.com/NotAmaan))
 
 ## [v1.1.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v1.1.1) (2018-08-27)
 
@@ -601,7 +621,6 @@
 
 **Merged pull requests:**
 
-- Transaction support \(fix\) [\#22](https://github.com/feathersjs-ecosystem/feathers-objection/pull/22) ([vonagam](https://github.com/vonagam))
 - Added prepare script [\#15](https://github.com/feathersjs-ecosystem/feathers-objection/pull/15) ([NotAmaan](https://github.com/NotAmaan))
 
 ## [v0.10.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v0.10.0) (2018-07-08)
@@ -635,6 +654,7 @@
 
 **Merged pull requests:**
 
+- Transaction support \(fix\) [\#22](https://github.com/feathersjs-ecosystem/feathers-objection/pull/22) ([vonagam](https://github.com/vonagam))
 - Fixed $eager and $joinEager to be treated as columns by count\(\) [\#11](https://github.com/feathersjs-ecosystem/feathers-objection/pull/11) ([NotAmaan](https://github.com/NotAmaan))
 
 ## [v0.7.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v0.7.0) (2018-01-20)
@@ -650,7 +670,6 @@
 
 **Merged pull requests:**
 
-- Added ilike operator \(postgres only\) [\#29](https://github.com/feathersjs-ecosystem/feathers-objection/pull/29) ([NotAmaan](https://github.com/NotAmaan))
 - Add $joinEager query param to fetch relations with JoinEagerAlgorithm [\#10](https://github.com/feathersjs-ecosystem/feathers-objection/pull/10) ([cdelaorden](https://github.com/cdelaorden))
 
 ## [v0.6.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v0.6.0) (2017-04-21)
