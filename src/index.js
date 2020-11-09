@@ -630,7 +630,6 @@ class Service extends AdapterService {
     if (Array.isArray(this.id)) {
       for (const insertResult of insertResults) {
         const ids = [];
-
         for (const idKey of this.id) {
           if (idKey in insertResult) {
             ids.push(insertResult[idKey]);
@@ -643,11 +642,6 @@ class Service extends AdapterService {
     } else {
       const ids = [];
       for (const insertResult of insertResults) {
-        if (!(typeof insertResult === 'object' && insertResult !== null)) {
-          ids.push(insertResult);
-          continue;
-        }
-
         if (this.id in insertResult) {
           ids.push(insertResult[this.id]);
         } else {
@@ -676,31 +670,19 @@ class Service extends AdapterService {
   /**
    * @param data
    * @param params
-   * @returns {Promise<Object|(Object|string|number)[]>}
+   * @returns {Promise<Object|Object[]>}
    * @private
    */
   _batchInsert (data, params) {
     const { dialect } = this.Model.knex().client;
-    const query = this._createQuery(params);
-
-    // .returning() is not supported by SQLite, MySQL and Amazon Redshift
-    if (!(
-      dialect === 'sqlite3' ||
-      dialect === 'mysql' ||
-      dialect === 'mysql2' ||
-      dialect === 'redshift'
-    )) {
-      return query
-        .toKnexQuery()
+    // batch insert only works with Postgresql and SQL Server
+    if (dialect === 'postgresql' || dialect === 'mssql') {
+      return this._createQuery(params)
         .insert(data)
         .returning(this.id);
     }
-
-    if (params.query && params.query.$noSelect) {
-      return query.toKnexQuery().insert(data);
-    }
     if (!Array.isArray(data)) {
-      return query.insert(data);
+      return this._createQuery(params).insert(data);
     }
     const promises = data.map(dataItem => {
       return this._createQuery(params).insert(dataItem);

@@ -2014,10 +2014,6 @@ describe('Feathers Objection Service', () => {
       } catch (err) {}
     });
 
-    after(async () => {
-      await clients.remove(null);
-    });
-
     it('create with $noSelect', () => {
       return companies.create({
         name: 'Apple',
@@ -2031,22 +2027,6 @@ describe('Feathers Objection Service', () => {
         expect(data.id).to.equal(undefined);
         expect(data.name).to.equal('Apple');
         expect(data.ceo).to.equal(2);
-      });
-    });
-
-    it('create with $noSelect and without allowedInsert', () => {
-      return clients.create({
-        name: 'Ken Patrick',
-        companyId: 1
-      }, {
-        query: {
-          $noSelect: true
-        }
-      }).then(data => {
-        expect(data).to.be.ok;
-        expect(data.id).to.equal(undefined);
-        expect(data.name).to.equal('Ken Patrick');
-        expect(data.companyId).to.equal(1);
       });
     });
 
