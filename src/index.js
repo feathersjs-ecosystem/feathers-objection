@@ -683,8 +683,13 @@ class Service extends AdapterService {
     const { dialect } = this.Model.knex().client;
     const query = this._createQuery(params);
 
-    // .returning() is not supported by SQLite and MySQL
-    if (!(dialect === 'sqlite3' || dialect === 'mysql' || dialect === 'mysql2')) {
+    // .returning() is not supported by SQLite, MySQL and Amazon Redshift
+    if (!(
+      dialect === 'sqlite3' ||
+      dialect === 'mysql' ||
+      dialect === 'mysql2' ||
+      dialect === 'redshift'
+    )) {
       return query
         .toKnexQuery()
         .insert(data)
