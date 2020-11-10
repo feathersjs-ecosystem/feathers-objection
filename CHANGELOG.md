@@ -1,5 +1,19 @@
 # Changelog
 
+## [v6.3.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v6.3.0) (2020-11-10)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v6.2.1...v6.3.0)
+
+**Closed issues:**
+
+- SQL queries and database errors are exposed in HTTP responses [\#129](https://github.com/feathersjs-ecosystem/feathers-objection/issues/129)
+- Patch not working with individual objects [\#128](https://github.com/feathersjs-ecosystem/feathers-objection/issues/128)
+- Poor performance of the create operation [\#125](https://github.com/feathersjs-ecosystem/feathers-objection/issues/125)
+
+**Merged pull requests:**
+
+- Batch insert support [\#127](https://github.com/feathersjs-ecosystem/feathers-objection/pull/127) ([mdmitry01](https://github.com/mdmitry01))
+
 ## [v6.2.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v6.2.1) (2020-10-25)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v6.2.0...v6.2.1)
@@ -91,6 +105,7 @@
 **Merged pull requests:**
 
 - Bump lodash from 4.17.15 to 4.17.19 [\#107](https://github.com/feathersjs-ecosystem/feathers-objection/pull/107) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Update README.md [\#91](https://github.com/feathersjs-ecosystem/feathers-objection/pull/91) ([outluch](https://github.com/outluch))
 
 ## [v5.6.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.6.0) (2020-07-04)
 
@@ -151,10 +166,6 @@
 
 - I got 'Cannot read property 'get' of undefined' error on a simple join [\#89](https://github.com/feathersjs-ecosystem/feathers-objection/issues/89)
 - Passing "id" parameter on create service method allows for unrestricted "get" access to feathers-objection service [\#88](https://github.com/feathersjs-ecosystem/feathers-objection/issues/88)
-
-**Merged pull requests:**
-
-- Update README.md [\#91](https://github.com/feathersjs-ecosystem/feathers-objection/pull/91) ([outluch](https://github.com/outluch))
 
 ## [v5.3.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.3.2) (2020-04-03)
 
@@ -621,6 +632,7 @@
 
 **Merged pull requests:**
 
+- Transaction support \(fix\) [\#22](https://github.com/feathersjs-ecosystem/feathers-objection/pull/22) ([vonagam](https://github.com/vonagam))
 - Added prepare script [\#15](https://github.com/feathersjs-ecosystem/feathers-objection/pull/15) ([NotAmaan](https://github.com/NotAmaan))
 
 ## [v0.10.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v0.10.0) (2018-07-08)
@@ -654,7 +666,6 @@
 
 **Merged pull requests:**
 
-- Transaction support \(fix\) [\#22](https://github.com/feathersjs-ecosystem/feathers-objection/pull/22) ([vonagam](https://github.com/vonagam))
 - Fixed $eager and $joinEager to be treated as columns by count\(\) [\#11](https://github.com/feathersjs-ecosystem/feathers-objection/pull/11) ([NotAmaan](https://github.com/NotAmaan))
 
 ## [v0.7.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v0.7.0) (2018-01-20)
