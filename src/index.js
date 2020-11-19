@@ -2,7 +2,7 @@ import { AdapterService } from '@feathersjs/adapter-commons';
 import errors from '@feathersjs/errors';
 import { ref, RelationExpression } from 'objection';
 import utils from './utils';
-import errorHandler from './error-handler';
+import errorHandler from './error-handler2';
 
 const METHODS = {
   $or: 'orWhere',
