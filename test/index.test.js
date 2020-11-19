@@ -15,7 +15,18 @@ import PeopleRoomsCustomIdSeparator from './people-rooms-custom-id-separator';
 import Company from './company';
 import Employee from './employee';
 import Client from './client';
-import { Model, UniqueViolationError } from 'objection';
+import {
+  CheckViolationError,
+  ConstraintViolationError,
+  DataError,
+  DBError,
+  ForeignKeyViolationError,
+  Model,
+  NotFoundError,
+  NotNullViolationError,
+  UniqueViolationError,
+  ValidationError
+} from 'objection';
 
 const testSuite = adapterTests([
   '.options',
@@ -325,207 +336,292 @@ describe('Feathers Objection Service', () => {
       }
     });
 
-    describe('SQLite', () => {
-      it('Unknown error code', () => {
+    describe('Error Mappings', () => {
+      it('Unknown error', () => {
         const error = new Error();
-        error.code = 'SQLITE_ERROR';
-        error.errno = 999;
         expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError);
       });
 
-      it('BadRequest 1', () => {
-        const error = new Error();
-        error.code = 'SQLITE_ERROR';
-        error.errno = 1;
-        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
+      it('Validation error', () => {
+        const validationErrTypes = ['ModelValidation', 'RelationExpression', 'UnallowedRelation', 'InvalidGraph', 'unknown-thing'];
+        for (const type of validationErrTypes) {
+          const error = new ValidationError({ type });
+          expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
+        }
       });
 
-      it('BadRequest 8', () => {
-        const error = new Error();
-        error.code = 'SQLITE_ERROR';
-        error.errno = 8;
-        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
-      });
-
-      it('BadRequest 18', () => {
-        const error = new Error();
-        error.code = 'SQLITE_ERROR';
-        error.errno = 18;
-        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
-      });
-
-      it('BadRequest 19', () => {
-        const error = new Error();
-        error.code = 'SQLITE_ERROR';
-        error.errno = 19;
-        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
-      });
-
-      it('BadRequest 20', () => {
-        const error = new Error();
-        error.code = 'SQLITE_ERROR';
-        error.errno = 20;
-        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
-      });
-
-      it('Unavailable 2', () => {
-        const error = new Error();
-        error.code = 'SQLITE_ERROR';
-        error.errno = 2;
-        expect(errorHandler.bind(null, error)).to.throw(errors.Unavailable);
-      });
-
-      it('Forbidden 3', () => {
-        const error = new Error();
-        error.code = 'SQLITE_ERROR';
-        error.errno = 3;
-        expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden);
-      });
-
-      it('Forbidden 23', () => {
-        const error = new Error();
-        error.code = 'SQLITE_ERROR';
-        error.errno = 23;
-        expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden);
-      });
-
-      it('NotFound 12', () => {
-        const error = new Error();
-        error.code = 'SQLITE_ERROR';
-        error.errno = 12;
-        expect(errorHandler.bind(null, error)).to.throw(errors.NotFound);
-      });
-    });
-
-    describe('Objection', () => {
-      it('Unknown error code', () => {
-        const error = new Error();
-        error.statusCode = 999;
-        expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError);
-      });
-
-      it('BadRequest 400', () => {
-        const error = new Error();
-        error.statusCode = 400;
-        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
-      });
-
-      it('NotAuthenticated 401', () => {
-        const error = new Error();
-        error.statusCode = 401;
-        expect(errorHandler.bind(null, error)).to.throw(errors.NotAuthenticated);
-      });
-
-      it('PaymentError 402', () => {
-        const error = new Error();
-        error.statusCode = 402;
-        expect(errorHandler.bind(null, error)).to.throw(errors.PaymentError);
-      });
-
-      it('Forbidden 403', () => {
-        const error = new Error();
-        error.statusCode = 403;
-        expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden);
-      });
-
-      it('NotFound 404', () => {
-        const error = new Error();
-        error.statusCode = 404;
+      it('NotFound error', () => {
+        const error = new NotFoundError();
         expect(errorHandler.bind(null, error)).to.throw(errors.NotFound);
       });
 
-      it('MethodNotAllowed 405', () => {
-        const error = new Error();
-        error.statusCode = 405;
-        expect(errorHandler.bind(null, error)).to.throw(errors.MethodNotAllowed);
-      });
+      it('UniqueViolation error', () => {
+        const error = new UniqueViolationError({
+          nativeError: new Error(),
+          client: 'sqlite',
+          table: 'tableName',
+          columns: ['columnName']
+        });
 
-      it('NotAcceptable 406', () => {
-        const error = new Error();
-        error.statusCode = 406;
-        expect(errorHandler.bind(null, error)).to.throw(errors.NotAcceptable);
-      });
-
-      it('Timeout 408', () => {
-        const error = new Error();
-        error.statusCode = 408;
-        expect(errorHandler.bind(null, error)).to.throw(errors.Timeout);
-      });
-
-      it('Conflict 409', () => {
-        const error = new Error();
-        error.statusCode = 409;
         expect(errorHandler.bind(null, error)).to.throw(errors.Conflict);
       });
 
-      it('Unprocessable 422', () => {
-        const error = new Error();
-        error.statusCode = 422;
-        expect(errorHandler.bind(null, error)).to.throw(errors.Unprocessable);
+      it('ContraintViolation error', () => {
+        const error = new ConstraintViolationError({
+          nativeError: new Error(),
+          client: 'sqlite'
+        });
+
+        expect(errorHandler.bind(null, error)).to.throw(errors.Conflict);
       });
 
-      it('GeneralError 500', () => {
-        const error = new Error();
-        error.statusCode = 500;
+      it('NotNullViolation error', () => {
+        const error = new NotNullViolationError({
+          nativeError: new Error(),
+          client: 'sqlite'
+        });
+
+        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
+      });
+
+      it('ForeignKeyViolation error', () => {
+        const error = new ForeignKeyViolationError({
+          nativeError: new Error(),
+          client: 'sqlite'
+        });
+
+        expect(errorHandler.bind(null, error)).to.throw(errors.Conflict);
+      });
+
+      it('CheckViolation error', () => {
+        const error = new CheckViolationError({
+          nativeError: new Error(),
+          client: 'sqlite'
+        });
+
+        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
+      });
+
+      it('Data error', () => {
+        const error = new DataError({
+          nativeError: new Error(),
+          client: 'sqlite'
+        });
+
+        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
+      });
+
+      it('Database error', () => {
+        const error = new DBError({
+          nativeError: new Error(),
+          client: 'sqlite'
+        });
+
         expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError);
-      });
-
-      it('NotImplemented 501', () => {
-        const error = new Error();
-        error.statusCode = 501;
-        expect(errorHandler.bind(null, error)).to.throw(errors.NotImplemented);
-      });
-
-      it('Unavailable 503', () => {
-        const error = new Error();
-        error.statusCode = 503;
-        expect(errorHandler.bind(null, error)).to.throw(errors.Unavailable);
       });
     });
 
-    describe('Postgres', () => {
-      it('Unknown error code', () => {
-        const error = new Error();
-        error.code = '999';
-        expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError);
-      });
+    // describe('SQLite', () => {
+    //   it('Unknown error code', () => {
+    //     const error = new Error();
+    //     error.code = 'SQLITE_ERROR';
+    //     error.errno = 999;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError);
+    //   });
 
-      it('Forbidden 28', () => {
-        const error = new Error();
-        error.code = '28';
-        expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden);
-      });
+    //   it('BadRequest 1', () => {
+    //     const error = new Error();
+    //     error.code = 'SQLITE_ERROR';
+    //     error.errno = 1;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
+    //   });
 
-      it('Forbidden 42', () => {
-        const error = new Error();
-        error.code = '42';
-        expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden);
-      });
+    //   it('BadRequest 8', () => {
+    //     const error = new Error();
+    //     error.code = 'SQLITE_ERROR';
+    //     error.errno = 8;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
+    //   });
 
-      it('BadRequest 20', () => {
-        const error = new Error();
-        error.code = '20';
-        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
-      });
+    //   it('BadRequest 18', () => {
+    //     const error = new Error();
+    //     error.code = 'SQLITE_ERROR';
+    //     error.errno = 18;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
+    //   });
 
-      it('BadRequest 21', () => {
-        const error = new Error();
-        error.code = '21';
-        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
-      });
+    //   it('BadRequest 19', () => {
+    //     const error = new Error();
+    //     error.code = 'SQLITE_ERROR';
+    //     error.errno = 19;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
+    //   });
 
-      it('BadRequest 22', () => {
-        const error = new Error();
-        error.code = '22';
-        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
-      });
+    //   it('BadRequest 20', () => {
+    //     const error = new Error();
+    //     error.code = 'SQLITE_ERROR';
+    //     error.errno = 20;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
+    //   });
 
-      it('BadRequest 23', () => {
-        const error = new Error();
-        error.code = '23';
-        expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
-      });
-    });
+    //   it('Unavailable 2', () => {
+    //     const error = new Error();
+    //     error.code = 'SQLITE_ERROR';
+    //     error.errno = 2;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.Unavailable);
+    //   });
+
+    //   it('Forbidden 3', () => {
+    //     const error = new Error();
+    //     error.code = 'SQLITE_ERROR';
+    //     error.errno = 3;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden);
+    //   });
+
+    //   it('Forbidden 23', () => {
+    //     const error = new Error();
+    //     error.code = 'SQLITE_ERROR';
+    //     error.errno = 23;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden);
+    //   });
+
+    //   it('NotFound 12', () => {
+    //     const error = new Error();
+    //     error.code = 'SQLITE_ERROR';
+    //     error.errno = 12;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.NotFound);
+    //   });
+    // });
+
+    // describe('Objection', () => {
+    //   it('Unknown error code', () => {
+    //     const error = new Error();
+    //     error.statusCode = 999;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError);
+    //   });
+
+    //   it('BadRequest 400', () => {
+    //     const error = new Error();
+    //     error.statusCode = 400;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
+    //   });
+
+    //   it('NotAuthenticated 401', () => {
+    //     const error = new Error();
+    //     error.statusCode = 401;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.NotAuthenticated);
+    //   });
+
+    //   it('PaymentError 402', () => {
+    //     const error = new Error();
+    //     error.statusCode = 402;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.PaymentError);
+    //   });
+
+    //   it('Forbidden 403', () => {
+    //     const error = new Error();
+    //     error.statusCode = 403;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden);
+    //   });
+
+    //   it('NotFound 404', () => {
+    //     const error = new Error();
+    //     error.statusCode = 404;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.NotFound);
+    //   });
+
+    //   it('MethodNotAllowed 405', () => {
+    //     const error = new Error();
+    //     error.statusCode = 405;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.MethodNotAllowed);
+    //   });
+
+    //   it('NotAcceptable 406', () => {
+    //     const error = new Error();
+    //     error.statusCode = 406;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.NotAcceptable);
+    //   });
+
+    //   it('Timeout 408', () => {
+    //     const error = new Error();
+    //     error.statusCode = 408;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.Timeout);
+    //   });
+
+    //   it('Conflict 409', () => {
+    //     const error = new Error();
+    //     error.statusCode = 409;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.Conflict);
+    //   });
+
+    //   it('Unprocessable 422', () => {
+    //     const error = new Error();
+    //     error.statusCode = 422;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.Unprocessable);
+    //   });
+
+    //   it('GeneralError 500', () => {
+    //     const error = new Error();
+    //     error.statusCode = 500;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError);
+    //   });
+
+    //   it('NotImplemented 501', () => {
+    //     const error = new Error();
+    //     error.statusCode = 501;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.NotImplemented);
+    //   });
+
+    //   it('Unavailable 503', () => {
+    //     const error = new Error();
+    //     error.statusCode = 503;
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.Unavailable);
+    //   });
+    // });
+
+    // describe('Postgres', () => {
+    //   it('Unknown error code', () => {
+    //     const error = new Error();
+    //     error.code = '999';
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.GeneralError);
+    //   });
+
+    //   it('Forbidden 28', () => {
+    //     const error = new Error();
+    //     error.code = '28';
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden);
+    //   });
+
+    //   it('Forbidden 42', () => {
+    //     const error = new Error();
+    //     error.code = '42';
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.Forbidden);
+    //   });
+
+    //   it('BadRequest 20', () => {
+    //     const error = new Error();
+    //     error.code = '20';
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
+    //   });
+
+    //   it('BadRequest 21', () => {
+    //     const error = new Error();
+    //     error.code = '21';
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
+    //   });
+
+    //   it('BadRequest 22', () => {
+    //     const error = new Error();
+    //     error.code = '22';
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
+    //   });
+
+    //   it('BadRequest 23', () => {
+    //     const error = new Error();
+    //     error.code = '23';
+    //     expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
+    //   });
+    // });
   });
 
   describe('Common Tests', () => {
@@ -1888,7 +1984,7 @@ describe('Feathers Objection Service', () => {
     it('Rollback on sub insert failure', () => {
       // Dan Davis already exists
       return companies.create({ name: 'Compaq', clients: [{ name: 'Dan Davis' }] }, { atomic: true }).catch((error) => {
-        expect(error instanceof errors.GeneralError).to.be.ok;
+        expect(error instanceof errors.Conflict).to.be.ok;
         expect(error.message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
         return companies.find({ query: { name: 'Compaq', $eager: 'clients' } }).then(
           (data) => {
@@ -1900,7 +1996,7 @@ describe('Feathers Objection Service', () => {
     it('Rollback on multi insert failure', () => {
       // Google already exists
       return companies.create([{ name: 'Google' }, { name: 'Compaq' }], { atomic: true }).catch((error) => {
-        expect(error instanceof errors.GeneralError).to.be.ok;
+        expect(error instanceof errors.Conflict).to.be.ok;
         expect(error.message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
         return companies.find({ query: { name: 'Compaq' } }).then(
           (data) => {
@@ -1926,7 +2022,7 @@ describe('Feathers Objection Service', () => {
             }
           ]
         }, { atomic: true }).catch((error) => {
-          expect(error instanceof errors.GeneralError).to.be.ok;
+          expect(error instanceof errors.Conflict).to.be.ok;
           expect(error.message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
           return companies.find({ query: { name: 'Google', $eager: 'clients' } }).then(
             (data) => {
