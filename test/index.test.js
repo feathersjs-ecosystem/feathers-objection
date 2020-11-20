@@ -378,7 +378,8 @@ describe('Feathers Objection Service', () => {
       it('NotNullViolation error', () => {
         const error = new NotNullViolationError({
           nativeError: new Error(),
-          client: 'sqlite'
+          client: 'sqlite',
+          column: 'columnName'
         });
 
         expect(errorHandler.bind(null, error)).to.throw(errors.BadRequest);
@@ -1442,7 +1443,7 @@ describe('Feathers Objection Service', () => {
       }).catch(function (error) {
         expect(error).to.be.ok;
         expect(error instanceof errors.GeneralError).to.be.ok;
-        expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{numberField}\' AS text) = 1.5 - SQLITE_ERROR: unrecognized token: "#"');
+        expect(error[ERROR].message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{numberField}\' AS text) = 1.5 - SQLITE_ERROR: unrecognized token: "#"');
       });
     });
 
@@ -1452,7 +1453,7 @@ describe('Feathers Objection Service', () => {
       }).catch(function (error) {
         expect(error).to.be.ok;
         expect(error instanceof errors.GeneralError).to.be.ok;
-        expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{numberField}\' AS text) > 1.5 - SQLITE_ERROR: unrecognized token: "#"');
+        expect(error[ERROR].message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{numberField}\' AS text) > 1.5 - SQLITE_ERROR: unrecognized token: "#"');
       });
     });
 
@@ -1462,7 +1463,7 @@ describe('Feathers Objection Service', () => {
       }).catch(function (error) {
         expect(error).to.be.ok;
         expect(error instanceof errors.GeneralError).to.be.ok;
-        expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{objectField,object}\' AS text) = \'string in jsonObject.objectField.object\' - SQLITE_ERROR: unrecognized token: "#"');
+        expect(error[ERROR].message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonObject`#>>\'{objectField,object}\' AS text) = \'string in jsonObject.objectField.object\' - SQLITE_ERROR: unrecognized token: "#"');
       });
     });
 
@@ -1478,7 +1479,7 @@ describe('Feathers Objection Service', () => {
       }).catch(function (error) {
         expect(error).to.be.ok;
         expect(error instanceof errors.GeneralError).to.be.ok;
-        expect(error.message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonArray`#>>\'{0,objectField,object}\' AS text) = \'I\'\'m string in jsonArray[0].objectField.object\' - SQLITE_ERROR: unrecognized token: "#"');
+        expect(error[ERROR].message).to.equal('select `companies`.* from `companies` where CAST(`companies`.`jsonArray`#>>\'{0,objectField,object}\' AS text) = \'I\'\'m string in jsonArray[0].objectField.object\' - SQLITE_ERROR: unrecognized token: "#"');
       });
     });
   });
@@ -1783,7 +1784,7 @@ describe('Feathers Objection Service', () => {
       // Dan Davis already exists
       return companies.create({ name: 'Compaq', clients: [{ name: 'Dan Davis' }] }, { atomic: true }).catch((error) => {
         expect(error instanceof errors.Conflict).to.be.ok;
-        expect(error.message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
+        expect(error[ERROR].message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
         return companies.find({ query: { name: 'Compaq', $eager: 'clients' } }).then(
           (data) => {
             expect(data.length).to.equal(0);
@@ -1795,7 +1796,7 @@ describe('Feathers Objection Service', () => {
       // Google already exists
       return companies.create([{ name: 'Google' }, { name: 'Compaq' }], { atomic: true }).catch((error) => {
         expect(error instanceof errors.Conflict).to.be.ok;
-        expect(error.message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
+        expect(error[ERROR].message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
         return companies.find({ query: { name: 'Compaq' } }).then(
           (data) => {
             expect(data.length).to.equal(0);
@@ -1821,7 +1822,7 @@ describe('Feathers Objection Service', () => {
           ]
         }, { atomic: true }).catch((error) => {
           expect(error instanceof errors.Conflict).to.be.ok;
-          expect(error.message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
+          expect(error[ERROR].message).to.match(/SQLITE_CONSTRAINT: UNIQUE/);
           return companies.find({ query: { name: 'Google', $eager: 'clients' } }).then(
             (data) => {
               expect(data.length).to.equal(1);
