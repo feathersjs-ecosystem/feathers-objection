@@ -45,7 +45,7 @@ export default function errorHandler (error) {
       constraint: error.constraint
     });
   } else if (error instanceof NotNullViolationError) {
-    feathersError = new errors.BadRequest(`${error.column.join(', ')} must not be null`, {
+    feathersError = new errors.BadRequest(`${error.column} must not be null`, {
       column: error.column,
       table: error.table
     });
@@ -60,7 +60,7 @@ export default function errorHandler (error) {
       constraint: error.constraint
     });
   } else if (error instanceof ConstraintViolationError) {
-    feathersError = new errors.Conflict(`Constraint Violation`, {
+    feathersError = new errors.Conflict('Constraint Violation', {
       columns: error.columns,
       table: error.table,
       constraint: error.constraint
