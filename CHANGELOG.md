@@ -1,5 +1,17 @@
 # Changelog
 
+## [v7.0.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.0.0) (2020-11-21)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v6.3.0...v7.0.0)
+
+**Closed issues:**
+
+- Error handling is not working correctly for Postgres [\#130](https://github.com/feathersjs-ecosystem/feathers-objection/issues/130)
+
+**Merged pull requests:**
+
+- feat: use objection error types in error-handler [\#131](https://github.com/feathersjs-ecosystem/feathers-objection/pull/131) ([robbyphillips](https://github.com/robbyphillips))
+
 ## [v6.3.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v6.3.0) (2020-11-10)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v6.2.1...v6.3.0)
@@ -105,7 +117,6 @@
 **Merged pull requests:**
 
 - Bump lodash from 4.17.15 to 4.17.19 [\#107](https://github.com/feathersjs-ecosystem/feathers-objection/pull/107) ([dependabot[bot]](https://github.com/apps/dependabot))
-- Update README.md [\#91](https://github.com/feathersjs-ecosystem/feathers-objection/pull/91) ([outluch](https://github.com/outluch))
 
 ## [v5.6.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.6.0) (2020-07-04)
 
@@ -166,6 +177,10 @@
 
 - I got 'Cannot read property 'get' of undefined' error on a simple join [\#89](https://github.com/feathersjs-ecosystem/feathers-objection/issues/89)
 - Passing "id" parameter on create service method allows for unrestricted "get" access to feathers-objection service [\#88](https://github.com/feathersjs-ecosystem/feathers-objection/issues/88)
+
+**Merged pull requests:**
+
+- Update README.md [\#91](https://github.com/feathersjs-ecosystem/feathers-objection/pull/91) ([outluch](https://github.com/outluch))
 
 ## [v5.3.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.3.2) (2020-04-03)
 
@@ -381,6 +396,7 @@
 **Merged pull requests:**
 
 - Fix types typos [\#59](https://github.com/feathersjs-ecosystem/feathers-objection/pull/59) ([vonagam](https://github.com/vonagam))
+- Migrate to feathersjs ecosystem [\#44](https://github.com/feathersjs-ecosystem/feathers-objection/pull/44) ([mcchrish](https://github.com/mcchrish))
 
 ## [v4.2.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.2.2) (2019-09-04)
 
@@ -460,10 +476,6 @@
 **Closed issues:**
 
 - Moving to feathers ecosystem organization? [\#43](https://github.com/feathersjs-ecosystem/feathers-objection/issues/43)
-
-**Merged pull requests:**
-
-- Migrate to feathersjs ecosystem [\#44](https://github.com/feathersjs-ecosystem/feathers-objection/pull/44) ([mcchrish](https://github.com/mcchrish))
 
 ## [v3.0.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v3.0.1) (2019-01-12)
 
