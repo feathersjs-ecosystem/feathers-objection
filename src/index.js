@@ -854,21 +854,23 @@ class Service extends AdapterService {
           }
         }
         return q.patch(dataCopy).then(() => {
-          return params.query && params.query.$noSelect ? dataCopy : this._find(findParams).then(page => {
-            const items = page.data || page;
+          return params.query && params.query.$noSelect
+            ? dataCopy
+            : this._find(findParams).then(page => {
+              const items = page.data || page;
 
-            if (id !== null) {
-              if (items.length === 1) {
-                return items[0];
-              } else {
+              if (id !== null) {
+                if (items.length === 1) {
+                  return items[0];
+                } else {
+                  throw new errors.NotFound(`No record found for id '${id}'`);
+                }
+              } else if (!items.length) {
                 throw new errors.NotFound(`No record found for id '${id}'`);
               }
-            } else if (!items.length) {
-              throw new errors.NotFound(`No record found for id '${id}'`);
-            }
 
-            return items;
-          });
+              return items;
+            });
         });
       })
       .catch(errorHandler);
