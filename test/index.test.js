@@ -366,7 +366,7 @@ describe('Feathers Objection Service', () => {
         expect(errorHandler.bind(null, error)).to.throw(errors.Conflict);
       });
 
-      it('ContraintViolation error', () => {
+      it('ConstraintViolation error', () => {
         const error = new ConstraintViolationError({
           nativeError: new Error(),
           client: 'sqlite'
