@@ -2098,6 +2098,36 @@ describe('Feathers Objection Service', () => {
       });
     });
 
+    it('params.modifierFiltersResults=false does not apply count from modify query', () => {
+      companies.options.paginate = {
+        default: 2,
+        max: 2
+      };
+
+      return companies.find({
+        query: { $modify: ['google'] }, modifierFiltersResults: false
+      }).then(data => {
+        expect(data.total).to.be.equal(2);
+        expect(data.data.length).to.be.equal(1);
+        expect(data.data[0].name).to.be.equal('Google');
+      });
+    });
+
+    it('params.modifierFiltersResults=true does not apply count from modify query', () => {
+      companies.options.paginate = {
+        default: 2,
+        max: 2
+      };
+
+      return companies.find({
+        query: { $modify: ['google'] }, modifierFiltersResults: true
+      }).then(data => {
+        expect(data.total).to.be.equal(1);
+        expect(data.data.length).to.be.equal(1);
+        expect(data.data[0].name).to.be.equal('Google');
+      });
+    });
+
     it('allow $modify query with paginate, groupBy and joinRelation', () => {
       companies.options.paginate = {
         default: 1,
