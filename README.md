@@ -261,6 +261,9 @@ Note that all this eager related options are optional.
   See [`withSchema`](https://vincit.github.io/objection.js/api/query-builder/find-methods.html#withschema)
   documentation.
 
+- **`modifierFiltersResults`** - when `false` the `total` count of a `find()` query is calculated from the original result set, ignoring the `count` of any `$modify` query.
+  The default behaviour is to apply the count of the modifier to the result total, assuming that the modifier may influence the result total by filtering the result set. This can be used to workaround issues with `groupBy` and the result count. See [this issue](https://github.com/feathersjs-ecosystem/feathers-objection/issues/102) for a detailed explanation.
+
 ### Composite primary keys
 
 Composite primary keys can be passed as the `id` argument using the following

@@ -57,6 +57,9 @@ export default class Company extends Model {
     },
     withRelation: builder => {
       builder.withGraphFetched('employees');
+    },
+    withRelationAndGroupBy: builder => {
+      builder.withGraphFetched('employees').groupBy('id');
     }
   }
 

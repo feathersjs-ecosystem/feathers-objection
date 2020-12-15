@@ -574,7 +574,7 @@ class Service extends AdapterService {
           countQuery.count({ total: countColumns });
         }
 
-        if (query && query.$modify) {
+        if (query && query.$modify && params.modifierFiltersResults !== false) {
           this.modifyQuery(countQuery, query.$modify);
         }
 
