@@ -1,5 +1,22 @@
 # Changelog
 
+## [v7.1.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.0) (2020-12-15)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.0.0...v7.1.0)
+
+**Implemented enhancements:**
+
+- Create multi queries DB twice for every object [\#109](https://github.com/feathersjs-ecosystem/feathers-objection/issues/109)
+
+**Closed issues:**
+
+- Calling Stored Procedures [\#132](https://github.com/feathersjs-ecosystem/feathers-objection/issues/132)
+
+**Merged pull requests:**
+
+- Bump ini from 1.3.5 to 1.3.7 [\#137](https://github.com/feathersjs-ecosystem/feathers-objection/pull/137) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Add optional parameter modifierFiltersResults for disabling count of $modify query results [\#136](https://github.com/feathersjs-ecosystem/feathers-objection/pull/136) ([alex-all3dp](https://github.com/alex-all3dp))
+
 ## [v7.0.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.0.0) (2020-11-21)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v6.3.0...v7.0.0)
@@ -396,7 +413,6 @@
 **Merged pull requests:**
 
 - Fix types typos [\#59](https://github.com/feathersjs-ecosystem/feathers-objection/pull/59) ([vonagam](https://github.com/vonagam))
-- Migrate to feathersjs ecosystem [\#44](https://github.com/feathersjs-ecosystem/feathers-objection/pull/44) ([mcchrish](https://github.com/mcchrish))
 
 ## [v4.2.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v4.2.2) (2019-09-04)
 
@@ -476,6 +492,10 @@
 **Closed issues:**
 
 - Moving to feathers ecosystem organization? [\#43](https://github.com/feathersjs-ecosystem/feathers-objection/issues/43)
+
+**Merged pull requests:**
+
+- Migrate to feathersjs ecosystem [\#44](https://github.com/feathersjs-ecosystem/feathers-objection/pull/44) ([mcchrish](https://github.com/mcchrish))
 
 ## [v3.0.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v3.0.1) (2019-01-12)
 
