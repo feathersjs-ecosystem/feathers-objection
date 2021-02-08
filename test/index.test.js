@@ -619,6 +619,20 @@ describe('Feathers Objection Service', () => {
         });
       });
     });
+
+    it('allows get queries with $select', () => {
+      return peopleRooms.get([2, 2], { query: { $select: ['admin'] } }).then(data => {
+        expect(data.admin).to.equal(1);
+      });
+    });
+
+    it('allows find queries with $select', () => {
+      return peopleRooms.find({ query: { roomId: 2, $select: ['admin'] } }).then(data => {
+        expect(data.length).to.equal(2);
+        expect(data[0].admin).to.equal(0);
+        expect(data[1].admin).to.equal(1);
+      });
+    });
   });
 
   describe('Eager queries', () => {

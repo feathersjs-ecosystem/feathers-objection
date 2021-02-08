@@ -358,7 +358,7 @@ class Service extends AdapterService {
 
   _selectQuery (q, $select) {
     if ($select && Array.isArray($select)) {
-      const items = $select.concat(`${this.Model.tableName}.${this.id}`);
+      const items = $select.concat(Array.isArray(this.id) ? this.id.map(el => { return `${this.Model.tableName}.${el}`; }) : `${this.Model.tableName}.${this.id}`);
 
       for (const [key, item] of Object.entries(items)) {
         const matches = item.match(/^ref\((.+)\)( as (.+))?$/);
