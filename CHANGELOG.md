@@ -1,5 +1,13 @@
 # Changelog
 
+## [v7.1.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.1) (2021-02-08)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.0...v7.1.1)
+
+**Merged pull requests:**
+
+- Fixed issue where using $select with a composite PK returns error [\#140](https://github.com/feathersjs-ecosystem/feathers-objection/pull/140) ([davidf84](https://github.com/davidf84))
+
 ## [v7.1.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.0) (2020-12-15)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.0.0...v7.1.0)
@@ -115,10 +123,6 @@
 - \[Q\] query service with property in array of objects jsonb [\#111](https://github.com/feathersjs-ecosystem/feathers-objection/issues/111)
 - Relate [\#110](https://github.com/feathersjs-ecosystem/feathers-objection/issues/110)
 
-**Merged pull requests:**
-
-- Fix for default operators getting overwritten by options.whitelist instead of concat [\#108](https://github.com/feathersjs-ecosystem/feathers-objection/pull/108) ([satyadeepk](https://github.com/satyadeepk))
-
 ## [v5.7.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.7.0) (2020-07-25)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v5.6.0...v5.7.0)
@@ -141,6 +145,7 @@
 
 **Merged pull requests:**
 
+- Fix for default operators getting overwritten by options.whitelist instead of concat [\#108](https://github.com/feathersjs-ecosystem/feathers-objection/pull/108) ([satyadeepk](https://github.com/satyadeepk))
 - Set schema option [\#105](https://github.com/feathersjs-ecosystem/feathers-objection/pull/105) ([EmileSpecs](https://github.com/EmileSpecs))
 
 ## [v5.5.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v5.5.2) (2020-06-19)
