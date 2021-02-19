@@ -40,9 +40,9 @@ export default function errorHandler (error) {
     feathersError = new errors.NotFound(message);
   } else if (error instanceof UniqueViolationError) {
     if (error.client === 'mysql') {
-      feathersError = new errors.default.Conflict(error.nativeError.sqlMessage);
+      feathersError = new errors.Conflict(error.nativeError.sqlMessage);
     } else {
-      feathersError = new errors.default.Conflict(`${error.columns.join(', ')} must be unique`, {
+      feathersError = new errors.Conflict(`${error.columns.join(', ')} must be unique`, {
         columns: error.columns,
         table: error.table,
         constraint: error.constraint

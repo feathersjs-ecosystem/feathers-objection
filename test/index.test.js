@@ -373,6 +373,17 @@ describe('Feathers Objection Service', () => {
         expect(errorHandler.bind(null, error)).to.throw(errors.Conflict);
       });
 
+      it('UniqueViolation error mysql', () => {
+        const error = new UniqueViolationError({
+          nativeError: { sqlMessage: 'test' },
+          client: 'mysql',
+          table: undefined,
+          columns: undefined
+        });
+
+        expect(errorHandler.bind(null, error)).to.throw(error.Conflict, 'test');
+      });
+
       it('ConstraintViolation error', () => {
         const error = new ConstraintViolationError({
           nativeError: new Error(),
