@@ -39,11 +39,17 @@ export default function errorHandler (error) {
   } else if (error instanceof NotFoundError) {
     feathersError = new errors.NotFound(message);
   } else if (error instanceof UniqueViolationError) {
-    feathersError = new errors.Conflict(`${error.columns.join(', ')} must be unique`, {
-      columns: error.columns,
-      table: error.table,
-      constraint: error.constraint
-    });
+    if (error.client === 'mysql') {
+      feathersError = new errors.Conflict(error.nativeError.sqlMessage, {
+        constraint: error.constraint
+      });
+    } else {
+      feathersError = new errors.Conflict(`${error.columns.join(', ')} must be unique`, {
+        columns: error.columns,
+        table: error.table,
+        constraint: error.constraint
+      });
+    }
   } else if (error instanceof NotNullViolationError) {
     feathersError = new errors.BadRequest(`${error.column} must not be null`, {
       column: error.column,
