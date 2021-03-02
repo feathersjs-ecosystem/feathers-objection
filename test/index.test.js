@@ -378,7 +378,8 @@ describe('Feathers Objection Service', () => {
           nativeError: { sqlMessage: 'test' },
           client: 'mysql',
           table: undefined,
-          columns: undefined
+          columns: undefined,
+          constraint: 'test_constraint'
         });
 
         expect(errorHandler.bind(null, error)).to.throw(error.Conflict, 'test');
