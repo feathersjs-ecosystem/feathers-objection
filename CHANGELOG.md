@@ -1,5 +1,17 @@
 # Changelog
 
+## [v7.1.3](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.3) (2021-03-30)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.2...v7.1.3)
+
+**Closed issues:**
+
+- Unknown database error:  returning "id"  - column  "permissionId" of relation "users" does not exist [\#144](https://github.com/feathersjs-ecosystem/feathers-objection/issues/144)
+
+**Merged pull requests:**
+
+- Bump y18n from 4.0.0 to 4.0.1 [\#145](https://github.com/feathersjs-ecosystem/feathers-objection/pull/145) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [v7.1.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.2) (2021-03-02)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.1...v7.1.2)
