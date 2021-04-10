@@ -519,7 +519,7 @@ class Service extends AdapterService {
    * `find` service function for Objection.
    * @param params
    */
-  _find (params) {
+  _find (params = {}) {
     const find = (params, count, filters, query) => {
       const q = params.objection || this.createQuery(params);
       const groupByColumns = this.getGroupByColumns(q);
@@ -599,7 +599,7 @@ class Service extends AdapterService {
     return result;
   }
 
-  _get (id, params) {
+  _get (id, params = {}) {
     // merge user query with the 'id' to get
     const findQuery = Object.assign({}, { $and: [] }, params.query);
     findQuery.$and.push(this.getIdsQuery(id));
@@ -695,7 +695,7 @@ class Service extends AdapterService {
    * @param {object} data
    * @param {object} params
    */
-  async _create (data, params) {
+  async _create (data, params = {}) {
     const transaction = await this._createTransaction(params);
     const q = this._createQuery(params);
     let promise = q;
@@ -725,7 +725,7 @@ class Service extends AdapterService {
    * @param data
    * @param params
    */
-  _update (id, data, params) {
+  _update (id, data, params = {}) {
     // NOTE : First fetch the item to update to account for user query
     return this._get(id, params)
       .then(() => {
@@ -790,7 +790,7 @@ class Service extends AdapterService {
    * @param data
    * @param params
    */
-  _patch (id, data, params) {
+  _patch (id, data, params = {}) {
     let { filters, query } = this.filterQuery(params);
 
     const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
@@ -881,7 +881,7 @@ class Service extends AdapterService {
    * @param id
    * @param params
    */
-  _remove (id, params) {
+  _remove (id, params = {}) {
     params.query = Object.assign({}, params.query);
 
     // NOTE (EK): First fetch the record so that we can return
