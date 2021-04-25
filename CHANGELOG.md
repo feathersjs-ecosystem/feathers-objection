@@ -1,5 +1,13 @@
 # Changelog
 
+## [v7.1.4](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.4) (2021-04-25)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.3...v7.1.4)
+
+**Merged pull requests:**
+
+- make "params" optional for all method [\#146](https://github.com/feathersjs-ecosystem/feathers-objection/pull/146) ([fratzinger](https://github.com/fratzinger))
+
 ## [v7.1.3](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.3) (2021-03-30)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.2...v7.1.3)
