@@ -67,11 +67,11 @@
     "@feathersjs/errors": "^4.5.11"
   },
   "devDependencies": {
-    "@babel/cli": "^7.13.14",
-    "@babel/core": "^7.13.14",
+    "@babel/cli": "^7.13.16",
+    "@babel/core": "^7.14.0",
     "@babel/node": "^7.13.13",
-    "@babel/preset-env": "^7.13.12",
-    "@babel/register": "^7.13.14",
+    "@babel/preset-env": "^7.14.1",
+    "@babel/register": "^7.13.16",
     "@feathersjs/adapter-tests": "^4.5.11",
     "@feathersjs/express": "^4.5.11",
     "@feathersjs/feathers": "^4.5.11",
@@ -82,15 +82,15 @@
     "body-parser": "^1.19.0",
     "chai": "^4.3.4",
     "coveralls": "^3.1.0",
-    "dtslint": "^4.0.8",
+    "dtslint": "^3.4.2",
     "knex": "0.21.18",
-    "mocha": "^8.3.2",
+    "mocha": "^8.4.0",
     "nyc": "^15.1.0",
     "objection": "^2.2.15",
     "rimraf": "^3.0.2",
     "semistandard": "^16.0.0",
     "sqlite3": "^5.0.2",
-    "typescript": "^4.2.3"
+    "typescript": "^4.2.4"
   },
   "peerDependencies": {
     "objection": ">=2.0.0"
