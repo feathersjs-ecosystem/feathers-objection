@@ -1,5 +1,19 @@
 # Changelog
 
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.6...HEAD)
+
+**Merged pull requests:**
+
+- Bump lodash from 4.17.19 to 4.17.21 [\#148](https://github.com/feathersjs-ecosystem/feathers-objection/pull/148) ([dependabot[bot]](https://github.com/apps/dependabot))
+
+## [v7.1.6](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.6) (2021-05-08)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.5...v7.1.6)
+
+## [v7.1.5](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.5) (2021-05-08)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.4...v7.1.5)
+
 ## [v7.1.4](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.4) (2021-04-25)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.3...v7.1.4)
