@@ -1,14 +1,22 @@
 # Changelog
 
-[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.7...HEAD)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.2.0...HEAD)
 
 **Merged pull requests:**
 
-- Handle missing top-level jsonSchema.properties in objectify\(\) [\#149](https://github.com/feathersjs-ecosystem/feathers-objection/pull/149) ([alex-all3dp](https://github.com/alex-all3dp))
+- Remove groupBy when counting rows for pagination [\#150](https://github.com/feathersjs-ecosystem/feathers-objection/pull/150) ([gmercey](https://github.com/gmercey))
+
+## [v7.2.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.2.0) (2021-05-23)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.7...v7.2.0)
 
 ## [v7.1.7](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.7) (2021-05-22)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.6...v7.1.7)
+
+**Merged pull requests:**
+
+- Handle missing top-level jsonSchema.properties in objectify\(\) [\#149](https://github.com/feathersjs-ecosystem/feathers-objection/pull/149) ([alex-all3dp](https://github.com/alex-all3dp))
 
 ## [v7.1.6](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.6) (2021-05-08)
 
