@@ -601,7 +601,7 @@ describe('Feathers Objection Service', () => {
       });
     });
 
-    it('allows patch multiple records with patched keys in complexe query', () => {
+    it('allows patch multiple records with patched keys in complex query', () => {
       return peopleRooms.patch(null, { admin: false }, { query: { $and: [{ admin: true }] } }).then(data => {
         expect(data).to.be.instanceof(Array);
         expect(data.length).to.equal(3);
