@@ -687,6 +687,13 @@ describe('Feathers Objection Service', () => {
       });
     });
 
+    it('allows patch multiple records with patched keys in complexe query', () => {
+      return peopleRooms.patch(null, { admin: false }, { query: { $and: [{ admin: true }] } }).then(data => {
+        expect(data).to.be.instanceof(Array);
+        expect(data.length).to.equal(3);
+      });
+    });
+
     it('patch with partial id throws an error', () => {
       return peopleRooms.patch([2], { admin: false }).then(() => {
         throw new Error('Should never get here');

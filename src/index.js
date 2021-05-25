@@ -799,11 +799,20 @@ class Service extends AdapterService {
         const selectParam = filters.$select ? { $select: filters.$select } : undefined;
         const findParams = Object.assign({}, params, { query: Object.assign({}, params.query, this.getIdsQuery(id, idList), selectParam) });
 
-        for (const key of Object.keys(dataCopy)) {
-          if (key in findParams.query) {
-            findParams.query[key] = dataCopy[key];
+        // Update find query if needed with patched values
+        const updateKeys = (obj) => {
+          for (const key of Object.keys(obj)) {
+            if (key in dataCopy) {
+              obj[key] = dataCopy[key];
+            } else {
+              if (Array.isArray(obj[key])) {
+                obj[key].forEach(obj => updateKeys(obj));
+              }
+            }
           }
-        }
+        };
+        updateKeys(findParams.query);
+
         return q.patch(dataCopy).then(() => {
           return params.query && params.query.$noSelect ? dataCopy : this._find(findParams).then(page => {
             const items = page.data || page;
