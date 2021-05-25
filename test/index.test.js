@@ -2162,7 +2162,7 @@ describe('Feathers Objection Service', () => {
       return companies.find({
         query: { $modify: ['withRelationAndGroupBy'] }, modifierFiltersResults: true
       }).then(data => {
-        expect(data.total).to.be.equal(1); // count result from GROUP BY
+        expect(data.total).to.be.equal(2); // count result from GROUP BY
         expect(data.data.length).to.be.equal(2);
         expect(data.data[0].name).to.be.equal('Google');
       });
@@ -2175,7 +2175,7 @@ describe('Feathers Objection Service', () => {
       };
 
       return companies.find({ query: { $modify: ['withRelationAndGroupBy'] } }).then(data => {
-        expect(data.total).to.be.equal(1); // count result from GROUP BY
+        expect(data.total).to.be.equal(2); // count result from GROUP BY
         expect(data.data.length).to.be.equal(2);
         expect(data.data[0].name).to.be.equal('Google');
       });
