@@ -1,108 +1,81 @@
 import errors from '@feathersjs/errors';
+import {
+  ValidationError,
+  NotFoundError,
+  DBError,
+  ConstraintViolationError,
+  UniqueViolationError,
+  NotNullViolationError,
+  ForeignKeyViolationError,
+  CheckViolationError,
+  DataError
+} from 'objection';
 
 const ERROR = Symbol('feathers-knex/error');
 
 export default function errorHandler (error) {
   const { message } = error.nativeError || error;
-  let feathersError = error;
+  let feathersError;
 
-  if (error.code === 'SQLITE_ERROR') {
-    switch (error.errno) {
-      case 1:
-      case 8:
-      case 18:
-      case 19:
-      case 20:
-        feathersError = new errors.BadRequest(message);
+  if (error instanceof errors.FeathersError) {
+    feathersError = error;
+  } else if (error instanceof ValidationError) {
+    switch (error.type) {
+      case 'ModelValidation':
+        feathersError = new errors.BadRequest(message, error.data);
         break;
-      case 2:
-        feathersError = new errors.Unavailable(message);
+      case 'RelationExpression':
+        feathersError = new errors.BadRequest('Invalid Relation Expression');
         break;
-      case 3:
-      case 23:
-        feathersError = new errors.Forbidden(message);
+      case 'UnallowedRelation':
+        feathersError = new errors.BadRequest('Unallowed Relation Expression');
         break;
-      case 12:
-        feathersError = new errors.NotFound(message);
+      case 'InvalidGraph':
+        feathersError = new errors.BadRequest('Invalid Relation Graph');
         break;
       default:
-        feathersError = new errors.GeneralError(message);
-        break;
+        feathersError = new errors.BadRequest('Unknown Validation Error');
     }
-  } else if (error.statusCode) { // Objection validation error
-    switch (error.statusCode) {
-      case 400:
-        feathersError = new errors.BadRequest(message);
-        break;
-
-      case 401:
-        feathersError = new errors.NotAuthenticated(message);
-        break;
-
-      case 402:
-        feathersError = new errors.PaymentError(message);
-        break;
-
-      case 403:
-        feathersError = new errors.Forbidden(message);
-        break;
-
-      case 404:
-        feathersError = new errors.NotFound(message);
-        break;
-
-      case 405:
-        feathersError = new errors.MethodNotAllowed(message);
-        break;
-
-      case 406:
-        feathersError = new errors.NotAcceptable(message);
-        break;
-
-      case 408:
-        feathersError = new errors.Timeout(message);
-        break;
-
-      case 409:
-        feathersError = new errors.Conflict(message);
-        break;
-
-      case 422:
-        feathersError = new errors.Unprocessable(message);
-        break;
-
-      case 501:
-        feathersError = new errors.NotImplemented(message);
-        break;
-
-      case 503:
-        feathersError = new errors.Unavailable(message);
-        break;
-
-      case 500:
-      default:
-        feathersError = new errors.GeneralError(message);
+  } else if (error instanceof NotFoundError) {
+    feathersError = new errors.NotFound(message);
+  } else if (error instanceof UniqueViolationError) {
+    if (error.client === 'mysql') {
+      feathersError = new errors.Conflict(error.nativeError.sqlMessage, {
+        constraint: error.constraint
+      });
+    } else {
+      feathersError = new errors.Conflict(`${error.columns.join(', ')} must be unique`, {
+        columns: error.columns,
+        table: error.table,
+        constraint: error.constraint
+      });
     }
-  } else if (typeof error.code === 'string') { // Postgres error code - TODO: Properly detect postgres error
-    const pgerror = error.code.substring(0, 2);
-
-    switch (pgerror) {
-      case '28':
-      case '42':
-        feathersError = new errors.Forbidden(message);
-        break;
-
-      case '20':
-      case '21':
-      case '22':
-      case '23':
-        feathersError = new errors.BadRequest(message);
-        break;
-
-      default:
-        feathersError = new errors.GeneralError(message);
-    }
-  } else if (!(error instanceof errors.FeathersError)) {
+  } else if (error instanceof NotNullViolationError) {
+    feathersError = new errors.BadRequest(`${error.column} must not be null`, {
+      column: error.column,
+      table: error.table
+    });
+  } else if (error instanceof ForeignKeyViolationError) {
+    feathersError = new errors.Conflict('Foreign Key Violation', {
+      table: error.table,
+      constraint: error.constraint
+    });
+  } else if (error instanceof CheckViolationError) {
+    feathersError = new errors.BadRequest('Check Violation', {
+      table: error.table,
+      constraint: error.constraint
+    });
+  } else if (error instanceof ConstraintViolationError) {
+    feathersError = new errors.Conflict('Constraint Violation', {
+      columns: error.columns,
+      table: error.table,
+      constraint: error.constraint
+    });
+  } else if (error instanceof DataError) {
+    feathersError = new errors.BadRequest('Invalid Data');
+  } else if (error instanceof DBError) {
+    feathersError = new errors.GeneralError('Unknown Database Error');
+  } else {
     feathersError = new errors.GeneralError(message);
   }
 

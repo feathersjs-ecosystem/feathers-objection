@@ -261,6 +261,9 @@ Note that all this eager related options are optional.
   See [`withSchema`](https://vincit.github.io/objection.js/api/query-builder/find-methods.html#withschema)
   documentation.
 
+- **`modifierFiltersResults`** - when `false` the `total` count of a `find()` query is calculated from the original result set, ignoring the `count` of any `$modify` query.
+  The default behaviour is to apply the count of the modifier to the result total, assuming that the modifier may influence the result total by filtering the result set. This can be used to workaround issues with `groupBy` and the result count. See [this issue](https://github.com/feathersjs-ecosystem/feathers-objection/issues/102) for a detailed explanation.
+
 ### Composite primary keys
 
 Composite primary keys can be passed as the `id` argument using the following
@@ -828,7 +831,6 @@ you now have full CRUD for your new todos service!
 and to [seed](http://knexjs.org/#Seeds) a table with mock data.
   
 ## Error handling
-
 As of version 4.8.0, `feathers-objection` only throws [Feathers Errors](https://docs.feathersjs.com/api/errors.html) 
 with the message.  
 On the server, the original error can be retrieved through a secure symbol via  `error[require('feathers-objection').ERROR]`.
@@ -844,6 +846,10 @@ try {
   const originalError = error[ERROR];
 }
 ```
+
+As of version 7.0.0, `feathers-objection` has normalized errors accross all databases supported by Objection, and makes a best-effort attempt to provide reasonable error messages that can be returned directly to the client.
+
+If these error messages do not work for your needs, the original error is still available using the symbol described above.
 
 ## Migrating to `feathers-objection` v2
 
@@ -886,6 +892,17 @@ The following breaking changes have been introduced:
 - `$select` is now honored with upsert methods
 - `patch` method now enforce `params.query` with upsert
 - NotFound error will be thrown when `get` & `update` methods are called with different values in `id` & `params.query.id`
+
+## Migrating to `feathers-objection` v7
+
+`feathers-objection` 7.0.0 comes with improved error handling.
+
+The following breaking changes have been introduced:
+
+- All Databases will return the same types of errors based on the underlying Objection error
+- SQL Driver error text is no longer used as the Feathers error message
+- Objection errors are mapped more accurately to Feathers errors, e.g.
+  - Objection's `UniqueViolationError` -> Feathers' `Conflict` error type
 
 ## License
 

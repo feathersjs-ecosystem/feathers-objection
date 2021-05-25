@@ -1,5 +1,114 @@
 # Changelog
 
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.2.0...HEAD)
+
+**Merged pull requests:**
+
+- Remove groupBy when counting rows for pagination [\#150](https://github.com/feathersjs-ecosystem/feathers-objection/pull/150) ([gmercey](https://github.com/gmercey))
+
+## [v7.2.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.2.0) (2021-05-23)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.7...v7.2.0)
+
+## [v7.1.7](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.7) (2021-05-22)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.6...v7.1.7)
+
+**Merged pull requests:**
+
+- Handle missing top-level jsonSchema.properties in objectify\(\) [\#149](https://github.com/feathersjs-ecosystem/feathers-objection/pull/149) ([alex-all3dp](https://github.com/alex-all3dp))
+
+## [v7.1.6](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.6) (2021-05-08)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.5...v7.1.6)
+
+## [v7.1.5](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.5) (2021-05-08)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.4...v7.1.5)
+
+**Merged pull requests:**
+
+- Bump lodash from 4.17.19 to 4.17.21 [\#148](https://github.com/feathersjs-ecosystem/feathers-objection/pull/148) ([dependabot[bot]](https://github.com/apps/dependabot))
+
+## [v7.1.4](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.4) (2021-04-25)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.3...v7.1.4)
+
+**Merged pull requests:**
+
+- make "params" optional for all method [\#146](https://github.com/feathersjs-ecosystem/feathers-objection/pull/146) ([fratzinger](https://github.com/fratzinger))
+
+## [v7.1.3](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.3) (2021-03-30)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.2...v7.1.3)
+
+**Closed issues:**
+
+- Unknown database error:  returning "id"  - column  "permissionId" of relation "users" does not exist [\#144](https://github.com/feathersjs-ecosystem/feathers-objection/issues/144)
+
+**Merged pull requests:**
+
+- Bump y18n from 4.0.0 to 4.0.1 [\#145](https://github.com/feathersjs-ecosystem/feathers-objection/pull/145) ([dependabot[bot]](https://github.com/apps/dependabot))
+
+## [v7.1.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.2) (2021-03-02)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.1...v7.1.2)
+
+**Merged pull requests:**
+
+- fixed UniqueViolationError bug for mysql clients [\#141](https://github.com/feathersjs-ecosystem/feathers-objection/pull/141) ([Tr3ffel](https://github.com/Tr3ffel))
+
+## [v7.1.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.1) (2021-02-08)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.0...v7.1.1)
+
+**Merged pull requests:**
+
+- Fixed issue where using $select with a composite PK returns error [\#140](https://github.com/feathersjs-ecosystem/feathers-objection/pull/140) ([davidf84](https://github.com/davidf84))
+
+## [v7.1.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.0) (2020-12-15)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.0.0...v7.1.0)
+
+**Implemented enhancements:**
+
+- Create multi queries DB twice for every object [\#109](https://github.com/feathersjs-ecosystem/feathers-objection/issues/109)
+
+**Closed issues:**
+
+- Calling Stored Procedures [\#132](https://github.com/feathersjs-ecosystem/feathers-objection/issues/132)
+
+**Merged pull requests:**
+
+- Bump ini from 1.3.5 to 1.3.7 [\#137](https://github.com/feathersjs-ecosystem/feathers-objection/pull/137) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Add optional parameter modifierFiltersResults for disabling count of $modify query results [\#136](https://github.com/feathersjs-ecosystem/feathers-objection/pull/136) ([alex-all3dp](https://github.com/alex-all3dp))
+
+## [v7.0.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.0.0) (2020-11-21)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v6.3.0...v7.0.0)
+
+**Closed issues:**
+
+- Error handling is not working correctly for Postgres [\#130](https://github.com/feathersjs-ecosystem/feathers-objection/issues/130)
+
+**Merged pull requests:**
+
+- feat: use objection error types in error-handler [\#131](https://github.com/feathersjs-ecosystem/feathers-objection/pull/131) ([robbyphillips](https://github.com/robbyphillips))
+
+## [v6.3.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v6.3.0) (2020-11-10)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v6.2.1...v6.3.0)
+
+**Closed issues:**
+
+- SQL queries and database errors are exposed in HTTP responses [\#129](https://github.com/feathersjs-ecosystem/feathers-objection/issues/129)
+- Patch not working with individual objects [\#128](https://github.com/feathersjs-ecosystem/feathers-objection/issues/128)
+- Poor performance of the create operation [\#125](https://github.com/feathersjs-ecosystem/feathers-objection/issues/125)
+
+**Merged pull requests:**
+
+- Batch insert support [\#127](https://github.com/feathersjs-ecosystem/feathers-objection/pull/127) ([mdmitry01](https://github.com/mdmitry01))
+
 ## [v6.2.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v6.2.1) (2020-10-25)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v6.2.0...v6.2.1)
@@ -621,6 +730,7 @@
 
 **Merged pull requests:**
 
+- Transaction support \(fix\) [\#22](https://github.com/feathersjs-ecosystem/feathers-objection/pull/22) ([vonagam](https://github.com/vonagam))
 - Added prepare script [\#15](https://github.com/feathersjs-ecosystem/feathers-objection/pull/15) ([NotAmaan](https://github.com/NotAmaan))
 
 ## [v0.10.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v0.10.0) (2018-07-08)
@@ -654,7 +764,6 @@
 
 **Merged pull requests:**
 
-- Transaction support \(fix\) [\#22](https://github.com/feathersjs-ecosystem/feathers-objection/pull/22) ([vonagam](https://github.com/vonagam))
 - Fixed $eager and $joinEager to be treated as columns by count\(\) [\#11](https://github.com/feathersjs-ecosystem/feathers-objection/pull/11) ([NotAmaan](https://github.com/NotAmaan))
 
 ## [v0.7.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v0.7.0) (2018-01-20)
