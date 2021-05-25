@@ -358,7 +358,7 @@ class Service extends AdapterService {
 
   _selectQuery (q, $select) {
     if ($select && Array.isArray($select)) {
-      const items = $select.concat(`${this.Model.tableName}.${this.id}`);
+      const items = $select.concat(`${this.Model.tableName}.${this.id}`); // BUG if this.id is array
 
       for (const [key, item] of Object.entries(items)) {
         const matches = item.match(/^ref\((.+)\)( as (.+))?$/);
@@ -419,7 +419,7 @@ class Service extends AdapterService {
     const updateId = this.getIdsQuery(id, undefined, false);
     Object.keys(updateId).forEach(key => {
       if (!Object.prototype.hasOwnProperty.call(newObject, key)) {
-        newObject[key] = updateId[key]; // id is missing in data, we had it
+        newObject[key] = updateId[key]; // id is missing in data, we add it
       } else if (newObject[key] !== updateId[key]) {
         throw new errors.BadRequest(`Id '${key}': values mismatch between data '${newObject[key]}' and request '${updateId[key]}'`);
       }
@@ -602,7 +602,7 @@ class Service extends AdapterService {
   _get (id, params) {
     // merge user query with the 'id' to get
     const findQuery = Object.assign({}, { $and: [] }, params.query);
-    findQuery.$and.push(this.getIdsQuery(id));
+    findQuery.$and.push(this.getIdsQuery(id)); // BUG will fail with composite primary key because table name will be missing
 
     return this._find(Object.assign({}, params, { query: findQuery }))
       .then(page => {
