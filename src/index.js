@@ -419,7 +419,7 @@ class Service extends AdapterService {
     const updateId = this.getIdsQuery(id, undefined, false);
     Object.keys(updateId).forEach(key => {
       if (!Object.prototype.hasOwnProperty.call(newObject, key)) {
-        newObject[key] = updateId[key]; // id is missing in data, we had it
+        newObject[key] = updateId[key]; // id is missing in data, we add it
       } else if (newObject[key] !== updateId[key]) {
         throw new errors.BadRequest(`Id '${key}': values mismatch between data '${newObject[key]}' and request '${updateId[key]}'`);
       }
@@ -602,7 +602,7 @@ class Service extends AdapterService {
   _get (id, params = {}) {
     // merge user query with the 'id' to get
     const findQuery = Object.assign({}, { $and: [] }, params.query);
-    findQuery.$and.push(this.getIdsQuery(id));
+    findQuery.$and.push(this.getIdsQuery(id)); // BUG will fail with composite primary key because table name will be missing
 
     return this._find(Object.assign({}, params, { query: findQuery }))
       .then(page => {
@@ -848,11 +848,20 @@ class Service extends AdapterService {
         const selectParam = filters.$select ? { $select: filters.$select } : undefined;
         const findParams = Object.assign({}, params, { query: Object.assign({}, params.query, this.getIdsQuery(id, idList), selectParam) });
 
-        for (const key of Object.keys(dataCopy)) {
-          if (key in findParams.query) {
-            findParams.query[key] = dataCopy[key];
+        // Update find query if needed with patched values
+        const updateKeys = (obj) => {
+          for (const key of Object.keys(obj)) {
+            if (key in dataCopy) {
+              obj[key] = dataCopy[key];
+            } else {
+              if (Array.isArray(obj[key])) {
+                obj[key].forEach(obj => updateKeys(obj));
+              }
+            }
           }
-        }
+        };
+        updateKeys(findParams.query);
+
         return q.patch(dataCopy).then(() => {
           return params.query && params.query.$noSelect
             ? dataCopy
