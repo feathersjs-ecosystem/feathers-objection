@@ -1,14 +1,22 @@
 # Changelog
 
-[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.2.0...HEAD)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.3.0...HEAD)
 
 **Merged pull requests:**
 
-- Remove groupBy when counting rows for pagination [\#150](https://github.com/feathersjs-ecosystem/feathers-objection/pull/150) ([gmercey](https://github.com/gmercey))
+- Fix patch method with complex query [\#151](https://github.com/feathersjs-ecosystem/feathers-objection/pull/151) ([Thomas-git](https://github.com/Thomas-git))
+
+## [v7.3.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.3.0) (2021-05-25)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.2.0...v7.3.0)
 
 ## [v7.2.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.2.0) (2021-05-23)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.1.7...v7.2.0)
+
+**Merged pull requests:**
+
+- Remove groupBy when counting rows for pagination [\#150](https://github.com/feathersjs-ecosystem/feathers-objection/pull/150) ([gmercey](https://github.com/gmercey))
 
 ## [v7.1.7](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.1.7) (2021-05-22)
 
