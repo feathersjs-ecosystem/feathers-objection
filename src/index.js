@@ -558,7 +558,7 @@ class Service extends AdapterService {
 
       if (count) {
         const countColumns = groupByColumns || (Array.isArray(this.id) ? this.id.map(idKey => `${this.Model.tableName}.${idKey}`) : [`${this.Model.tableName}.${this.id}`]);
-        const countQuery = this._createQuery(params).clear('groupBy');
+        const countQuery = this._createQuery(params);
 
         if (query.$joinRelation) {
           countQuery
@@ -578,6 +578,7 @@ class Service extends AdapterService {
           this.modifyQuery(countQuery, query.$modify);
         }
 
+        countQuery.clear('groupBy');
         this.objectify(countQuery, query, null, null, query.$allowRefs);
 
         return countQuery
