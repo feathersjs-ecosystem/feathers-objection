@@ -1,14 +1,16 @@
 # Changelog
 
-[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.3.0...HEAD)
+## [v7.4.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.4.0) (2021-05-26)
 
-**Merged pull requests:**
-
-- Fix patch method with complex query [\#151](https://github.com/feathersjs-ecosystem/feathers-objection/pull/151) ([Thomas-git](https://github.com/Thomas-git))
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.3.0...v7.4.0)
 
 ## [v7.3.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.3.0) (2021-05-25)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.2.0...v7.3.0)
+
+**Merged pull requests:**
+
+- Fix patch method with complex query [\#151](https://github.com/feathersjs-ecosystem/feathers-objection/pull/151) ([Thomas-git](https://github.com/Thomas-git))
 
 ## [v7.2.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.2.0) (2021-05-23)
 
