@@ -701,8 +701,8 @@ class Service extends AdapterService {
     let promise = q;
     const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
     const allowedInsert = this.mergeRelations(this.allowedInsert, params.mergeAllowInsert);
-    const upsertGraphOptions = { ...this.upsertGraphOptions, ...params.upsertGraphOptions };
-    const insertGraphOptions = { ...this.insertGraphOptions, ...params.insertGraphOptions };
+    const upsertGraphOptions = { ...this.upsertGraphOptions, ...params.mergeUpsertGraphOptions };
+    const insertGraphOptions = { ...this.insertGraphOptions, ...params.mergeInsertGraphOptions };
 
     if (this.createUseUpsertGraph) {
       if (allowedUpsert) {
@@ -755,7 +755,7 @@ class Service extends AdapterService {
             }
 
             if (allowedUpsert) {
-              const upsertGraphOptions = { ...this.upsertGraphOptions, ...params.upsertGraphOptions };
+              const upsertGraphOptions = { ...this.upsertGraphOptions, ...params.mergeUpsertGraphOptions };
               return this._createQuery(params)
                 .allowGraph(allowedUpsert)
                 .upsertGraphAndFetch(newObject, upsertGraphOptions).then(this._commitTransaction(transaction), this._rollbackTransaction(transaction));
@@ -797,7 +797,7 @@ class Service extends AdapterService {
     let { filters, query } = this.filterQuery(params);
 
     const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
-    const upsertGraphOptions = { ...this.upsertGraphOptions, ...params.upsertGraphOptions };
+    const upsertGraphOptions = { ...this.upsertGraphOptions, ...params.mergeUpsertGraphOptions };
     if (allowedUpsert && id !== null) {
       const dataCopy = Object.assign({}, data);
       this._checkUpsertId(id, dataCopy);
