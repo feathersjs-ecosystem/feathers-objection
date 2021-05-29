@@ -1,5 +1,15 @@
 # Changelog
 
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.5.0...HEAD)
+
+**Merged pull requests:**
+
+- Add upsert and insert graph options in params [\#153](https://github.com/feathersjs-ecosystem/feathers-objection/pull/153) ([Thomas-git](https://github.com/Thomas-git))
+
+## [v7.5.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.5.0) (2021-05-29)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.4.0...v7.5.0)
+
 ## [v7.4.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.4.0) (2021-05-26)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.3.0...v7.4.0)
