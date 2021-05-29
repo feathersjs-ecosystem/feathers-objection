@@ -392,6 +392,7 @@ be updated (if there are any changes at all).
 #### Params Operators
 
 - **`mergeAllowUpsert`** - Merge given expression into `allowedUpsert`.
+- **`mergeUpsertGraphOptions`** - Merge given options into `upsertGraphOptions`.
 
 ### Graph insert
 
@@ -414,6 +415,7 @@ Runs on the `.create(data, params)` service method.
 #### Params Operators
 
 - **`mergeAllowInsert`** - Merge given expression into `allowedInsert`.
+- **`mergeInsertGraphOptions`** - Merge given options into `insertGraphOptions`.
 
 ### Transaction
 

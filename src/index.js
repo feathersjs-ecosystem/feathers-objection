@@ -701,15 +701,17 @@ class Service extends AdapterService {
     let promise = q;
     const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
     const allowedInsert = this.mergeRelations(this.allowedInsert, params.mergeAllowInsert);
+    const upsertGraphOptions = { ...this.upsertGraphOptions, ...params.mergeUpsertGraphOptions };
+    const insertGraphOptions = { ...this.insertGraphOptions, ...params.mergeInsertGraphOptions };
 
     if (this.createUseUpsertGraph) {
       if (allowedUpsert) {
         q.allowGraph(allowedUpsert);
       }
-      q.upsertGraph(data, this.upsertGraphOptions);
+      q.upsertGraph(data, upsertGraphOptions);
     } else if (allowedInsert) {
       q.allowGraph(allowedInsert);
-      q.insertGraph(data, this.insertGraphOptions);
+      q.insertGraph(data, insertGraphOptions);
     } else {
       promise = this._batchInsert(data, params);
     }
@@ -753,9 +755,10 @@ class Service extends AdapterService {
             }
 
             if (allowedUpsert) {
+              const upsertGraphOptions = { ...this.upsertGraphOptions, ...params.mergeUpsertGraphOptions };
               return this._createQuery(params)
                 .allowGraph(allowedUpsert)
-                .upsertGraphAndFetch(newObject, this.upsertGraphOptions).then(this._commitTransaction(transaction), this._rollbackTransaction(transaction));
+                .upsertGraphAndFetch(newObject, upsertGraphOptions).then(this._commitTransaction(transaction), this._rollbackTransaction(transaction));
             }
 
             // NOTE (EK): Delete id field so we don't update it
@@ -794,6 +797,7 @@ class Service extends AdapterService {
     let { filters, query } = this.filterQuery(params);
 
     const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
+    const upsertGraphOptions = { ...this.upsertGraphOptions, ...params.mergeUpsertGraphOptions };
     if (allowedUpsert && id !== null) {
       const dataCopy = Object.assign({}, data);
       this._checkUpsertId(id, dataCopy);
@@ -804,7 +808,7 @@ class Service extends AdapterService {
         const transaction = await this._createTransaction(params);
         return this._createQuery(params)
           .allowGraph(allowedUpsert)
-          .upsertGraphAndFetch(dataCopy, this.upsertGraphOptions)
+          .upsertGraphAndFetch(dataCopy, upsertGraphOptions)
           .then(this._selectFields(params, data)).then(this._commitTransaction(transaction), this._rollbackTransaction(transaction));
       });
     }
