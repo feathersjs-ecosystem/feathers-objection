@@ -1,14 +1,20 @@
 # Changelog
 
+## [Unreleased](https://github.com/feathersjs-ecosystem/feathers-objection/tree/HEAD)
+
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.5.0...HEAD)
 
-**Merged pull requests:**
+**Closed issues:**
 
-- Add upsert and insert graph options in params [\#153](https://github.com/feathersjs-ecosystem/feathers-objection/pull/153) ([Thomas-git](https://github.com/Thomas-git))
+- How to write custom endpoint [\#154](https://github.com/feathersjs-ecosystem/feathers-objection/issues/154)
 
 ## [v7.5.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.5.0) (2021-05-29)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.4.0...v7.5.0)
+
+**Merged pull requests:**
+
+- Add upsert and insert graph options in params [\#153](https://github.com/feathersjs-ecosystem/feathers-objection/pull/153) ([Thomas-git](https://github.com/Thomas-git))
 
 ## [v7.4.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.4.0) (2021-05-26)
 
