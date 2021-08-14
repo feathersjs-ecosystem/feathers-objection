@@ -1065,8 +1065,8 @@ describe('Feathers Objection Service', () => {
     it('allows upsertGraph queries on update', () => {
       const newClients = (google.clients)
         ? google.clients.concat([{
-            name: 'Ken Patrick'
-          }])
+          name: 'Ken Patrick'
+        }])
         : [];
 
       return companies
@@ -1085,8 +1085,8 @@ describe('Feathers Objection Service', () => {
     it('forbid upsertGraph if data do not match update item', () => {
       const newClients = (google.clients)
         ? google.clients.concat([{
-            name: 'Ken Patrick'
-          }])
+          name: 'Ken Patrick'
+        }])
         : [];
 
       return companies
@@ -1105,8 +1105,8 @@ describe('Feathers Objection Service', () => {
     it('forbid upsertGraph if data do not match patch item', () => {
       const newClients = (google.clients)
         ? google.clients.concat([{
-            name: 'Ken Patrick'
-          }])
+          name: 'Ken Patrick'
+        }])
         : [];
 
       return companies
@@ -1125,8 +1125,8 @@ describe('Feathers Objection Service', () => {
     it('allows upsertGraph queries on patch', () => {
       const newClients = (google.clients)
         ? google.clients.concat([{
-            name: 'Ken Patrick'
-          }])
+          name: 'Ken Patrick'
+        }])
         : [];
 
       return companies
@@ -1148,8 +1148,8 @@ describe('Feathers Objection Service', () => {
     it('allows upsertGraph queries on patch with query param', () => {
       const newClients = (google.clients)
         ? google.clients.concat([{
-            name: 'Ken Patrick'
-          }])
+          name: 'Ken Patrick'
+        }])
         : [];
 
       return companies

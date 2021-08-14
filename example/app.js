@@ -5,7 +5,8 @@ import { errorHandler } from '@feathersjs/express'
 import bodyParser from 'body-parser'
 import { Model } from 'objection'
 import createService from '../src'
-import createModel from './todo'
+import TodosModel from './todos.model'
+import UsersModel from './users.model'
 
 // Initialize Knex
 const knex = require('knex')({
@@ -30,14 +31,25 @@ const app = express(feathers())
 
 app.set('knex', knex)
 
-// Create service
+const paginate = {
+  default: 2,
+  max: 4
+}
+
+// Create todos service
 app.use('/todos', createService({
-  model: createModel(app),
-  id: 'id',
-  paginate: {
-    default: 2,
-    max: 4
-  }
+  model: new TodosModel(app),
+  paginate,
+  whitelist: ['$eager', '$joinRelation'],
+  allowedEager: 'user'
+}))
+
+// Create users service
+app.use('/users', createService({
+  model: new UsersModel(app),
+  paginate,
+  whitelist: ['$eager', '$joinRelation'],
+  allowedEager: 'todos'
 }))
 
 // Handle Errors

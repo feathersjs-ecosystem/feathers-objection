@@ -821,7 +821,7 @@ module.exports = app.listen(3030);
 console.log('Feathers Todo Objection service running on 127.0.0.1:3030');
 ```
 
-Run the example with `node app` and go to
+Run the [example](https://github.com/feathersjs-ecosystem/feathers-objection/tree/master/example) app with `npm run example` and go to
 [localhost:3030/todos](http://localhost:3030/todos).
 
 You should see an empty array. That's because you don't have any Todos yet, but
