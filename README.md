@@ -142,7 +142,7 @@ operators are:
 ### Eager Queries
 
 Eager queries is one way of solving the SQL database relational model in
-Feathers services, instead of relying with hooks.
+Feathers services, instead of relying on hooks.
 
 #### Service Options
 
