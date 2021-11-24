@@ -246,7 +246,7 @@ Note that all this eager related options are optional.
   [`transaction`](https://vincit.github.io/objection.js/api/objection/#transaction)
   documentation.
 
-- **`atomic`** - when `true` ensure that multi create or graph insert/upsert success or fail all at once. Under the hood, automaticaly create a transaction and commit on success or rollback on partial or total failure. __Ignored__ if you added your own `transaction` object in params.
+- **`atomic`** - when `true` ensure that multi create or graph insert/upsert success or fail all at once. Under the hood, automatically create a transaction and commit on success or rollback on partial or total failure. __Ignored__ if you added your own `transaction` object in params.
 
 - **`mergeAllowEager`** - Will merge the given expression to the existing expression from the `allowEager` service option. 
   See [`allowGraph`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#allowgraph)
