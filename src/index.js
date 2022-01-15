@@ -428,7 +428,7 @@ class Service extends AdapterService {
 
   createQuery (params = {}) {
     const { filters, query } = this.filterQuery(params);
-    const q = this._createQuery(params).skipUndefined();
+    const q = this._createQuery(params);
     const eagerOptions = { ...this.eagerOptions, ...params.eagerOptions };
 
     if (this.allowedEager) { q.allowGraph(this.allowedEager); }
