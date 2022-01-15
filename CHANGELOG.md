@@ -1,8 +1,21 @@
 # Changelog
 
-## [Unreleased](https://github.com/feathersjs-ecosystem/feathers-objection/tree/HEAD)
+## [v7.5.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.5.2) (2022-01-15)
 
-[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.5.0...HEAD)
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.5.1...v7.5.2)
+
+**Closed issues:**
+
+- Getting error when using `_patch` method with `allowedUpsert` service option enabled. [\#163](https://github.com/feathersjs-ecosystem/feathers-objection/issues/163)
+
+**Merged pull requests:**
+
+- Fix type in README.MD [\#164](https://github.com/feathersjs-ecosystem/feathers-objection/pull/164) ([ericirish](https://github.com/ericirish))
+- Update grammatical error in README [\#156](https://github.com/feathersjs-ecosystem/feathers-objection/pull/156) ([ericirish](https://github.com/ericirish))
+
+## [v7.5.1](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.5.1) (2021-08-14)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.5.0...v7.5.1)
 
 **Closed issues:**
 
