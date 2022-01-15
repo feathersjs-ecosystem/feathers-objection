@@ -35,7 +35,7 @@
     "url": "https://github.com/feathersjs-ecosystem/feathers-objection/issues"
   },
   "engines": {
-    "node": ">= 10"
+    "node": ">= 14"
   },
   "main": "lib/",
   "types": "types",
@@ -106,7 +106,7 @@
         "@babel/preset-env",
         {
           "targets": {
-            "node": "10"
+            "node": "14"
           }
         }
       ]
