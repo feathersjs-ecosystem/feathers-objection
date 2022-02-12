@@ -1,5 +1,15 @@
 # Changelog
 
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.5.3...HEAD)
+
+**Merged pull requests:**
+
+- Bump ajv from 6.12.0 to 6.12.6 [\#170](https://github.com/feathersjs-ecosystem/feathers-objection/pull/170) ([dependabot[bot]](https://github.com/apps/dependabot))
+
+## [v7.5.3](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.5.3) (2022-02-12)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.5.2...v7.5.3)
+
 ## [v7.5.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.5.2) (2022-01-15)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.5.1...v7.5.2)
