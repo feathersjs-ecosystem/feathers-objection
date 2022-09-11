@@ -161,6 +161,7 @@ class Service extends AdapterService {
     if (params.$eager) { delete params.$eager; }
     if (params.$joinEager) { delete params.$joinEager; }
     if (params.$joinRelation) { delete params.$joinRelation; }
+    if (params.$leftJoinRelation) { delete params.$leftJoinRelation; }
     if (params.$modifyEager) { delete params.$modifyEager; }
     if (params.$mergeEager) { delete params.$mergeEager; }
     if (params.$noSelect) { delete params.$noSelect; }
@@ -461,6 +462,14 @@ class Service extends AdapterService {
       delete query.$joinRelation;
     }
 
+    const leftJoinRelation = query && query.$leftJoinRelation;
+
+    if (leftJoinRelation) {
+      q.leftJoinRelated(query.$leftJoinRelation);
+
+      delete query.$leftJoinRelation;
+    }
+    
     if (query && query.$mergeEager) {
       q[joinEager ? 'withGraphJoined' : 'withGraphFetched'](query.$mergeEager, eagerOptions);
 
@@ -473,10 +482,12 @@ class Service extends AdapterService {
       delete query.$modify;
     }
 
-    if (joinRelation) {
+    if (joinRelation || leftJoinRelation) {
       const groupByColumns = this.getGroupByColumns(q);
 
-      if (!groupByColumns) { q.distinct(`${this.Model.tableName}.*`); }
+      if (!groupByColumns) {
+        q.distinct(`${this.Model.tableName}.*`);
+      }
     }
 
     // apply eager filters if specified
@@ -563,6 +574,10 @@ class Service extends AdapterService {
         if (query.$joinRelation) {
           countQuery
             .joinRelated(query.$joinRelation)
+            .countDistinct({ total: countColumns });
+        } else if (query.$leftJoinRelation) {
+          countQuery
+            .leftJoinRelated(query.$leftJoinRelation)
             .countDistinct({ total: countColumns });
         } else if (query.$joinEager) {
           countQuery
