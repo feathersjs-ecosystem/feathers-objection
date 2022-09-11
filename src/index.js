@@ -11,7 +11,7 @@ const METHODS = {
   $in: 'whereIn',
   $nin: 'whereNotIn',
   $null: 'whereNull',
-  $not: 'whereNot',
+  $not: 'whereNot'
 };
 
 const OPERATORS = {
@@ -29,7 +29,7 @@ const OPERATORS = {
   notILike: '$notILike',
   or: '$or',
   and: '$and',
-  whereNot: '$not',
+  whereNot: '$not'
 };
 
 const OPERATORS_MAP = {
@@ -51,7 +51,7 @@ const OPERATORS_MAP = {
   $containsKey: '?',
   $contained: '<@',
   $any: '?|',
-  $all: '?&',
+  $all: '?&'
 };
 
 const DESERIALIZED_ARRAY_OPERATORS = ['between', 'not between', '?|', '?&'];
@@ -69,7 +69,7 @@ const NON_COMPARISON_OPERATORS = ['@>', '?', '<@', '?|', '?&'];
  * @param {string} options.allowedEager - Objection eager loading string.
  */
 class Service extends AdapterService {
-  constructor(options) {
+  constructor (options) {
     if (!options.model) {
       throw new errors.GeneralError('You must provide an Objection Model');
     }
@@ -94,11 +94,11 @@ class Service extends AdapterService {
     this.schema = options.schema;
   }
 
-  get Model() {
+  get Model () {
     return this.options.model;
   }
 
-  getModel(params) {
+  getModel (params) {
     return this.options.model;
   }
 
@@ -108,7 +108,7 @@ class Service extends AdapterService {
    * @param idList
    * @param addTableName
    */
-  getIdsQuery(id, idList, addTableName = true) {
+  getIdsQuery (id, idList, addTableName = true) {
     const query = {};
 
     if (Array.isArray(this.id)) {
@@ -154,7 +154,7 @@ class Service extends AdapterService {
    * @param methodKey
    * @param allowRefs
    */
-  objectify(query, params, parentKey, methodKey, allowRefs) {
+  objectify (query, params, parentKey, methodKey, allowRefs) {
     if (params.$eager) {
       delete params.$eager;
     }
@@ -312,7 +312,7 @@ class Service extends AdapterService {
     });
   }
 
-  mergeRelations(optionRelations, paramRelations) {
+  mergeRelations (optionRelations, paramRelations) {
     if (!paramRelations) {
       return optionRelations;
     }
@@ -324,7 +324,7 @@ class Service extends AdapterService {
     return optionRelations.merge(paramRelations);
   }
 
-  modifyQuery(query, modify) {
+  modifyQuery (query, modify) {
     let modifiers = null;
 
     if (typeof modify === 'string') {
@@ -352,7 +352,7 @@ class Service extends AdapterService {
     }
   }
 
-  getGroupByColumns(query) {
+  getGroupByColumns (query) {
     for (const operation of query._operations) {
       if (operation.name === 'groupBy') {
         const args = operation.args;
@@ -364,7 +364,7 @@ class Service extends AdapterService {
     return null;
   }
 
-  async _createTransaction(params) {
+  async _createTransaction (params) {
     if (!params.transaction && params.atomic) {
       delete params.atomic;
       params.transaction = params.transaction || {};
@@ -374,7 +374,7 @@ class Service extends AdapterService {
     return null;
   }
 
-  _commitTransaction(transaction) {
+  _commitTransaction (transaction) {
     return async (data) => {
       if (transaction) {
         await transaction.trx.commit();
@@ -383,7 +383,7 @@ class Service extends AdapterService {
     };
   }
 
-  _rollbackTransaction(transaction) {
+  _rollbackTransaction (transaction) {
     return async (err) => {
       if (transaction) {
         await transaction.trx.rollback();
@@ -392,27 +392,27 @@ class Service extends AdapterService {
     };
   }
 
-  _createQuery(params = {}) {
+  _createQuery (params = {}) {
     const trx = params.transaction ? params.transaction.trx : null;
     const schema = params.schema || this.schema;
     const query = this.Model.query(trx);
     if (schema) {
       query.context({
-        onBuild(builder) {
+        onBuild (builder) {
           builder.withSchema(schema);
-        },
+        }
       });
     }
     return query;
   }
 
-  _selectQuery(q, $select) {
+  _selectQuery (q, $select) {
     if ($select && Array.isArray($select)) {
       const items = $select.concat(
         Array.isArray(this.id)
           ? this.id.map((el) => {
-              return `${this.Model.tableName}.${el}`;
-            })
+            return `${this.Model.tableName}.${el}`;
+          })
           : `${this.Model.tableName}.${this.id}`
       );
 
@@ -429,7 +429,7 @@ class Service extends AdapterService {
   }
 
   // Analyse $select and get an object map with fields -> alias
-  _selectAliases($select) {
+  _selectAliases ($select) {
     if (!Array.isArray($select)) {
       return {};
     }
@@ -450,7 +450,7 @@ class Service extends AdapterService {
     }, {});
   }
 
-  _selectFields(params, originalData = {}) {
+  _selectFields (params, originalData = {}) {
     return (newObject) => {
       if (params.query && params.query.$noSelect) {
         return originalData;
@@ -478,7 +478,7 @@ class Service extends AdapterService {
     };
   }
 
-  _checkUpsertId(id, newObject) {
+  _checkUpsertId (id, newObject) {
     const updateId = this.getIdsQuery(id, undefined, false);
     Object.keys(updateId).forEach((key) => {
       if (!Object.prototype.hasOwnProperty.call(newObject, key)) {
@@ -491,7 +491,7 @@ class Service extends AdapterService {
     });
   }
 
-  createQuery(params = {}) {
+  createQuery (params = {}) {
     const { filters, query } = this.filterQuery(params);
     const q = this._createQuery(params);
     const eagerOptions = { ...this.eagerOptions, ...params.eagerOptions };
@@ -608,7 +608,7 @@ class Service extends AdapterService {
    * `find` service function for Objection.
    * @param params
    */
-  _find(params = {}) {
+  _find (params = {}) {
     const find = (params, count, filters, query) => {
       const q = params.objection || this.createQuery(params);
       const groupByColumns = this.getGroupByColumns(q);
@@ -629,7 +629,7 @@ class Service extends AdapterService {
             total,
             limit: filters.$limit,
             skip: filters.$skip || 0,
-            data,
+            data
           };
         });
       };
@@ -640,7 +640,7 @@ class Service extends AdapterService {
             total,
             limit: filters.$limit,
             skip: filters.$skip || 0,
-            data: [],
+            data: []
           });
         };
       }
@@ -703,7 +703,7 @@ class Service extends AdapterService {
     return result;
   }
 
-  _get(id, params = {}) {
+  _get (id, params = {}) {
     // merge user query with the 'id' to get
     const findQuery = Object.assign({}, { $and: [] }, params.query);
     findQuery.$and.push(this.getIdsQuery(id)); // BUG will fail with composite primary key because table name will be missing
@@ -721,7 +721,7 @@ class Service extends AdapterService {
     );
   }
 
-  _getCreatedRecords(insertResults, inputData, params) {
+  _getCreatedRecords (insertResults, inputData, params) {
     if (params.query && params.query.$noSelect) {
       return inputData;
     }
@@ -779,7 +779,7 @@ class Service extends AdapterService {
    * @returns {Promise<Object|Object[]>}
    * @private
    */
-  _batchInsert(data, params) {
+  _batchInsert (data, params) {
     const { dialect } = this.Model.knex().client;
     // batch insert only works with Postgresql and SQL Server
     if (dialect === 'postgresql' || dialect === 'mssql') {
@@ -799,7 +799,7 @@ class Service extends AdapterService {
    * @param {object} data
    * @param {object} params
    */
-  async _create(data, params = {}) {
+  async _create (data, params = {}) {
     const transaction = await this._createTransaction(params);
     const q = this._createQuery(params);
     let promise = q;
@@ -813,11 +813,11 @@ class Service extends AdapterService {
     );
     const upsertGraphOptions = {
       ...this.upsertGraphOptions,
-      ...params.mergeUpsertGraphOptions,
+      ...params.mergeUpsertGraphOptions
     };
     const insertGraphOptions = {
       ...this.insertGraphOptions,
-      ...params.mergeInsertGraphOptions,
+      ...params.mergeInsertGraphOptions
     };
 
     if (this.createUseUpsertGraph) {
@@ -848,7 +848,7 @@ class Service extends AdapterService {
    * @param data
    * @param params
    */
-  _update(id, data, params = {}) {
+  _update (id, data, params = {}) {
     // NOTE : First fetch the item to update to account for user query
     return this._get(id, params)
       .then(() => {
@@ -881,7 +881,7 @@ class Service extends AdapterService {
             if (allowedUpsert) {
               const upsertGraphOptions = {
                 ...this.upsertGraphOptions,
-                ...params.mergeUpsertGraphOptions,
+                ...params.mergeUpsertGraphOptions
               };
               return this._createQuery(params)
                 .allowGraph(allowedUpsert)
@@ -929,7 +929,7 @@ class Service extends AdapterService {
    * @param data
    * @param params
    */
-  _patch(id, data, params = {}) {
+  _patch (id, data, params = {}) {
     let { filters, query } = this.filterQuery(params);
 
     const allowedUpsert = this.mergeRelations(
@@ -938,7 +938,7 @@ class Service extends AdapterService {
     );
     const upsertGraphOptions = {
       ...this.upsertGraphOptions,
-      ...params.mergeUpsertGraphOptions,
+      ...params.mergeUpsertGraphOptions
     };
     if (allowedUpsert && id !== null) {
       const dataCopy = Object.assign({}, data);
@@ -964,8 +964,8 @@ class Service extends AdapterService {
     const mapIds = (page) =>
       Array.isArray(this.id)
         ? this.id.map((idKey) => [
-            ...new Set((page.data || page).map((current) => current[idKey])),
-          ])
+          ...new Set((page.data || page).map((current) => current[idKey]))
+        ])
         : (page.data || page).map((current) => current[this.id]);
 
     // By default we will just query for the one id. For multi patch
@@ -1007,7 +1007,7 @@ class Service extends AdapterService {
             params.query,
             this.getIdsQuery(id, idList),
             selectParam
-          ),
+          )
         });
 
         // Update find query if needed with patched values
@@ -1028,20 +1028,20 @@ class Service extends AdapterService {
           return params.query && params.query.$noSelect
             ? dataCopy
             : this._find(findParams).then((page) => {
-                const items = page.data || page;
+              const items = page.data || page;
 
-                if (id !== null) {
-                  if (items.length === 1) {
-                    return items[0];
-                  } else {
-                    throw new errors.NotFound(`No record found for id '${id}'`);
-                  }
-                } else if (!items.length) {
+              if (id !== null) {
+                if (items.length === 1) {
+                  return items[0];
+                } else {
                   throw new errors.NotFound(`No record found for id '${id}'`);
                 }
+              } else if (!items.length) {
+                throw new errors.NotFound(`No record found for id '${id}'`);
+              }
 
-                return items;
-              });
+              return items;
+            });
         });
       })
       .catch(errorHandler);
@@ -1052,7 +1052,7 @@ class Service extends AdapterService {
    * @param id
    * @param params
    */
-  _remove(id, params = {}) {
+  _remove (id, params = {}) {
     params.query = Object.assign({}, params.query);
 
     // NOTE (EK): First fetch the record so that we can return
@@ -1101,7 +1101,7 @@ class Service extends AdapterService {
   }
 }
 
-export default function init(options) {
+export default function init (options) {
   return new Service(options);
 }
 
