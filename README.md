@@ -179,8 +179,11 @@ Note that all this eager related options are optional.
 - **`$eager`** - eager load relations defined in models' `relationMappings` getter methods. See
   [`withGraphFetched`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#withgraphfetched) documentation.
   
-- **`$joinRelation`** **`$leftJoinRelation`**- filter based on a relation's field. use with `$eager` to also fetch the relation. See
-  [`joinRelated`](https://vincit.github.io/objection.js/api/query-builder/join-methods.html#joinrelated)
+- **`$joinRelation`** - filter based on a relation's field. use with `$eager` to also fetch the relation. See
+  [`joinRelated`](https://vincit.github.io/objection.js/api/query-builder/join-methods.html#joinrelated) 
+  documentation.
+  
+- **`$leftJoinRelation`** - filter based on a relation's field using LEFT JOIN. use with `$eager` to also fetch the relation. See
   [`leftJoinRelated`](https://vincit.github.io/objection.js/api/query-builder/join-methods.html#leftjoinrelated)
   documentation.
   
