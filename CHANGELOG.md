@@ -1,14 +1,21 @@
 # Changelog
 
-[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.5.3...HEAD)
+## [v7.5.4](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.5.4) (2023-03-04)
 
-**Merged pull requests:**
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.5.3...v7.5.4)
 
-- Bump ajv from 6.12.0 to 6.12.6 [\#170](https://github.com/feathersjs-ecosystem/feathers-objection/pull/170) ([dependabot[bot]](https://github.com/apps/dependabot))
+**Closed issues:**
+
+- Can I cast a field from the client side and have it reflected in the db query?  [\#172](https://github.com/feathersjs-ecosystem/feathers-objection/issues/172)
+- support of feathers dove v5 [\#157](https://github.com/feathersjs-ecosystem/feathers-objection/issues/157)
 
 ## [v7.5.3](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.5.3) (2022-02-12)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.5.2...v7.5.3)
+
+**Merged pull requests:**
+
+- Bump ajv from 6.12.0 to 6.12.6 [\#170](https://github.com/feathersjs-ecosystem/feathers-objection/pull/170) ([dependabot[bot]](https://github.com/apps/dependabot))
 
 ## [v7.5.2](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.5.2) (2022-01-15)
 
