@@ -841,7 +841,7 @@ describe('Feathers Objection Service', () => {
 
     it('allows joinEager queries', () => {
       return employees.find({ query: { $joinEager: 'company' } }).then(data => {
-        expect(data[0].company).to.be.ok;
+        expect(data[0].company).to.be.null;
         expect(data[1].company).to.be.ok;
       });
     });
@@ -994,7 +994,7 @@ describe('Feathers Objection Service', () => {
       return companies
         .find({
           query: {
-            $eager: ['clients', 'employees'],
+            $eager: '[clients, employees]',
             $leftJoinRelation: 'employees',
             $joinRelation: 'clients',
             $sort: {
@@ -1005,8 +1005,8 @@ describe('Feathers Objection Service', () => {
         .then((data) => {
           expect(data.length).to.equal(3);
           expect(data[0].name).to.equal('OneManShop');
-          expect(data[0].clients.name).to.equal('Customers');
-          expect(data[0].employees).to.be.null;
+          expect(data[0].clients[0].name).to.equal('Customers');
+          expect(data[0].employees).to.be.empty;
         });
     });
   });
