@@ -994,13 +994,14 @@ describe('Feathers Objection Service', () => {
       return companies
         .find({
           query: {
+            $modify: ['groupById'],
             $eager: '[clients, employees]',
             $leftJoinRelation: 'employees',
             $joinRelation: 'clients',
             $sort: {
-              'clients.name': 1
-            }
-          }
+              'companies.name': -1,
+            },
+          },
         })
         .then((data) => {
           expect(data.length).to.equal(3);

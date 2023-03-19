@@ -60,7 +60,10 @@ export default class Company extends Model {
     },
     withRelationAndGroupBy: builder => {
       builder.withGraphFetched('employees').groupBy('id');
-    }
+    },
+    groupById: (builder) => {
+      builder.groupBy(['companies.id']);
+    },
   }
 
   // This object defines the relations to other models.
