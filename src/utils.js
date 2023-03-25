@@ -1,4 +1,4 @@
-import errors from '@feathersjs/errors';
+import { BadRequest } from '@feathersjs/errors';
 
 exports.isPlainObject = obj => {
   return obj && obj.constructor === {}.constructor;
@@ -12,7 +12,7 @@ exports.extractIds = (id, idKey, idSeparator) => {
     return Object.keys(obj).map(key => obj[key]);
   }
 
-  if (typeof id !== 'string' || !id.includes(idSeparator)) { throw new errors.BadRequest('When using composite primary key, id must contain values for all primary keys'); }
+  if (typeof id !== 'string' || !id.includes(idSeparator)) { throw new BadRequest('When using composite primary key, id must contain values for all primary keys'); }
 
   return id.split(idSeparator);
 };

@@ -1,5 +1,5 @@
-import { AdapterService } from '@feathersjs/adapter-commons';
-import errors from '@feathersjs/errors';
+import { AdapterBase, filterQuery } from '@feathersjs/adapter-commons';
+import { GeneralError, BadRequest, NotFound } from '@feathersjs/errors';
 import { ref, RelationExpression } from 'objection';
 import utils from './utils';
 import errorHandler from './error-handler';
@@ -30,6 +30,13 @@ const OPERATORS = {
   or: '$or',
   and: '$and',
   whereNot: '$not'
+};
+
+const FILTERS = {
+  select: '$select',
+  sort: '$sort',
+  limit: '$limit',
+  skip: '$skip'
 };
 
 const OPERATORS_MAP = {
@@ -79,16 +86,16 @@ const NON_COMPARISON_OPERATORS = [
  * @param {object} options.events
  * @param {string} options.allowedEager - Objection eager loading string.
  */
-class Service extends AdapterService {
+class Service extends AdapterBase {
   constructor (options) {
     if (!options.model) {
-      throw new errors.GeneralError('You must provide an Objection Model');
+      throw new GeneralError('You must provide an Objection Model');
     }
 
     const whitelist = Object.values(OPERATORS).concat(options.whitelist || []);
     const id = options.model.idColumn || 'id';
 
-    super(Object.assign({ id }, options, { whitelist }));
+    super(Object.assign({ id }, options, { operators: whitelist, filters: FILTERS }));
 
     this.idSeparator = options.idSeparator || ',';
     this.jsonSchema = options.model.jsonSchema;
@@ -139,7 +146,7 @@ class Service extends AdapterService {
         } else if (ids[index]) {
           query[idKey] = ids[index];
         } else {
-          throw new errors.BadRequest('When using composite primary key, id must contain values for all primary keys');
+          throw new BadRequest('When using composite primary key, id must contain values for all primary keys');
         }
       });
     } else {
@@ -166,6 +173,10 @@ class Service extends AdapterService {
     if (params.$noSelect) { delete params.$noSelect; }
     if (params.$modify) { delete params.$modify; }
     if (params.$allowRefs) { delete params.$allowRefs; }
+    if (params.$select) { delete params.$select; }
+    if (params.$sort) { delete params.$sort; }
+    if (params.$limit) { delete params.$limit; }
+    if (params.$skip) { delete params.$skip; }
 
     Object.keys(params || {}).forEach(key => {
       let value = params[key];
@@ -387,7 +398,7 @@ class Service extends AdapterService {
         result[field] = alias;
       } else {
         // Can't parse $select !
-        throw new errors.BadRequest(`${item} is not a valid select statement`);
+        throw new BadRequest(`${item} is not a valid select statement`);
       }
       return result;
     }, {});
@@ -399,8 +410,8 @@ class Service extends AdapterService {
         return originalData;
       }
       // Remove not selected fields
-      if (params.query && params.query.$select && !params.query.$select.find(field => field === '*' || field === `${this.Model.tableName}.*`)) {
-        const $fieldsOrAliases = this._selectAliases(params.query.$select);
+      if (params.query && params.filters.$select && !params.filters.$select.find(field => field === '*' || field === `${this.Model.tableName}.*`)) {
+        const $fieldsOrAliases = this._selectAliases(params.filters.$select);
         for (const key of Object.keys(newObject)) {
           if (!$fieldsOrAliases[key]) {
             delete newObject[key];
@@ -421,13 +432,13 @@ class Service extends AdapterService {
       if (!Object.prototype.hasOwnProperty.call(newObject, key)) {
         newObject[key] = updateId[key]; // id is missing in data, we add it
       } else if (newObject[key] !== updateId[key]) {
-        throw new errors.BadRequest(`Id '${key}': values mismatch between data '${newObject[key]}' and request '${updateId[key]}'`);
+        throw new BadRequest(`Id '${key}': values mismatch between data '${newObject[key]}' and request '${updateId[key]}'`);
       }
     });
   }
 
   createQuery (params = {}) {
-    const { filters, query } = this.filterQuery(params);
+    const { filters, query: { query = {} } } = filterQuery(params, { operators: this.options.operators });
     const q = this._createQuery(params);
     const eagerOptions = { ...this.eagerOptions, ...params.eagerOptions };
 
@@ -519,7 +530,7 @@ class Service extends AdapterService {
    * `find` service function for Objection.
    * @param params
    */
-  _find (params = {}) {
+  find (params = {}) {
     const find = (params, count, filters, query) => {
       const q = params.objection || this.createQuery(params);
       const groupByColumns = this.getGroupByColumns(q);
@@ -589,7 +600,7 @@ class Service extends AdapterService {
       return executeQuery().catch(errorHandler);
     };
 
-    const { filters, query, paginate } = this.filterQuery(params);
+    const { filters, query: { query = {} }, paginate } = filterQuery(params, { operators: this.options.operators });
     const result = find(params, Boolean(paginate && paginate.default), filters, query);
 
     if (!paginate || !paginate.default) {
@@ -599,17 +610,17 @@ class Service extends AdapterService {
     return result;
   }
 
-  _get (id, params = {}) {
+  get (id, params = {}) {
     // merge user query with the 'id' to get
     const findQuery = Object.assign({}, { $and: [] }, params.query);
     findQuery.$and.push(this.getIdsQuery(id)); // BUG will fail with composite primary key because table name will be missing
 
-    return this._find(Object.assign({}, params, { query: findQuery }))
+    return this.find(Object.assign({}, params, { query: findQuery }))
       .then(page => {
         const data = page.data || page;
 
         if (data.length !== 1) {
-          throw new errors.NotFound(`No record found for id '${id}'`);
+          throw new NotFound(`No record found for id '${id}'`);
         }
 
         return data[0];
@@ -657,7 +668,7 @@ class Service extends AdapterService {
       findQuery.$and = findQuery.$and.concat(idsQueries);
     }
 
-    return this._find(Object.assign({}, params, { query: findQuery }))
+    return this.find(Object.assign({}, params, { query: findQuery }))
       .then(page => {
         const records = page.data || page;
         if (Array.isArray(inputData)) {
@@ -695,7 +706,7 @@ class Service extends AdapterService {
    * @param {object} data
    * @param {object} params
    */
-  async _create (data, params = {}) {
+  async create (data, params = {}) {
     const transaction = await this._createTransaction(params);
     const q = this._createQuery(params);
     let promise = q;
@@ -727,9 +738,9 @@ class Service extends AdapterService {
    * @param data
    * @param params
    */
-  _update (id, data, params = {}) {
+  update (id, data, params = {}) {
     // NOTE : First fetch the item to update to account for user query
-    return this._get(id, params)
+    return this.get(id, params)
       .then(() => {
         // NOTE: Next, fetch table metadata so
         // that we can fill any existing keys that the
@@ -793,8 +804,8 @@ class Service extends AdapterService {
    * @param data
    * @param params
    */
-  _patch (id, data, params = {}) {
-    let { filters, query } = this.filterQuery(params);
+  patch (id, data, params = {}) {
+    let { filters, query: { query = {} } } = filterQuery(params, { operators: this.options.operators });
 
     const allowedUpsert = this.mergeRelations(this.allowedUpsert, params.mergeAllowUpsert);
     const upsertGraphOptions = { ...this.upsertGraphOptions, ...params.mergeUpsertGraphOptions };
@@ -803,7 +814,7 @@ class Service extends AdapterService {
       this._checkUpsertId(id, dataCopy);
 
       // Get object first to ensure it satisfy user query
-      return this._get(id, params).then(async () => {
+      return this.get(id, params).then(async () => {
         // Create transaction if needed
         const transaction = await this._createTransaction(params);
         return this._createQuery(params)
@@ -823,7 +834,7 @@ class Service extends AdapterService {
     // we create a list of the ids of all items that will be changed
     // to re-query them after the update
     const ids =
-      id === null ? this._find(params).then(mapIds) : Promise.resolve([id]);
+      id === null ? this.find(params).then(mapIds) : Promise.resolve([id]);
 
     if (id !== null) {
       if (Array.isArray(this.id)) {
@@ -869,17 +880,17 @@ class Service extends AdapterService {
         return q.patch(dataCopy).then(() => {
           return params.query && params.query.$noSelect
             ? dataCopy
-            : this._find(findParams).then(page => {
+            : this.find(findParams).then(page => {
               const items = page.data || page;
 
               if (id !== null) {
                 if (items.length === 1) {
                   return items[0];
                 } else {
-                  throw new errors.NotFound(`No record found for id '${id}'`);
+                  throw new NotFound(`No record found for id '${id}'`);
                 }
               } else if (!items.length) {
-                throw new errors.NotFound(`No record found for id '${id}'`);
+                throw new NotFound(`No record found for id '${id}'`);
               }
 
               return items;
@@ -894,7 +905,7 @@ class Service extends AdapterService {
    * @param id
    * @param params
    */
-  _remove (id, params = {}) {
+  remove (id, params = {}) {
     params.query = Object.assign({}, params.query);
 
     // NOTE (EK): First fetch the record so that we can return
@@ -907,7 +918,7 @@ class Service extends AdapterService {
       }
     }
 
-    const { query: queryParams } = this.filterQuery(params);
+    const { query: { query: queryParams = {} } } = filterQuery(params, { operators: this.options.operators });
     const query = this._createQuery(params);
 
     this.objectify(query, queryParams, null, null, query.$allowRefs);
@@ -918,7 +929,7 @@ class Service extends AdapterService {
       })
         .catch(errorHandler);
     } else {
-      return this._find(params)
+      return this.find(params)
         .then(page => {
           const items = page.data || page;
 
@@ -927,10 +938,10 @@ class Service extends AdapterService {
               if (items.length === 1) {
                 return items[0];
               } else {
-                throw new errors.NotFound(`No record found for id '${id}'`);
+                throw new NotFound(`No record found for id '${id}'`);
               }
             } else if (!items.length) {
-              throw new errors.NotFound(`No record found for id '${id}'`);
+              throw new NotFound(`No record found for id '${id}'`);
             }
 
             return items;

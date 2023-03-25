@@ -5,7 +5,7 @@ import assert from 'assert';
 import feathers from '@feathersjs/feathers';
 import knex from 'knex';
 import adapterTests from '@feathersjs/adapter-tests';
-import errors from '@feathersjs/errors';
+import * as errors from '@feathersjs/errors';
 import service, { ERROR } from '../src';
 import errorHandler from '../src/error-handler';
 import People from './people';
@@ -31,12 +31,6 @@ import {
 const testSuite = adapterTests([
   '.options',
   '.events',
-  '._get',
-  '._find',
-  '._create',
-  '._update',
-  '._patch',
-  '._remove',
   '.get',
   '.get + $select',
   '.get + id + query',
@@ -104,6 +98,18 @@ const db = knex({
   },
   useNullAsDefault: false
 });
+// const db = knex({
+//   client: 'pg',
+//   debug: false,
+//   connection: {
+//     host: '127.0.0.1',
+//     port: 5432,
+//     user: '',
+//     password: '',
+//     database: 'test'
+//   },
+//   useNullAsDefault: false
+// });
 
 // Bind Objection.js
 Model.knex(db);
