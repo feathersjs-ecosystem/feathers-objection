@@ -999,9 +999,9 @@ describe('Feathers Objection Service', () => {
             $leftJoinRelation: 'employees',
             $joinRelation: 'clients',
             $sort: {
-              'companies.name': -1,
-            },
-          },
+              'companies.name': -1
+            }
+          }
         })
         .then((data) => {
           expect(data.length).to.equal(3);
