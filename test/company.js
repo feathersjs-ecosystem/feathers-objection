@@ -63,7 +63,7 @@ export default class Company extends Model {
     },
     groupById: (builder) => {
       builder.groupBy(['companies.id']);
-    },
+    }
   }
 
   // This object defines the relations to other models.
