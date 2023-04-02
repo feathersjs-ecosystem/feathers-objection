@@ -152,7 +152,7 @@ const app = feathers()
       model: Company,
       id: 'id',
       multi: ['create', 'remove', 'patch'],
-      whitelist: ['$eager', '$joinEager', '$joinRelation', '$modifyEager', '$mergeEager', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like', '$null', '$modify', '$allowRefs'],
+      whitelist: ['$eager', '$joinEager', '$joinRelation', '$leftJoinRelation', '$modifyEager', '$mergeEager', '$between', '$notBetween', '$containsKey', '$contains', '$contained', '$any', '$all', '$noSelect', '$like', '$null', '$modify', '$allowRefs'],
       allowedEager: '[ceos, clients, employees]',
       eagerFilters: [
         {
@@ -172,7 +172,7 @@ const app = feathers()
     service({
       model: Employee,
       multi: ['create'],
-      whitelist: ['$eager', '$joinRelation', '$joinEager', '$like', '$allowRefs'],
+      whitelist: ['$eager', '$joinRelation', '$leftJoinRelation', '$joinEager', '$like', '$allowRefs'],
       allowedEager: 'company',
       eagerFilters: {
         expression: 'ltd',
@@ -775,11 +775,29 @@ describe('Feathers Objection Service', () => {
         .create([
           {
             name: 'Google',
-            ceo: ids.ceo.id
+            ceo: ids.ceo.id,
+            clients: [
+              {
+                name: 'Online users'
+              }
+            ]
           },
           {
             name: 'Apple',
-            ceo: ids.ceo.id
+            ceo: ids.ceo.id,
+            clients: [
+              {
+                name: 'Fashion chasers'
+              }
+            ]
+          },
+          {
+            name: 'OneManShop',
+            clients: [
+              {
+                name: 'Customers'
+              }
+            ]
           }
         ]);
 
@@ -787,6 +805,9 @@ describe('Feathers Objection Service', () => {
 
       ids.employees = await employees
         .create([
+          {
+            name: 'E'
+          },
           {
             name: 'D',
             companyId: google.id
@@ -820,7 +841,7 @@ describe('Feathers Objection Service', () => {
 
     it('allows joinEager queries', () => {
       return employees.find({ query: { $joinEager: 'company' } }).then(data => {
-        expect(data[0].company).to.be.ok;
+        expect(data[0].company).to.be.null;
         expect(data[1].company).to.be.ok;
       });
     });
@@ -912,6 +933,24 @@ describe('Feathers Objection Service', () => {
         });
     });
 
+    it('allows filtering by relation field with leftJoinRelation queries and eager', () => {
+      return employees
+        .find({
+          query: {
+            $eager: 'company',
+            $leftJoinRelation: 'company',
+            $sort: {
+              'employees.name': 1
+            }
+          }
+        })
+        .then((data) => {
+          expect(data.length).to.equal(5);
+          expect(data[4].name).to.equal('E');
+          expect(data[4].company).to.be.null;
+        });
+    });
+
     it('allows joinRelation queries, eager with sort by relation', () => {
       return employees
         .find({
@@ -948,6 +987,27 @@ describe('Feathers Objection Service', () => {
           expect(data.length).to.equal(4);
           expect(data[0].name).to.equal('A');
           expect(data[0].company.name).to.equal('Apple');
+        });
+    });
+
+    it('allows filtering by relation field with both joinRelation and leftJoinRelation queries and eager', () => {
+      return companies
+        .find({
+          query: {
+            $modify: ['groupById'],
+            $eager: '[clients, employees]',
+            $leftJoinRelation: 'employees',
+            $joinRelation: 'clients',
+            $sort: {
+              'companies.name': -1
+            }
+          }
+        })
+        .then((data) => {
+          expect(data.length).to.equal(3);
+          expect(data[0].name).to.equal('OneManShop');
+          expect(data[0].clients[0].name).to.equal('Customers');
+          expect(data[0].employees).to.be.empty;
         });
     });
   });

@@ -32,6 +32,7 @@ db.sqlite
 data.db
 .idea
 .nyc_output
+.vscode/settings.json
 
 # Tern
 .tern-port

@@ -180,7 +180,11 @@ Note that all this eager related options are optional.
   [`withGraphFetched`](https://vincit.github.io/objection.js/api/query-builder/eager-methods.html#withgraphfetched) documentation.
   
 - **`$joinRelation`** - filter based on a relation's field. use with `$eager` to also fetch the relation. See
-  [`joinRelated`](https://vincit.github.io/objection.js/api/query-builder/join-methods.html#joinrelated)
+  [`joinRelated`](https://vincit.github.io/objection.js/api/query-builder/join-methods.html#joinrelated) 
+  documentation.
+  
+- **`$leftJoinRelation`** - filter based on a relation's field using LEFT JOIN. use with `$eager` to also fetch the relation. See
+  [`leftJoinRelated`](https://vincit.github.io/objection.js/api/query-builder/join-methods.html#leftjoinrelated)
   documentation.
   
 - **`$joinEager`** - filter based on a relation's field. See
