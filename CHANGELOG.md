@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased](https://github.com/feathersjs-ecosystem/feathers-objection/tree/HEAD)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.6.0...HEAD)
+
+**Merged pull requests:**
+
+- Added $leftJoinRelation [\#182](https://github.com/feathersjs-ecosystem/feathers-objection/pull/182) ([wz5899](https://github.com/wz5899))
+
+## [v7.6.0](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.6.0) (2023-04-02)
+
+[Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.5.4...v7.6.0)
+
 ## [v7.5.4](https://github.com/feathersjs-ecosystem/feathers-objection/tree/v7.5.4) (2023-03-04)
 
 [Full Changelog](https://github.com/feathersjs-ecosystem/feathers-objection/compare/v7.5.3...v7.5.4)
