@@ -1,5 +1,7 @@
 # feathers-objection
 
+> __Important:__ This module is unmaintained since Objection.js is no longer being actively developed. See https://github.com/Vincit/objection.js/issues/2335
+
 [![Build Status](https://travis-ci.org/feathersjs-ecosystem/feathers-objection.svg?branch=master)](https://travis-ci.org/feathersjs-ecosystem/feathers-objection)
 [![Coverage Status](https://coveralls.io/repos/github/feathersjs-ecosystem/feathers-objection/badge.svg?branch=master)](https://coveralls.io/github/feathersjs-ecosystem/feathers-objection?branch=master)
 [![js-semistandard-style](https://img.shields.io/badge/code%20style-semistandard-brightgreen.svg?style=flat-square)](https://github.com/standard/semistandard)
